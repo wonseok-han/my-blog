@@ -1,13 +1,32 @@
 {
   "extends": "astro/tsconfigs/strict",
   "compilerOptions": {
-    "strictNullChecks": true,
-    "baseUrl": "src"
+    "target": "ES2020", // 최신 ECMAScript 기능을 사용합니다.
+    "module": "ESNext", // ECMAScript 모듈을 사용합니다.
+    "lib": ["DOM", "ESNext"], // 브라우저 API와 최신 ECMAScript 기능을 사용합니다.
+    "allowJs": true, // JavaScript 파일에서도 타입 검사를 활성화합니다.
+    "checkJs": false, // .js 파일의 오류를 보고하지 않습니다. 필요에 따라 true로 설정할 수 있습니다.
+    "jsx": "react", // Astro 컴포넌트는 React JSX와 유사하게 작동합니다.
+    "strict": true, // 모든 엄격한 타입 검사 옵션을 활성화합니다.
+    "esModuleInterop": true, // CommonJS 모듈과의 호환성을 개선합니다.
+    "skipLibCheck": true, // 성능 향상을 위해 모든 .d.ts 파일의 타입 검사를 건너뜁니다.
+    "forceConsistentCasingInFileNames": true, // 파일 이름의 대소문자 불일치로 인한 문제를 방지합니다.
+    "moduleResolution": "node", // Node.js 모듈 해석 방식을 사용합니다.
+    "baseUrl": "src", // 비상대적 모듈 경로를 해석하는 기준 디렉토리를 설정합니다.
+    "paths": {
+      // 모듈 경로 별칭을 설정합니다. 필요에 따라 추가할 수 있습니다.
+      "@/*": ["src"],
+      "@components/*": ["components/*"],
+      "@content/*": ["content/*"],
+      "@layouts/*": ["layouts/*"],
+      "@pages/*": ["pages/*"],
+      "@styles/*": ["styles/*"]
+    },
+    "isolatedModules": true // 각 파일을 별도의 모듈로 간주하여 트랜스파일합니다. 필요한 경우에 따라 설정합니다.
   },
-  "include": [
-    "src"
-  ],
+  "include": ["src"],
   "exclude": [
     "node_modules"
+    // "**/*.astro"
   ]
 }

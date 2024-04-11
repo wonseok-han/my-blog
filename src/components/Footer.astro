@@ -1,13 +1,16 @@
 ---
+import { SITE_AUTHOR } from 'consts';
+
 const today = new Date();
 ---
 
 <footer>
-  &copy; {today.getFullYear()} wonseok-han. All rights reserved.
+  &copy; {today.getFullYear()}
+  {SITE_AUTHOR}. All rights reserved.
   <div class="social-links">
     <a href="https://m.webtoo.ls/@astro" target="_blank">
       <a href="https://github.com/wonseok-han" target="_blank">
-        <span class="sr-only">Go to wonseok-han's GitHub repo</span>
+        <span class="sr-only">Go to {SITE_AUTHOR}'s GitHub repo</span>
         <svg
           viewBox="0 0 16 16"
           aria-hidden="true"
