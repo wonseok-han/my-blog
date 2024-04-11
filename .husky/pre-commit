@@ -1,0 +1,6 @@
+#!/usr/bin/env sh
+echo 'husky: pre-commit hook started'
+
+npx tsc --noEmit --skipLibCheck
+
+npx lint-staged

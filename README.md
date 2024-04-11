@@ -16,8 +16,10 @@
 
 ## 코드 컨벤션
 
-* Prettier: [내용참고](./documents/prettier.md)
-* ESLint: [내용참고](./documents/eslint.md)
+- **Prettier**: **[내용참고](./documents/prettier.md)**
+- **ESLint**: **[내용참고](./documents/eslint.md)**
+- **husky**: **[내용참고](./documents/husky.md)**
+- **editorconfig**: **[내용참고](./documents/editorconfig.md)**
 
 ## 소스 구조
 
@@ -40,4 +42,4 @@ npm run dev
 ## Reference
 
 - **Astro**
-  - https://astro.build/
+  - <https://astro.build/>

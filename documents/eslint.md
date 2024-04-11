@@ -47,8 +47,8 @@
 
 ## Reference
 
-- https://github.com/ota-meshi/eslint-plugin-astro
-- https://github.com/jsx-eslint/eslint-plugin-react
-- https://eslint.org/docs/latest/rules/
-- https://github.com/prettier/eslint-config-prettier
-- https://github.com/prettier/eslint-plugin-prettier
+- <https://github.com/ota-meshi/eslint-plugin-astro>
+- <https://github.com/jsx-eslint/eslint-plugin-react>
+- <https://eslint.org/docs/latest/rules/>
+- <https://github.com/prettier/eslint-config-prettier>
+- <https://github.com/prettier/eslint-plugin-prettier>

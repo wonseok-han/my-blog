@@ -28,4 +28,4 @@
 
 ## Reference
 
-- https://prettier.io/docs/en/options.html
+- <https://prettier.io/docs/en/options.html>
