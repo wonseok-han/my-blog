@@ -1,0 +1,28 @@
+---
+import { SITE_TITLE } from 'consts';
+import HeaderLink from './HeaderLink.astro';
+---
+
+<header
+  class="fixed w-full bg-white text-gray-900 m-0 py-0 px-[1em] shadow-md dark:bg-gray-900 dark:text-white"
+>
+  <nav class="flex justify-between items-center">
+    <a class="text-xl font-semibold" href="/">{SITE_TITLE}</a>
+    <div>
+      <HeaderLink href="/">Home</HeaderLink>
+      <HeaderLink href="/blog">Blog</HeaderLink>
+    </div>
+  </nav>
+</header>
+<style>
+  nav a {
+    padding: 1em 0.5em;
+    color: var(--black);
+    border-bottom: 4px solid transparent;
+    text-decoration: none;
+  }
+  nav a.active {
+    text-decoration: none;
+    border-bottom-color: var(--accent);
+  }
+</style>
