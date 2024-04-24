@@ -6,11 +6,46 @@ import { SITE_TITLE, SITE_DESCRIPTION } from 'consts';
 ---
 
 <!doctype html>
-<html lang="en" class="dark">
-  <head>
-    <BaseHead title={SITE_TITLE} description={SITE_DESCRIPTION} />
-  </head>
-  <body class="text-gray-900 dark:text-white dark:bg-gray-900">
+<html lang="en" class="">
+  <!-- <script is:inline type="module">
+    const theme = (() => {
+      if (
+        typeof localStorage !== 'undefined' &&
+        localStorage.getItem('theme')
+      ) {
+        return localStorage.getItem('theme');
+      }
+      if (window.matchMedia('(prefers-color-scheme: dark)').matches) {
+        return 'dark';
+      }
+      return 'light';
+    })();
+
+    if (theme === 'light') {
+      document.documentElement.classList.remove('dark');
+    } else {
+      document.documentElement.classList.add('dark');
+    }
+    window.localStorage.setItem('theme', theme);
+  </script> -->
+  <script is:inline type="module">
+    document.addEventListener('DOMContentLoaded', () => {
+      const savedTheme = localStorage.getItem('theme');
+      const prefersDark = window.matchMedia(
+        '(prefers-color-scheme: dark)'
+      ).matches;
+
+      const theme = savedTheme ? savedTheme : prefersDark ? 'dark' : 'light';
+      document.documentElement.classList.toggle('dark', theme === 'dark');
+      localStorage.setItem('theme', theme);
+    });
+  </script>
+
+  <BaseHead title={SITE_TITLE} description={SITE_DESCRIPTION} />
+
+  <body
+    class="bg-theme-background text-theme-text dark:bg-theme-background-dark dark:text-theme-text-dark"
+  >
     <Header />
     <main>
       <slot />
