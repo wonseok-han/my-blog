@@ -1,0 +1,58 @@
+---
+title: 'Post mdx Sample'
+date: '2024-09-05'
+---
+
+# Heading 1
+
+## Heading 2
+
+### Heading 3
+
+#### Heading 4
+
+##### Heading 5
+
+---
+
+This is text
+
+This is [link](https://naver.com)
+
+This is a **bold text** 
+
+This is a *italic text*
+
+This is a ***bold and italic***
+
+This is a ~~cancel~~
+
+
+
+---
+
+Here is a list:
+
+- First item
+- Second item
+- Third item
+
+> This is a blockquote.
+
+---
+
+```jsx
+// app/blog/[slug]/page.tsx
+import { MDXRemote } from 'next-mdx-remote/rsc';
+import { MDXComponents } from '@/components/MDXComponents';
+
+export default async function BlogPost({ params }: { params: { slug: string } }) {
+  const content = await getBlogPost(params.slug);
+
+  return (
+    <div className="prose prose-lg mx-auto my-8">
+      <MDXRemote source={content} components={MDXComponents} />
+    </div>
+  );
+}
+```
