@@ -1,6 +1,12 @@
 {
   "name": "my-blog",
   "version": "0.1.0",
+  "engines": {
+    "burn": "please-use-npm",
+    "yarn": "please-use-npm",
+    "pnpm": "please-use-npm",
+    "node": ">=20.14.0"
+  },
   "private": true,
   "scripts": {
     "dev": "next dev",
