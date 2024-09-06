@@ -15,14 +15,16 @@ const PostCard = ({ title, created }: PostCardProps) => {
           height={300}
         />
       </div>
-      <div className="bg-gray-200 h-16 px-3 py-2 space-y-2">
+      <div className="bg-gray-200 h-16 px-3 py-2 space-y-2 ">
         <p
-          className="text-ellipsis text-nowrap overflow-hidden font-semibold"
+          className="text-ellipsis text-nowrap overflow-hidden font-semibold text-black"
           title={title}
         >
           {title}
         </p>
-        <p className="text-sm font-semibold text-right">{created}</p>
+        <p className="text-sm font-semibold text-right text-gray-700">
+          {created}
+        </p>
       </div>
     </div>
   );

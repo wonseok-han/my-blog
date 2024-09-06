@@ -42,10 +42,24 @@ export const MDXComponent: MDXRemoteComponents = {
   ),
   code: ({ className, children }) => {
     const language = className?.replace('language-', '') || 'text'; // 언어 설정
+
     return (
-      <SyntaxHighlighter language={language} style={dracula}>
-        {String(children).trim()}
-      </SyntaxHighlighter>
+      <div className="border rounded-md overflow-hidden my-2">
+        <SyntaxHighlighter
+          language={language}
+          style={{
+            ...dracula,
+            'pre[class*="language-"]': {
+              ...dracula['pre[class*="language-"]'],
+              margin: 0,
+              border: 0,
+              borderRadius: 0,
+            },
+          }}
+        >
+          {String(children).trim()}
+        </SyntaxHighlighter>
+      </div>
     );
   },
 };

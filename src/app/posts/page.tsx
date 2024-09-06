@@ -29,7 +29,7 @@ const PostsPage = () => {
                       {post.frontmatter.title}
                     </h1>
                     <p
-                      className="text-ellipsis text-nowrap overflow-hidden text-gray-600"
+                      className="text-ellipsis text-nowrap overflow-hidden text-gray-600 dark:text-dracula-200"
                       title={post.frontmatter?.description}
                     >
                       {post.frontmatter?.description}

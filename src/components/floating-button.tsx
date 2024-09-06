@@ -12,7 +12,7 @@ const FloatingButton = () => {
   return (
     <div className="fixed flex flex-col gap-4 top-1/2 right-12 -translate-y-1/2">
       <button
-        className="rounded-full bg-white p-2 border"
+        className="rounded-full bg-white p-2 border text-black"
         onClick={handleUpClick}
       >
         <svg
@@ -31,7 +31,7 @@ const FloatingButton = () => {
         </svg>
       </button>
       <button
-        className="rounded-full bg-white p-2 border"
+        className="rounded-full bg-white p-2 border text-black"
         onClick={handleDownClick}
       >
         <svg
