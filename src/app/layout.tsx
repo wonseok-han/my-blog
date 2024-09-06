@@ -1,18 +1,11 @@
 import type { Metadata } from 'next';
-import localFont from 'next/font/local';
-import './globals.css';
-import { ReactNode } from 'react';
 
-const geistSans = localFont({
-  src: './fonts/GeistVF.woff',
-  variable: '--font-geist-sans',
-  weight: '100 900',
-});
-const geistMono = localFont({
-  src: './fonts/GeistMonoVF.woff',
-  variable: '--font-geist-mono',
-  weight: '100 900',
-});
+import { ReactNode } from 'react';
+import Navigation from '@components/layout/navigation';
+import Main from '@components/layout/main';
+import Footer from '@components/layout/footer';
+
+import './globals.css';
 
 export const metadata: Metadata = {
   title: 'wonseok-han',
@@ -26,10 +19,12 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en">
-      <body
-        className={`${geistSans.variable} ${geistMono.variable} antialiased`}
-      >
-        {children}
+      <body className={`antialiased`}>
+        <div className="mx-auto max-w-3xl px-6 lg:max-w-6xl lg:px-8">
+          <Navigation />
+          <Main>{children}</Main>
+          <Footer />
+        </div>
       </body>
     </html>
   );
