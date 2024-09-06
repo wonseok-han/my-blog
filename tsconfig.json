@@ -21,15 +21,16 @@
         "name": "next"
       }
     ],
+    "baseUrl": ".",
     "paths": {
       "@components/*": [
-        "./src/components/*"
+        "src/components/*"
       ],
-      "@markdown/*": [
-        "./src/markdown/*"
+      "@utils/*": [
+        "src/utils/*"
       ],
       "@/*": [
-        "./src/*"
+        "src/*"
       ],
     }
   },
@@ -37,8 +38,10 @@
     "next-env.d.ts",
     "**/*.ts",
     "**/*.tsx",
+    "**/*.js",
+    "**/*.jsx",
     ".next/types/**/*.ts",
-    "src/app/page.tsx"
+    "src/types/**/*.d.ts"
   ],
   "exclude": [
     "node_modules"
