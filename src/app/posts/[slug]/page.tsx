@@ -1,6 +1,7 @@
 import { MDXRemote } from 'next-mdx-remote/rsc';
 import { MDXComponent } from '@/components/mdx-component';
 import { getPost, getPosts } from '@utils/lib';
+import FloatingButton from '@components/floating-button';
 
 // 동적 경로 정의
 export async function generateStaticParams() {
@@ -16,7 +17,7 @@ export default async function BlogPostPage({
   const post = await getPost(params.slug);
 
   return (
-    <article>
+    <article className="relative">
       <div className="w-full border-b pb-3">
         <h1 className="text-2xl font-extrabold sm:text-3xl md:text-4xl">
           {post.frontmatter.title}
@@ -27,6 +28,8 @@ export default async function BlogPostPage({
       </div>
       {/* MDX 콘텐츠 렌더링 */}
       <MDXRemote source={post.content} components={MDXComponent} />
+
+      <FloatingButton />
     </article>
   );
 }
