@@ -2,6 +2,7 @@ import { MDXRemote } from 'next-mdx-remote/rsc';
 import { MDXComponent } from '@/components/mdx-component';
 import { getPost, getPosts } from '@utils/lib';
 import FloatingButton from '@components/floating-button';
+import Comments from '@components/comments';
 
 // 동적 경로 정의
 export async function generateStaticParams() {
@@ -28,6 +29,8 @@ export default async function BlogPostPage({
       </div>
       {/* MDX 콘텐츠 렌더링 */}
       <MDXRemote source={post.content} components={MDXComponent} />
+
+      <Comments />
 
       <FloatingButton />
     </article>
