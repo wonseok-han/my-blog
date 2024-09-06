@@ -1,36 +1,46 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# 블로그
+
+* **markdown and MDX** 을 작성을 통해 블로그 게시글을 작성하는 개인 프로젝트
+* https://my-blog.wonseok-han.dev
+
+## 개발 환경
+
+* **NodeJS:** `v20.14.0` (LTS)
+* **PackageManager:** `npm`
 
 ## Getting Started
 
-First, run the development server:
+### 실행
 
 ```bash
+# Module Install
+npm install
+
+# Server start
 npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+### 배포
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+* Build 명령 후 생성되는 .next 폴더로 배포합니다.
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+```bash
+# Build
+npm run build
+```
 
-## Learn More
+### 게시글 작성
 
-To learn more about Next.js, take a look at the following resources:
+* contents 폴더 내에 작성할 게시글을 **.mdx** 파일로 생성하고 작성합니다.
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+### 배포환경
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+* [**vercel**](https://vercel.com/)
 
-## Deploy on Vercel
+## Reference
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+* **Markdown and MDX**
+  - https://nextjs.org/docs/pages/building-your-application/configuring/mdx
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+* **Nextjs Darkmode**
+  - https://coding-je.com/entry/Nextjs-next-themes%EB%A1%9C-Nextjs%EC%97%90%EC%84%9C-%EA%B0%84%EB%8B%A8%ED%9E%88-%EB%8B%A4%ED%81%AC%EB%AA%A8%EB%93%9C-%EA%B5%AC%ED%98%84%ED%95%98%EA%B8%B0-feat-tailwind
