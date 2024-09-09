@@ -26,7 +26,7 @@ export default async function BlogPostPage({
         >
           {post.frontmatter.title}
         </h1>
-        <p className="text-xs text-gray-400 font-medium md:text-sm">
+        <p className="text-xs text-gray-400 font-medium md:text-sm mt-2">
           {post.frontmatter.created}
         </p>
       </div>

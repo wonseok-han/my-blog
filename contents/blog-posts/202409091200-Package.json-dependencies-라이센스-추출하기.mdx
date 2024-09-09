@@ -1,0 +1,118 @@
+---
+title: 'Package.json dependencies 라이센스 추출하기'
+description: 'Puppeteer로 정적 웹 페이지에서 퍼블리싱을 추출하는 코드, 과정에 대한 설명'
+thumbnail: '/thumbnail/blog-posts/202409091200-Package.json-dependencies-라이센스-추출하기.png'
+created: '2024.09.09 12:00'
+---
+
+
+# 하게된 이유
+
+프로젝트 개발이 거의 끝나갈 때쯤 개발시 사용된 라이브러리에 대한 라이센스를 추출해서 고객사에 제공해줘야하니 정리해달라는 요청을 받았다.
+
+**<del>아.. 귀찮다..</del>**
+
+package.json의 dependencies를 일일이 확인해볼 순 없어 방법을 찾아보니 **license-checker**라는 라이브러리를 발견했다.
+
+그래서 아래 과정을 통해 json 파일로 추출해서 그냥 던져주게 되었다.
+
+<br />
+<br />
+
+# Getting Started
+
+* **OS**: **Window10 WSL Ubuntu 환경**
+* **NodeJS**: **v18.17.1**
+
+<br />
+
+
+## 라이브러리 설치
+
+```bash
+npm install -g license-checker
+```
+
+<br />
+
+## 실행
+
+* 작성된 스크립트 파일을 프로젝트 root 경로에 배치하고 다음 명령을 실행
+* 명령 실행이 완료되면 **allLicenses.json** 파일이 생성된다.
+
+```bash
+license-checker --json > allLicenses.json
+```
+
+* allLicenses.json 파일이 생성되면 다음 명령을 실행한다.
+* exportLicenses 실행이 완료되면 **filteredLicenses.json** 파일이 생성되고, 각 라이브러리에 대한 라이센스를 확인할 수 있다.
+
+```bash
+node exportLicenses.cjs
+```
+
+<br />
+<br />
+
+# 코드
+
+```js
+/* exportLicenses.cjs */
+
+const fs = require('fs');
+const packageJson = require('./package.json');
+
+// package.json에서 의존성 목록 추출
+const dependencies = Object.keys(packageJson.dependencies || {});
+const devDependencies = Object.keys(packageJson.devDependencies || {});
+const allDependencies = [...dependencies, ...devDependencies];
+
+// allLicenses.json에서 라이센스 정보 읽기
+const allLicenses = JSON.parse(fs.readFileSync('./allLicenses.json', 'utf8'));
+const filteredLicenses = {};
+
+Object.entries(allLicenses).forEach(([key, value]) => {
+  // 패키지 이름만 추출 (버전 정보 제거)
+  const packageName = key.split('@').slice(0, -1).join('@').replace(/^@/, '');
+  // 의존성 목록에 있는 패키지의 라이센스 정보만 필터링
+  if (allDependencies.includes(packageName)) {
+    // packageName으로 저장하면 같은 패키지의 다른 버전들이 덮어씌워질 수 있으므로 key를 사용
+    filteredLicenses[key] = value;
+  }
+});
+
+// 필터링된 라이센스 정보를 JSON 파일로 저장
+fs.writeFileSync(
+  'filteredLicenses.json',
+  JSON.stringify(filteredLicenses, null, 2),
+  'utf8'
+);
+```
+
+<br />
+<br />
+
+# 결과
+
+* 추출이 완료되면 대충 이런식으로 떨어진다.
+
+```json
+{
+  ...
+  "axios@1.5.0": {
+    "licenses": "MIT",
+    "repository": "https://github.com/axios/axios",
+    "publisher": "Matt Zabriskie",
+    "path": "C:\\dev\\project\\node_modules\\axios",
+    "licenseFile": "C:\\dev\\project\\node_modules\\axios\\LICENSE"
+  },
+  "dayjs@1.11.9": {
+    "licenses": "MIT",
+    "repository": "https://github.com/iamkun/dayjs",
+    "publisher": "iamkun",
+    "path": "C:\\dev\\project\\node_modules\\dayjs",
+    "licenseFile": "C:\\dev\\project\\node_modules\\dayjs\\LICENSE"
+  },
+  ...
+}
+```
