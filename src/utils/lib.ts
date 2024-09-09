@@ -16,7 +16,9 @@ export const getPostsDirectory = () => {
 export const getPosts = () => {
   const filenames = fs.readdirSync(getPostsDirectory());
 
-  return filenames.map((filename) => {
+  const sortedFilenames = filenames.sort((a, b) => b.localeCompare(a));
+
+  return sortedFilenames.map((filename) => {
     const slug = filename.replace(/\.mdx$/, '');
     return {
       slug,
