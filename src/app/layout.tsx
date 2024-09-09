@@ -4,6 +4,7 @@ import { ReactNode } from 'react';
 import Navigation from '@components/layout/navigation';
 import Main from '@components/layout/main';
 import Footer from '@components/layout/footer';
+import { Analytics } from '@vercel/analytics/react';
 
 import './globals.css';
 import { ThemeProvider } from 'next-themes';
@@ -27,6 +28,7 @@ export default function RootLayout({
             <Main>{children}</Main>
             <Footer />
           </div>
+          <Analytics />
         </ThemeProvider>
       </body>
     </html>
