@@ -26,8 +26,9 @@ export const getPosts = () => {
 
 // MDX 파일 읽고 파싱
 export const getPost = (slug: string) => {
-  const fullPath = path.join(getPostsDirectory(), `${slug}.mdx`);
-  const fileContents = fs.readFileSync(fullPath, 'utf8');
+  const decodedSlug = decodeURIComponent(slug);
+  const fullPath = path.join(getPostsDirectory(), `${decodedSlug}.mdx`);
+  const fileContents = fs.readFileSync(fullPath, 'utf-8');
 
   const { content, data } = matter(fileContents); // frontmatter와 본문 분리
 

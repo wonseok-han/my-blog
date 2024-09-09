@@ -1,0 +1,128 @@
+---
+title: 'Puppeteer로 정적 웹 페이지 추출하기'
+description: 'Puppeteer로 정적 웹 페이지에서 퍼블리싱을 추출하는 코드, 과정에 대한 설명'
+thumbnail: '/thumbnail/blog-posts/20240909-Puppeteer로-정적-웹-페이지-추출하기.png'
+created: '2024.09.09'
+---
+
+
+# 하게된 이유
+
+여태 내가 봐온 퍼블리싱은 주로 그냥 내가 직접 바로 적용하면서 하거나 html, css로 구성된 파일을 직접 넘겨받아 작업하는 것이었다.
+
+그런데 다니는 회사에서는 퍼블리셔가 존재했고, 심지어 퍼블리셔가 리액트로 퍼블리싱을 해주는 것이 아닌가?
+
+그래서 퍼블리싱 된 페이지를 기반으로 그대로 프론트엔드 개발을 진행했다.
+
+**<del>그렇다. 아싸 개꿀하고 그대로 썼었다.</del>**
+
+그런데 나중에 갑자기 퍼블리싱된 정적 페이지가 필요하다고 한다. 허... 순간 이게 뭐지? 했다.
+
+하지만 그런 요청이 왔으니까 일단 알아는 봐야할 것이 아닌가?
+
+<u>그래서 검색을 해본 결과 SSR로 내려주거나 아니면 puppeteer 같은 라이브러리(주로 웹 스크래핑, 크롤링할 때 쓰는 듯 하다.)를 써야했다.</u>
+
+나는 **Puppeteer를 선택했다.** 왜냐하면 CSR로 이미 거의 다 만든 페이지를 어느 세월에 SSR로 다시 잡고 있겠는가? 심지어 당장 필요하단다;;
+
+그래서 무려 8개나 되는 사이트를 다음 과정을 통해 html로 다 뽑아내게 되었다.
+
+<br />
+<br />
+
+# Getting Started
+
+* **OS**: **Window10 WSL Ubuntu 환경**
+* **NodeJS**: **v18.17.1**
+
+<br />
+
+## 패키지 설치
+
+* 나는 프로젝트를 주로 Window WSL Ubuntu 환경으로 셋팅하는데 다음과 같은 패키지를 설치해야했다. 셀레니움 쓰는거랑 비슷하다고 보면 될 듯 하다.
+
+```bash
+sudo apt-get update
+sudo apt-get install -y libgbm-dev libnss3 libatk1.0-0 libatk-bridge2.0-0 libcups2 libdrm2 libxkbcommon0 libxcomposite1 libxdamage1 libxrandr2 libgbm1 libgtk-3-0 libasound2
+```
+
+<br />
+
+## 라이브러리 설치
+
+```bash
+npm install puppeteer
+```
+
+<br />
+
+## 실행
+
+* 작성된 스크립트 파일을 프로젝트 root 경로에 배치하고 다음 명령을 실행
+* **<span style={{color:'red'}}>단, 모달에 관련된 페이지는 URL로 핸들링되고 있지 않는 이상 해당 작업으로는 잡히지 않는다. <del>(이거때메 얘네는 수동으로 복사했다;)</del></span>**
+
+```bash
+node puppeteer.cjs
+```
+
+<br />
+<br />
+
+# 코드
+
+```js
+/* puppeteer.cjs */
+
+const puppeteer = require('puppeteer');
+const fs = require('fs');
+
+const exportDir = './out';
+const baseUrl = '추출하려는 사이트의 URL을 입력합니다.';
+const urls = [
+  '',
+  '/login',
+  '/notice',
+  '/faq',
+  ...
+];
+
+async function prerender() {
+  const browser = await puppeteer.launch({
+    args: ['--no-sandbox', '--disable-setuid-sandbox'],
+  });
+
+  for (const url of urls) {
+    const page = await browser.newPage();
+
+    const browserPath = `${baseUrl}${url}`;
+    const outputPath = `${exportDir}${
+      url
+        ? url
+            .replace(/^\/(.*)$/, 'temp$1')
+            .replace(/\//gi, '_')
+            .replace(/temp/, '/')
+        : '/index'
+    }.html`;
+
+    console.log('goto URL >>>>>>> ', browserPath);
+    console.log('output URL >>>>>>> ', outputPath);
+
+    // 로그인 처리를 위한 쿠키 설정
+    await page.setCookie(
+      {
+        name: 'TOKEN',
+        value: '발급받은 토큰을 입력합니다.',
+        url: baseUrl,
+      }
+    );
+
+    await page.goto(browserPath, { waitUntil: 'networkidle2' });
+    const content = await page.content();
+    fs.writeFileSync(outputPath, content);
+  }
+
+  await browser.close();
+}
+
+prerender();
+
+```

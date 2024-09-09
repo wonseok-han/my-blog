@@ -5,25 +5,25 @@ import { dracula } from 'react-syntax-highlighter/dist/esm/styles/prism'; // 원
 
 export const MDXComponent: MDXRemoteComponents = {
   h1: (props: React.HTMLAttributes<HTMLHeadingElement>) => (
-    <h1 className="text-4xl font-bold my-4" {...props} />
+    <h1 className="text-2xl font-extrabold my-4 md:text-4xl" {...props} />
   ),
   h2: (props: React.HTMLAttributes<HTMLHeadingElement>) => (
-    <h2 className="text-3xl font-semibold my-3" {...props} />
+    <h2 className="text-xl font-bold my-3 md:text-3xl" {...props} />
   ),
   h3: (props: React.HTMLAttributes<HTMLHeadingElement>) => (
-    <h2 className="text-2xl font-medium my-2" {...props} />
+    <h2 className="text-lg font-semibold my-2 md:text-2xl" {...props} />
   ),
   h4: (props: React.HTMLAttributes<HTMLHeadingElement>) => (
-    <h2 className="text-xl font-normal my-2" {...props} />
+    <h2 className="text-base font-normal my-2 md:text-xl" {...props} />
   ),
   h5: (props: React.HTMLAttributes<HTMLHeadingElement>) => (
-    <h2 className="text-lg font-light my-2" {...props} />
+    <h2 className="text-sm font-light my-2 md:text-lg" {...props} />
   ),
   h6: (props: React.HTMLAttributes<HTMLHeadingElement>) => (
-    <h2 className="text-base font-extralight my-2" {...props} />
+    <h2 className="text-xs font-extralight my-2 md:text-base" {...props} />
   ),
   p: (props: React.HTMLAttributes<HTMLParagraphElement>) => (
-    <p className="text-lg my-2" {...props} />
+    <p className="text-sm my-1 font-normal md:text-lg" {...props} />
   ),
   a: (props: React.AnchorHTMLAttributes<HTMLAnchorElement>) => (
     <a className="text-blue-500 hover:underline" {...props} />

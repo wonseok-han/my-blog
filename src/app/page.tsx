@@ -39,6 +39,7 @@ export default async function HomePage() {
               <PostCard
                 title={post.frontmatter.title}
                 created={post.frontmatter.created}
+                thumbnail={post.frontmatter.thumbnail}
               />
             </Link>
           );

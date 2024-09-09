@@ -20,7 +20,10 @@ export default async function BlogPostPage({
   return (
     <article className="relative">
       <div className="w-full border-b pb-3">
-        <h1 className="text-2xl font-extrabold sm:text-3xl md:text-4xl">
+        <h1
+          className="text-2xl font-extrabold text-ellipsis text-nowrap overflow-hidden sm:text-3xl md:text-4xl"
+          title={post.frontmatter.title}
+        >
           {post.frontmatter.title}
         </h1>
         <p className="text-xs text-gray-400 font-medium md:text-sm">
