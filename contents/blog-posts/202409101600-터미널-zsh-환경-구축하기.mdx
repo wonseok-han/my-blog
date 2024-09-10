@@ -1,0 +1,124 @@
+---
+title: '터미널 zsh 환경 구축하기'
+description: '터미널 환경을 설정하는 방법에 대한 설명'
+thumbnail: '/thumbnail/blog-posts/202409101600-터미널-환경-구축하기.png'
+created: '2024.09.10 16:00'
+---
+
+# Overview
+
+명색이 개발자인데 마우스로 딸깍딸깍만 하는게 말이 되는가!
+
+자 설정해보자 터미널!!
+
+<br />
+<br />
+
+# Getting Started
+
+* **OS**: **Window10 WSL Ubuntu** 또는 **Mac**
+
+<br />
+
+## Oh My Zsh
+
+얘를 쓰는 이유는 일단 기본으로 쓰는거보다 훨씬 보기 좋아서이다.
+
+<br />
+
+### Install
+
+* 아래 명령을 실행해서 zsh를 설치한다.
+
+```bash
+sh -c "$(curl -fsSL https://raw.githubusercontent.com/ohmyzsh/ohmyzsh/master/tools/install.sh)"
+```
+
+<br />
+
+### 설정
+
+* 설치가 완료되면 다음 명령을 실행해서 설정 파일을 열어 수정한다.
+
+```bash
+sudo vi ~/.zshrc
+```
+
+나같은 경우엔 그리 많은 플러그인을 설정해서 쓰진 않는다. 다음 3개만 설정해서 쓰고 있다.
+* **git**: 프로젝트에 git을 적용했을 때 터미널에 브랜치나 커밋 등의 정보를 보여주는 플러그인
+
+```bash
+# .zshrc
+
+...
+plugins=(
+        git
+        zsh-autosuggestions
+        zsh-syntax-highlighting
+)
+...
+```
+
+<br />
+
+### 플러그인
+
+#### zsh-autosuggestions
+
+* 내가 입력했던 명령어를 미리보기로 보여주는 플러그인
+* 설정이 완료되면 아래 이미지와 같이 이전에 사용했던 명령이 미리보기로 보여지는 것을 볼 수 있다.
+* [참고](https://github.com/zsh-users/zsh-autosuggestions)
+
+![zsh-autosuggestions](/images/blog-posts/202409101600-터미널-zsh-환경-구축하기/zsh-autosuggestions.png)
+
+#### zsh-syntax-highlighting
+
+* 입력한 명령이 유효한지 아닌지 하이라이팅해서 표시해주는 플러그인
+* 설정이 완료되면 아래 이미지와 같이 입력되는 명령이 유효하지 않으면 빨간색으로 하이라이팅되는 것을 볼 수 있다.
+* [참고](https://github.com/zsh-users/zsh-syntax-highlighting/blob/master/INSTALL.md)
+
+![zsh-syntax-highlighting](/images/blog-posts/202409101600-터미널-zsh-환경-구축하기/zsh-syntax-highlighting.png)
+
+<br />
+
+### 테마
+
+* 위 간단 설정까지만 하면 뭔가 밋밋하다. 테마를 설정해보자. 난 `powerlevel10k` 테마가 가장 깔끔해보여 선호하는 편이다.
+
+#### powerlevel10k Install
+
+* 다음 명령을 실행해 powerlevel10k를 clone한다.
+
+```bash
+git clone --depth=1 https://github.com/romkatv/powerlevel10k.git ${ZSH_CUSTOM:-$HOME/.oh-my-zsh/custom}/themes/powerlevel10k
+```
+
+#### powerlevel10k 설정
+
+* [폰트가 터질 수 있으니 반드시 폰트도 설치하자!](https://github.com/romkatv/powerlevel10k?tab=readme-ov-file#fonts)
+* 그리고 아래 설정 부분이 `.zshrc` 파일에 추가되어있는지 확인해본다.
+
+```bash
+# .zshrc
+
+source ~/powerlevel10k/powerlevel10k.zsh-theme
+
+[[ ! -f ~/.p10k.zsh ]] || source ~/.p10k.zsh
+```
+
+#### 완료
+
+* 셋팅이 전부 완료되면 전부 아래 이미지와 같이 좀 있어보이게 디자인된 터미널을 확인할 수 있다!
+* 나는 개인적으로 색 조합이 마음에 들어서 [draculra](https://draculatheme.com/zsh)를 사용하고 있다.
+
+![powerlevel10k](/images/blog-posts/202409101600-터미널-zsh-환경-구축하기/powerlevel10k.png)
+
+<br />
+<br />
+
+# Reference
+
+* [https://github.com/ohmyzsh/ohmyzsh](https://github.com/ohmyzsh/ohmyzsh)
+* [https://github.com/romkatv/powerlevel10k](https://github.com/romkatv/powerlevel10k)
+* [https://github.com/zsh-users/zsh-autosuggestions](https://github.com/zsh-users/zsh-autosuggestions)
+* [https://github.com/zsh-users/zsh-syntax-highlighting/blob/master/INSTALL.md](https://github.com/zsh-users/zsh-syntax-highlighting/blob/master/INSTALL.md)
