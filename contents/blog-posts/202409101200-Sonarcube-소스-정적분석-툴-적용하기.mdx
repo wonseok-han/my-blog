@@ -1,0 +1,171 @@
+---
+title: 'Sonarcube 소스 정적분석 툴 적용하기'
+description: '로컬 환경에서 소나큐브(Sonarcube) 소스 정적분석 툴로 코드를 스캔하고 리포트 받을 수 있는 방법에 대한 설명'
+thumbnail: '/thumbnail/blog-posts/202409101200-Sonarcube-소스-정적분석-툴-적용하기.svg'
+created: '2024.09.10 10:00'
+---
+
+# Sonarcube가 뭔가?
+
+* 내가 열심히 짰던 코드에 뭔가 하자가 있는지 없는지를 사전에 검출하기 위해서 돌리는 도구라고 보면 된다. <del>(Simple is Best)</del>
+* 좀 더 상세한 내용은 바로 밑에 있다.
+* 아 참고로 VSCode 확장 중에 **SonarLint**라는게 있는데 ESLint랑 같이 적용하니까 auto save fix할 때 PC 터지려고 해서 그냥 꺼버렸다.
+
+<br />
+
+## 정적 분석 기법(Static Analysis)
+
+프로그램을 실제로 실행하지 않고 코드 자체를 분석하여 오류, 잠재적 버그, 코드 스타일 문제, 보안 취약점 등을 찾는 방법이다.
+즉, 소스 코드, 바이트 코드, 또는 컴파일된 코드에 대해 수행되는 분석으로, 개발 단계에서 코드를 정적으로 검사하여 문제를 미리 발견하고 수정하는 데 중요한 역할을 한다. (by. gpt)
+
+<br />
+<br />
+
+# 쓰게된 이유
+
+또 프로젝트 개발이 거의 끝나갈 때쯤 정전분석 툴을 이용해서 소스를 검사한 결과를 제출해야한다는 요청을 받았다. <del>(아니 이거 개발 중에 해야하는건데; 아놔 거 미리 좀 말해주지... 왜 꼭 다 끝나가면 말하지?)</del>
+
+그래서 정적분석이 정확히 뭘 검사하는걸까하고 검색해보니 코드상의 버그나 보안 취약점, 성능 등의 이슈를 야기할 수 있는 부분을 검출해내는 것이라고 한다.
+
+나는 단순 요약해서 대충 **클린코드**라고 이해했다.
+
+클린코드가 반 정도만 맞고 나머진 엉터리다라고 개인적으로 생각하는 입장에선 흠.. 이라는 생각이 들었지만 일단 써보기로 했다.
+
+소나큐브는 내가 별도로 알아보고 찾은게 아니라 "소나큐브로 레포트 제출해주세요~" 라고해서 써보게 되었다.
+
+하지만 회사에서 소나큐브 서버를 따로 구축해주진 않았기때문에 그래서 그냥 내가 로컬로 굴려서 대충 검사해서 수정할거 수정해서 제출했다. <del>(이게 맞나? 이거 엉터리같은데..)</del>
+
+<br />
+<br />
+
+# Getting Started
+
+* **OS**: **Window10 WSL Ubuntu 환경**
+* **NodeJS**: **v18.17.1**
+* 추가 선행 단계로 Docker가 설치되어 있어야 한다.
+
+<br />
+
+## Sonarcube 실행
+
+* 아래 작성된 Sonarqube Server Container를 구동한다. (내 로컬에 이것 저것 설치하기가 너무 싫기때문에 docker 컨테이너로 올렸다.)
+
+```bash
+docker run -d --name sonarqube -e SONAR_ES_BOOTSTRAP_CHECKS_DISABLE=true -p 9000:9000 sonarqube:latest
+```
+
+* docker 이미지가 설치 완료되고 컨테이너가 무사히 올라가면 9000번 포트로 포팅했으니 http://localhost:9000 페이지에 접속한다.
+* 계정에 대한 초기설정값이 이미 존재하므로 다음 계정으로 로그인한다. (id: **admin**, pw: **admin**)
+* 우측 상단에서 **MyAccount - Security** 메뉴에서 사용자 Token을 추가하고 해당 값을 보관한다.
+
+## Sonarscan 실행
+
+* Sonarcube 실행 단계에서 올렸던 컨테이너가 계속 살아있는 상태에서 다음 단계를 진행한다.
+* **<span style={{color:'red'}}>위 단계에서 내려받았던 토큰 적용해야하니까 잘 보관해야한다.</span>**
+* 하기 스크립트 명령에서 자신의 환경에 맞는 적절한 값을 적용하고 실행한다.
+* **http://localhost:9000/projects**로 이동해 결과를 확인한다.
+
+```bash
+docker run \
+    --rm \
+    -e SONAR_HOST_URL="http://host.docker.internal:9000" \
+    -e SONAR_SCANNER_OPTS="\
+        -Dsonar.projectKey="당신의 Project Key를 입력하시오." \
+        -Dsonar.sourceEncoding=UTF-8 \
+        -Dsonar.token="위 Sonarcube 실행 단계에서 추가해서 보관하고 있던 Toekn을 넣어주시오." \
+        -Dsonar.projectBaseDir=/usr/src" \
+    -v "당신이 스캔하려고 하는 프로젝트의 경로를 입력하시오:/usr/src" \
+    sonarsource/sonar-scanner-cli
+```
+
+<br />
+<br />
+
+## 나는 그냥 이렇게 했다.
+
+* 그냥 이렇게 쉘 스크립트 만들어놓고 그냥 쉘만 돌렸다.
+
+```bash
+#!/bin/bash
+
+# 변수 정의
+SONARQUBE_URL="http://host.docker.internal:9000"
+YOUR_PROJECT_KEY="프로젝트 Key"
+YOUR_REPO="내 프로젝트 위치"
+SONAR_LOGIN="토큰"
+
+# 도커 명령 실행
+docker run \
+    --rm \
+    -e SONAR_HOST_URL="${SONARQUBE_URL}" \
+    -e SONAR_SCANNER_OPTS="\
+        -Dsonar.projectKey=${YOUR_PROJECT_KEY} \
+        -Dsonar.sourceEncoding=UTF-8 \
+        -Dsonar.token=${SONAR_LOGIN} \
+        -Dsonar.projectBaseDir=/usr/src" \
+    -v "${YOUR_REPO}:/usr/src" \
+    sonarsource/sonar-scanner-cli
+```
+
+<br />
+<br />
+
+# 결과
+
+* 아니나다를까 검출이 막 200개 300개씩 되고 난리도 아니었다. 아니 내가 이런 규칙을 두고 이렇게 짜겠다는데 뭐이리 걸리는게 많아? 하고 찾아보니 끌 수 있는 옵션도 있어서 한숨 돌릴 수 있었다.
+* 예외 설정하는 방법은 아래와 같이 작성하고 프로젝트 root 경로에 배치하고 스캔한다.
+
+```bash
+# sonar-project.properties
+
+# 기본 설정
+sonar.projectKey=프로젝트 Key
+sonar.projectName=프로젝트명
+sonar.projectVersion=1.0
+sonar.sourceEncoding=UTF-8
+
+# 소스 디렉토리 설정
+sonar.sources=src
+
+# ESLint 보고서 통합
+sonar.javascript.eslint.reportPaths=eslint-report.json
+
+# 코드 커버리지 분석 무시
+sonar.javascript.lcov.reportPaths=
+sonar.coverage.exclusions=**
+
+# 특정 디렉토리 제외
+sonar.exclusions=**/node_modules/**,**/dist/**
+
+# 설정 비활성화
+# typescript:S6848: 이벤트를 직접적으로 관리해주기 위해 룰 무시
+# typescript:S6544: 비즈니스 로직 구현을 위해 async, await를 사용하기 위해 룰 무시
+# typescript:S6847: 대화형 요소(li)에 이벤트를 부여해주기 위해 이벤트 할당 룰 무시
+# typescript:S5850: 의도한 정규식 적용을 위해 룰 무시
+# typescript:S1082: 비대화형 요소에 Click, Keboard 이벤트를 반드시 같이 쓰지않아도 되도록 이벤트 할당 룰 무시
+sonar.issue.ignore.multicriteria=ts1,ts2,ts3,ts4,ts5
+sonar.issue.ignore.multicriteria.ts1.ruleKey=typescript:S6848
+sonar.issue.ignore.multicriteria.ts1.resourceKey=**
+sonar.issue.ignore.multicriteria.ts2.ruleKey=typescript:S6544
+sonar.issue.ignore.multicriteria.ts2.resourceKey=**
+sonar.issue.ignore.multicriteria.ts3.ruleKey=typescript:S6847
+sonar.issue.ignore.multicriteria.ts3.resourceKey=**
+sonar.issue.ignore.multicriteria.ts4.ruleKey=typescript:S5850
+sonar.issue.ignore.multicriteria.ts4.resourceKey=**
+sonar.issue.ignore.multicriteria.ts5.ruleKey=typescript:S1082
+sonar.issue.ignore.multicriteria.ts5.resourceKey=**
+...
+```
+
+<br />
+
+대충 스캔 다돌리면 다음과 같은 형태로 로컬에서 굴리고 있는 sonarcube 페이지에서 확인할 수 있다.
+
+![image01](/images/blog-posts/202409101200-Sonarcube-소스-정적분석-툴-적용하기/image01.png)
+
+<br />
+<br />
+
+# Reference
+
+* [Sonarcube](https://docs.sonarsource.com/sonarqube/latest/setup-and-upgrade/install-the-server/installing-sonarqube-from-docker/)
