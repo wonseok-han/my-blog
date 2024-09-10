@@ -66,7 +66,7 @@ export const MDXComponent: MDXRemoteComponents = {
       );
     } else {
       return (
-        <span className="text-sm my-1 font-normal rounded-md bg-gray-300 w-fit p-1.5 md:text-lg">
+        <span className="text-sm my-1 font-normal rounded-md bg-gray-300 text-rose-700 w-fit px-1.5 py-1 md:text-lg">
           {children}
         </span>
       );
