@@ -22,7 +22,7 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en">
-      <body className={`antialiased w-full dark:bg-nosferatu-900 light:white`}>
+      <body className={`antialiased w-full dark:bg-nosferatu-900`}>
         <ThemeProvider attribute="class">
           <div className="mx-auto max-w-3xl px-6 lg:max-w-6xl lg:px-8 dark:text-dracula-200">
             <Navigation />
