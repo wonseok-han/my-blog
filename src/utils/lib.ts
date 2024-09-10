@@ -38,7 +38,7 @@ export const getPost = async (slug: string) => {
   const created = (await fs.promises.stat(fullPath)).birthtime;
   const userTimeZone = Intl.DateTimeFormat().resolvedOptions().timeZone;
 
-  if (created) {
+  if (created && process.env.NODE_ENV === 'development') {
     const date = new Date(created);
     const options = {
       year: 'numeric',
