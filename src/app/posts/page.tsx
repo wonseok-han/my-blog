@@ -8,8 +8,8 @@ const PostsPage = () => {
   return (
     <div className="px-4 py-2">
       <ul className="flex flex-col gap-4">
-        {posts.map((item) => {
-          const post = getPost(item.slug);
+        {posts.map(async (item) => {
+          const post = await getPost(item.slug);
 
           return (
             <Link key={item.slug} href={`posts/${item.slug}`}>

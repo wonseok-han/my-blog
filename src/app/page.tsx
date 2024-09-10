@@ -33,8 +33,8 @@ export default async function HomePage() {
         </div>
       </div>
       <div className="grid gap-6 lg:grid-cols-4">
-        {posts.map((item) => {
-          const post = getPost(item.slug);
+        {posts.map(async (item) => {
+          const post = await getPost(item.slug);
 
           return (
             <Link key={item.slug} href={`/posts/${item.slug}`}>
