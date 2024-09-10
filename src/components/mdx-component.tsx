@@ -23,7 +23,7 @@ export const MDXComponent: MDXRemoteComponents = {
     <h2 className="text-xs font-extralight my-2 md:text-base" {...props} />
   ),
   p: (props: React.HTMLAttributes<HTMLParagraphElement>) => (
-    <p className="text-sm my-1 font-normal md:text-lg" {...props} />
+    <p className="text-sm my-1 font-light md:text-lg" {...props} />
   ),
   a: (props: React.AnchorHTMLAttributes<HTMLAnchorElement>) => (
     <a className="text-blue-500 hover:underline" {...props} />
@@ -32,7 +32,7 @@ export const MDXComponent: MDXRemoteComponents = {
     <ul className="list-disc list-inside ml-5" {...props} />
   ),
   li: (props: React.HTMLAttributes<HTMLLIElement>) => (
-    <li className="my-1" {...props} />
+    <li className="my-1 font-light" {...props} />
   ),
   blockquote: (props: React.BlockquoteHTMLAttributes<HTMLQuoteElement>) => (
     <blockquote
@@ -42,8 +42,6 @@ export const MDXComponent: MDXRemoteComponents = {
   ),
   code: ({ className, children }) => {
     const language = className?.replace('language-', '') || 'text'; // 언어 설정
-
-    console.log('확인::', language);
 
     if (language != 'text') {
       return (
