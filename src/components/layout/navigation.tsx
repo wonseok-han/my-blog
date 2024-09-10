@@ -20,14 +20,14 @@ const Navigation = () => {
       <div className="flex gap-4">
         <Link href={'/'}>
           <p
-            className={`text-lg ${selected === '/' ? 'font-bold' : ''} md:text-xl`}
+            className={`text-sm ${selected === '/' ? 'font-bold' : ''} sm:text-lg md:text-xl`}
           >
             Home
           </p>
         </Link>
         <Link href={'/posts'}>
           <p
-            className={`text-lg ${selected.includes('/posts') ? 'font-bold' : ''} md:text-xl`}
+            className={`text-sm ${selected.includes('/posts') ? 'font-bold' : ''} sm:text-lg md:text-xl`}
           >
             Blog
           </p>

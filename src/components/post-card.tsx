@@ -5,7 +5,7 @@ interface PostCardProps extends PostType {}
 
 const PostCard = ({ title, created, thumbnail }: PostCardProps) => {
   return (
-    <div className="w-full h-full overflow-hidden rounded-2xl shadow-sm shadow-gray-300">
+    <div className="w-full overflow-hidden rounded-2xl shadow-sm shadow-gray-300">
       <div>
         {thumbnail ? (
           <Image
@@ -34,11 +34,8 @@ const PostCard = ({ title, created, thumbnail }: PostCardProps) => {
           </svg>
         )}
       </div>
-      <div className="bg-gray-200 h-16 px-3 py-2 space-y-2">
-        <p
-          className="text-ellipsis text-nowrap overflow-hidden font-semibold text-black"
-          title={title}
-        >
+      <div className="w-full bg-gray-200 h-16 px-3 py-2 space-y-2">
+        <p className="line-clamp-1 font-semibold text-black" title={title}>
           {title}
         </p>
         <p className="text-sm font-semibold text-right text-gray-700">

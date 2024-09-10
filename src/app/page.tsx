@@ -7,9 +7,11 @@ export default async function HomePage() {
   const posts = await getPosts();
 
   return (
-    <div>
+    <div className="w-full">
       <div className="flex justify-between align-middle mb-5">
-        <h1 className="text-2xl font-bold md:text-4xl">Recent Posts</h1>
+        <h1 className="text-sm font-bold sm:text-lg md:text-xl lg:text-4xl">
+          Recent Posts
+        </h1>
         <div className="min-h-full flex items-end">
           <Link className="font-semibold flex gap-2" href={'/posts'}>
             모두보기
