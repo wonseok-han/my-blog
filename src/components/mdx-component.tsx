@@ -31,6 +31,9 @@ export const MDXComponent: MDXRemoteComponents = {
   ul: (props: React.HTMLAttributes<HTMLUListElement>) => (
     <ul className="list-disc list-inside ml-5" {...props} />
   ),
+  ol: (props: React.HTMLAttributes<HTMLOListElement>) => (
+    <ol className="list-decimal list-inside ml-5" {...props} />
+  ),
   li: (props: React.HTMLAttributes<HTMLLIElement>) => (
     <li className="my-1 font-light" {...props} />
   ),
