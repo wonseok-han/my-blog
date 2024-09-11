@@ -33,6 +33,8 @@ export default async function BlogPostPage({
       {/* MDX 콘텐츠 렌더링 */}
       <MDXRemote source={post.content} components={MDXComponent} />
 
+      <hr className="my-8" />
+
       <Comments />
 
       <FloatingButton />

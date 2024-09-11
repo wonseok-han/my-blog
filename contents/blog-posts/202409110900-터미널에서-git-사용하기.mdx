@@ -1,0 +1,88 @@
+---
+title: '터미널에서 git 사용하기'
+description: '터미널에서 git 명령을 간편하게 사용하는 방법 설명'
+thumbnail: '/thumbnail/blog-posts/202409110900-터미널에서-git-사용하기.png'
+created: '2024.09.11 09:28'
+---
+
+# Overview
+
+git을 사용할 때 여러 툴이 있다. [GitKraken](https://www.gitkraken.com/lp/e3?utm_feeditemid=&utm_device=c&utm_term=git%20tools&utm_campaign=GK+Git+GUI+-+Search+(EN)&utm_source=google&utm_medium=ppc&hsa_acc=1130375851&hsa_cam=21413139489&hsa_grp=169682404451&hsa_ad=704065275057&hsa_src=g&hsa_tgt=kwd-13217984237&hsa_kw=git%20tools&hsa_mt=b&hsa_net=adwords&hsa_ver=3&gad_source=1&gclid=CjwKCAjw3P-2BhAEEiwA3yPhwGDc_cChqrED9wkNxY3cd_kvTOv5QHDs2REcZj9JH6qza4NC6PSxnRoC4M8QAvD_BwE)
+이라던가 [Sourcetree](https://www.sourcetreeapp.com/)라던가 꽤 많은 GUI 툴이 존재한다.
+
+하지만 나는 개발자다. CLI 환경에서 키보드로 타닥타닥하는게 좀 있어보이지 않겠는가
+
+[터미널 zsh 환경 구축하기](./202409101600-터미널-zsh-환경-구축하기)에 이어서 명색이 개발자인데 마우스로 딸깍딸깍만 하는게 말이 되는가!
+
+자 설정해보자!!
+
+<br />
+<br />
+
+# 내가 scm_breeze를 사용하는 이유
+
+* git 명령어에 대한 alias가 제공되어 적응하면 사용하기가 편리하다.
+* 작업 중인 파일에 대해 넘버링이 제공되어 **git add** 명령시 경로를 다 입력해주지 않아도 된다.
+
+<br />
+
+CLI 환경에서 git 기본 명령을 사용하려면 아래의 이런 점이 너무 불편했다.
+
+예를들어 특정 파일만 스테이징 하려고 하면 아래처럼 경로를 다 입력해줘야했던게 너무 불편한 경험으로 다가왔다. 파일이 1개면 다행이다. 여러 개라고 생각하면 얼마나 불편할지 상상해보자. <del>(이러니 GUI를 쓰지...)</del>
+
+```bash
+git add ./src/components/CustomInput/index.tsx
+```
+
+<br />
+
+하지만 scm_breeze를 사용하면 아래와 같이 넘버링이 붙어 매우 편리해진다.
+
+![gs](/images/blog-posts/202409110900-터미널에서-git-사용하기/gs.png)
+
+<br />
+
+아래 명령을 실행하면 package-lock.json과 package.json이 매우 간편히 스테이징된다는거다!!
+
+```bash
+# ga는 git add 이다.
+
+ga 1 2
+```
+
+<br />
+<br />
+
+# Getting Started
+
+* 터미널에서 git을 사용할 때 나는 [**scm_breeze**](https://github.com/scmbreeze/scm_breeze)를 선호한다.
+
+<br />
+
+## Install
+
+* 아래 명령을 실행해 scm_breeze를 clone 하고 설치하면 어지간하면 끝이다.
+
+```bash
+git clone https://github.com/scmbreeze/scm_breeze.git ~/.scm_breeze
+~/.scm_breeze/install.sh
+source ~/.bashrc   # or source "${ZDOTDIR:-$HOME}/.zshrc"
+```
+
+## aliases
+
+* 내가 애용하는 명령만 몇개 나열해봤다. 사실 이거 말곤 다른 명령은 쓸 일이 그리 많지 않다.
+* 더 많은 내용은 [aliases](https://github.com/scmbreeze/scm_breeze/blob/master/lib/git/aliases.sh), [git.scmbrc.example](https://github.com/scmbreeze/scm_breeze/blob/master/git.scmbrc.example)을 참고하자.
+
+```bash
+ga  # git add
+gco # git checkout
+gdf # git diff
+```
+
+<br />
+<br />
+
+# Reference
+
+* [https://github.com/scmbreeze/scm_breeze](https://github.com/scmbreeze/scm_breeze)
