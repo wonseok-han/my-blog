@@ -20,6 +20,8 @@ const Footer = () => {
         <Link href={'https://github.com/wonseok-han/my-blog'} target="_blank">
           {theme === 'light' ? (
             <svg
+              role="img"
+              aria-label="GitHub light mode icon"
               viewBox="0 0 98 96"
               width="25"
               height="25"
@@ -34,6 +36,8 @@ const Footer = () => {
             </svg>
           ) : (
             <svg
+              role="img"
+              aria-label="GitHub dark mode icon"
               viewBox="0 0 98 96"
               width="25"
               height="25"

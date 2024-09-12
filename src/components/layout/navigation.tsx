@@ -16,7 +16,7 @@ const Navigation = () => {
   }, [pathname]);
 
   return (
-    <nav className="flex justify-between items-center h-12 px-6 py-10 w-full select-none items-center">
+    <nav className="flex justify-between items-center h-12 px-6 py-10 w-full select-none">
       <div className="flex gap-4">
         <Link href={'/'}>
           <p
