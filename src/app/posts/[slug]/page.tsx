@@ -21,7 +21,7 @@ export default async function BlogPostPage({
     <article className="relative">
       <div className="w-full border-b pb-3">
         <h1
-          className="text-2xl font-extrabold text-ellipsis text-nowrap overflow-hidden sm:text-3xl md:text-4xl"
+          className="text-2xl font-extrabold sm:text-3xl md:text-4xl"
           title={post.frontmatter.title}
         >
           {post.frontmatter.title}
