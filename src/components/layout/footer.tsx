@@ -2,10 +2,11 @@
 
 import { useTheme } from 'next-themes';
 import Link from 'next/link';
-import { useEffect } from 'react';
+import { useEffect, useState } from 'react';
 
 const Footer = () => {
   const { theme, setTheme } = useTheme();
+  const [themeState, setThemeState] = useState('light');
 
   useEffect(() => {
     if (!theme) {
@@ -13,12 +14,18 @@ const Footer = () => {
     }
   }, []);
 
+  useEffect(() => {
+    if (theme) {
+      setThemeState(theme);
+    }
+  }, [theme]);
+
   return (
     <footer className="pb-8 text-sm w-full flex justify-center items-center gap-3">
       <div>{`© ${new Date().getFullYear()} wonseok-han's Blog`}</div>
       <div className="flex items-center">
         <Link href={'https://github.com/wonseok-han/my-blog'} target="_blank">
-          {theme === 'light' ? (
+          {themeState === 'light' ? (
             <svg
               role="img"
               aria-label="GitHub light mode icon"
