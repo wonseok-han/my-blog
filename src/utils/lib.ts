@@ -66,3 +66,21 @@ export const getPost = async (slug: string) => {
     };
   }
 };
+
+export const getParsedPosts = async () => {
+  const filenames = fs.readdirSync(getPostsDirectory());
+
+  const sortedFilenames = filenames.sort((a, b) => b.localeCompare(a));
+
+  return await Promise.all(
+    sortedFilenames.map(async (filename) => {
+      const slug = filename.replace(/\.mdx$/, '');
+      const post = (await getPost(slug)).frontmatter;
+
+      return {
+        slug,
+        ...post,
+      };
+    })
+  );
+};
