@@ -11,7 +11,7 @@ import { ThemeProvider } from 'next-themes';
 import Header from '@components/layout/header';
 
 export const metadata: Metadata = {
-  title: `wonseok-han's blog`,
+  title: `까먹을게 분명하기 때문에 기록하는 블로그`,
   description: '까먹을게 분명하기 때문에 기록하는 블로그',
 };
 
