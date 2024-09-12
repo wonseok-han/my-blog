@@ -33,6 +33,35 @@ npm run build
 
 * contents 폴더 내에 작성할 게시글을 **.mdx** 파일로 생성하고 작성합니다.
 
+### 소스 구조
+
+```bash
+.
+├── __tests__ # 테스트 코드
+│   └── components
+│       └── layout
+├── contents  # 포스트 mdx
+│   └── blog-posts
+├── licenses  # 폰트 License 문서
+│   └── font_aggro
+├── public  # Public 콘텐츠
+│   ├── fonts
+│   │   └── aggro
+│   ├── icons
+│   ├── images
+│   │   └── blog-posts  # 블로그 포스팅에 사용되는 이미지
+│   └── thumbnail # 포스트 썸네일
+│       └── blog-posts
+└── src
+    ├── app
+    │   └── posts # /posts Route
+    │       └── [slug]
+    ├── components  # 컴포넌트
+    │   └── layout
+    ├── types # 타입
+    └── utils # 유틸성 함수
+```
+
 ### 배포환경
 
 * [**vercel**](https://vercel.com/)
