@@ -15,10 +15,10 @@ const PostsPage = () => {
             <Link key={item.slug} href={`posts/${item.slug}`}>
               <li className="flex flex-col gap-1 w-full h-fit min-w-fit justify-between flex-wrap lg:flex-nowrap">
                 <div className="flex gap-2">
-                  <div className="shadow-sm shadow-gray-300 h-full">
+                  <div className="shadow-sm shadow-gray-300 h-full rounded-md">
                     {post.frontmatter.thumbnail ? (
                       <Image
-                        className="object-cover"
+                        className="object-cover rounded-md"
                         alt="postImage"
                         src={post.frontmatter.thumbnail}
                         width={100}
@@ -30,7 +30,7 @@ const PostsPage = () => {
                         }}
                       />
                     ) : (
-                      <div className="w-[100px]">
+                      <div className="w-[100px] rounded-md">
                         <svg
                           xmlns="http://www.w3.org/2000/svg"
                           fill="none"
