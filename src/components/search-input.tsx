@@ -1,19 +1,37 @@
 'use client';
 
 import { useSearchStore } from '@/store/search-store';
+import { useRouter } from 'next/navigation';
 import { useEffect, useRef, useState } from 'react';
 
-const SearchInput = () => {
+interface SearchInputProps {
+  useAnimation?: boolean;
+  isFocus?: boolean;
+  onFocusOut?: () => void;
+}
+
+const SearchInput = ({
+  useAnimation = false,
+  isFocus = false,
+  onFocusOut,
+}: SearchInputProps) => {
+  const { push } = useRouter();
+
   const { searchInput, setSearchInput, searchTrigger } = useSearchStore();
   const [value, setValue] = useState(searchInput || '');
-  const [isInputShow, setIsInputShow] = useState(false);
+  const [isInputShow, setIsInputShow] = useState(isFocus);
 
   const inputRef = useRef<HTMLInputElement>(null);
 
   useEffect(() => {
     setValue(searchInput || '');
+    push(`/posts?search=${searchInput}`);
     searchTrigger();
   }, [searchInput]);
+
+  useEffect(() => {
+    setIsInputShow(isFocus);
+  }, [isFocus]);
 
   useEffect(() => {
     if (isInputShow && inputRef?.current) {
@@ -28,20 +46,21 @@ const SearchInput = () => {
     <>
       <div className={`relative`}>
         <input
-          onFocus={() => console.log('포커스')}
           ref={inputRef}
           className={`w-60 h-10 border rounded-lg text-sm font-light pl-2 pr-8 py-1 dark:bg-nosferatu-900 transition-all duration-300 ease-in-out transform origin-right ${
-            isInputShow
+            (isInputShow && useAnimation) || !useAnimation
               ? 'visible opacity-100 w-full'
               : 'invisible opacity-0 scale-x-0'
           }`}
           value={value}
+          placeholder="Search..."
           onChange={(event) => {
             setValue(event.target.value);
           }}
           onBlur={() => {
             if (!value) {
               setIsInputShow(false);
+              onFocusOut?.();
             }
           }}
           onKeyDown={(event) => {
