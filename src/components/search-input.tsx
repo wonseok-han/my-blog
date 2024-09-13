@@ -25,7 +25,11 @@ const SearchInput = ({
 
   useEffect(() => {
     setValue(searchInput || '');
-    push(`/posts?search=${searchInput}`);
+
+    if (searchInput) {
+      push(`/posts?search=${searchInput}`);
+    }
+
     searchTrigger();
   }, [searchInput]);
 
