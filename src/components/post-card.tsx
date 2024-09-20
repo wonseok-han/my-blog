@@ -14,6 +14,7 @@ const PostCard = ({ title, created, thumbnail }: PostCardProps) => {
             src={thumbnail}
             width={300}
             height={300}
+            loading="lazy"
           />
         ) : (
           <div className="w-full min-h-[256px]">

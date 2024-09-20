@@ -1,8 +1,13 @@
 import { MDXRemote } from 'next-mdx-remote/rsc';
-import { MDXComponent } from '@/components/mdx-component';
+import { MDXComponent } from '@components/mdx-component';
+
 import { getPost, getPosts } from '@utils/lib';
-import FloatingButton from '@components/floating-button';
-import Comments from '@components/comments';
+import dynamic from 'next/dynamic';
+
+const Comments = dynamic(() => import('@components/comments'), { ssr: false });
+const FloatingButton = dynamic(() => import('@components/floating-button'), {
+  ssr: false,
+});
 
 // 동적 경로 정의
 export async function generateStaticParams() {

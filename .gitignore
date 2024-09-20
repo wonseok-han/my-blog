@@ -36,3 +36,7 @@ yarn-error.log*
 next-env.d.ts
 
 .eslintcache
+
+#pwa
+public/sw.js
+public/workbox-*

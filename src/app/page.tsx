@@ -1,10 +1,13 @@
 import Link from 'next/link';
 
 import { getPost, getPosts } from '@utils/lib';
-import PostCard from '@components/post-card';
+
+import dynamic from 'next/dynamic';
+
+const PostCard = dynamic(() => import('@components/post-card'));
 
 export default async function HomePage() {
-  const posts = await getPosts();
+  const posts = getPosts();
 
   return (
     <div className="w-full">
