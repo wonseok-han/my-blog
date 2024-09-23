@@ -88,7 +88,7 @@ const withMDX = createMDX({
 
 const withPWA = createPWA({
   dest: 'public', // next export를 사용할 때 필요
-  // disable: process.env.NODE_ENV === 'development', // 개발 환경에서는 비활성화
+  disable: process.env.NODE_ENV === 'development', // 개발 환경에서는 비활성화
   register: true, // 서비스 워커 등록 여부
   skipWaiting: true, // 서비스 워커 강제 업데이트
   runtimeCaching: [
