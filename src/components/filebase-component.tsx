@@ -21,7 +21,9 @@ const FirebaseComponent = () => {
         }),
       });
 
-      if (!res.ok) {
+      if (res.ok) {
+        alert('Notification sent successfully!');
+      } else {
         const errorData = await res.json();
         alert(`Failed to send notification: ${errorData.error}`);
       }
