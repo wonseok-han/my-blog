@@ -1,11 +1,12 @@
 'use client';
 
+import { usePushStore } from '@/store/push-store';
 import { FCMMessagePayloadType } from '@/types/firebase';
 import { onMessageListener, requestPermission } from '@utils/firebase';
-import { useEffect, useState } from 'react';
+import { memo, useEffect } from 'react';
 
 const FirebaseComponent = () => {
-  const [token, setToken] = useState('');
+  const { token, setToken, trigger } = usePushStore();
 
   const sendNotification = async () => {
     try {
@@ -81,7 +82,13 @@ const FirebaseComponent = () => {
     });
   }, []);
 
-  return <button onClick={sendNotification}>푸쉬</button>;
+  useEffect(() => {
+    if (trigger > 0) {
+      sendNotification();
+    }
+  }, [trigger]);
+
+  return null;
 };
 
-export default FirebaseComponent;
+export default memo(FirebaseComponent);
