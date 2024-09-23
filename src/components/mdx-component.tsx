@@ -26,7 +26,7 @@ export const MDXComponent: MDXRemoteComponents = {
     <p className="text-sm my-1 font-light md:text-lg" {...props} />
   ),
   a: (props: React.AnchorHTMLAttributes<HTMLAnchorElement>) => (
-    <a className="text-blue-500 hover:underline" {...props} />
+    <a className="text-blue-500 break-words hover:underline" {...props} />
   ),
   ul: (props: React.HTMLAttributes<HTMLUListElement>) => (
     <ul className="list-disc list-inside ml-5" {...props} />
@@ -35,7 +35,7 @@ export const MDXComponent: MDXRemoteComponents = {
     <ol className="list-decimal list-inside ml-5" {...props} />
   ),
   li: (props: React.HTMLAttributes<HTMLLIElement>) => (
-    <li className="my-1 font-light" {...props} />
+    <li className="my-1 font-light break-all" {...props} />
   ),
   blockquote: (props: React.BlockquoteHTMLAttributes<HTMLQuoteElement>) => (
     <blockquote
