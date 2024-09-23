@@ -1,5 +1,7 @@
 import createMDX from '@next/mdx';
 import createPWA from 'next-pwa';
+import fs from 'fs';
+import path from 'path';
 
 console.log('NODE_ENV::', process.env.NODE_ENV);
 
@@ -34,6 +36,49 @@ const nextConfig = {
       },
     ];
   },
+  webpack: (config, { isServer }) => {
+    if (!isServer) {
+      // 현재 작업 디렉터리로부터 절대 경로를 계산
+      const swTemplate = fs.readFileSync(
+        path.resolve(process.cwd(), 'src/firebase-messaging-sw-template.js'), // 서비스 워커 템플릿 경로
+        'utf8'
+      );
+
+      const swFile = swTemplate
+        .replace(
+          '__FIREBASE_API_KEY__',
+          process.env.NEXT_PUBLIC_FIREBASE_API_KEY
+        )
+        .replace(
+          '__FIREBASE_AUTH_DOMAIN__',
+          process.env.NEXT_PUBLIC_FIREBASE_AUTH_DOMAIN
+        )
+        .replace(
+          '__FIREBASE_PROJECT_ID__',
+          process.env.NEXT_PUBLIC_FIREBASE_PROJECT_ID
+        )
+        .replace(
+          '__FIREBASE_STORAGE_BUCKET__',
+          process.env.NEXT_PUBLIC_FIREBASE_STORAGE_BUCKET
+        )
+        .replace(
+          '__FIREBASE_MESSAGING_SENDER_ID__',
+          process.env.NEXT_PUBLIC_FIREBASE_MESSAGING_SENDER_ID
+        )
+        .replace('__FIREBASE_APP_ID__', process.env.NEXT_PUBLIC_FIREBASE_APP_ID)
+        .replace(
+          '__FIREBASE_MEASUREMENT_ID__',
+          process.env.NEXT_PUBLIC_MEASUREMENT_ID
+        );
+
+      fs.writeFileSync(
+        path.resolve(process.cwd(), 'public/firebase-messaging-sw.js'), // `__dirname` 대신 `process.cwd()` 사용
+        swFile
+      );
+    }
+
+    return config;
+  },
 };
 
 const withMDX = createMDX({
@@ -43,7 +88,7 @@ const withMDX = createMDX({
 
 const withPWA = createPWA({
   dest: 'public', // next export를 사용할 때 필요
-  disable: process.env.NODE_ENV === 'development', // 개발 환경에서는 비활성화
+  // disable: process.env.NODE_ENV === 'development', // 개발 환경에서는 비활성화
   register: true, // 서비스 워커 등록 여부
   skipWaiting: true, // 서비스 워커 강제 업데이트
   runtimeCaching: [

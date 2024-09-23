@@ -6,6 +6,7 @@ import { ThemeProvider } from 'next-themes';
 import dynamic from 'next/dynamic';
 
 import './globals.css';
+import FirebaseComponent from '@components/filebase-component';
 
 const Header = dynamic(() => import('@components/layout/header'), {
   suspense: true,
@@ -35,6 +36,7 @@ export default function RootLayout({
     <html lang="en">
       <body className={`antialiased w-full dark:bg-nosferatu-900`}>
         <ThemeProvider attribute="class">
+          <FirebaseComponent />
           <div className="mx-auto max-w-3xl px-6 lg:max-w-6xl lg:px-8 dark:text-dracula-200">
             <Navigation />
             <Header />

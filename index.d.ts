@@ -1,0 +1,23 @@
+declare namespace NodeJS {
+  interface ProcessEnv {
+    readonly NEXT_PUBLIC_FIREBASE_API_KEY: string;
+    readonly NEXT_PUBLIC_FIREBASE_AUTH_DOMAIN: string;
+    readonly NEXT_PUBLIC_FIREBASE_PROJECT_ID: string;
+    readonly NEXT_PUBLIC_FIREBASE_STORAGE_BUCKET: string;
+    readonly NEXT_PUBLIC_FIREBASE_MESSAGING_SENDER_ID: string;
+    readonly NEXT_PUBLIC_FIREBASE_APP_ID: string;
+    readonly NEXT_PUBLIC_MEASUREMENT_ID: string;
+    readonly NEXT_PUBLIC_FIREBASE_VAPID_KEY: string;
+    readonly FIREBASE_SERVICE_ACCOUNT_TYPE: string;
+    readonly FIREBASE_SERVICE_ACCOUNT_PROJECT_ID: string;
+    readonly FIREBASE_SERVICE_ACCOUNT_PRIVATE_KEY_ID: string;
+    readonly FIREBASE_SERVICE_ACCOUNT_PRIVATE_KEY: string;
+    readonly FIREBASE_SERVICE_ACCOUNT_CLIENT_EMAIL: string;
+    readonly FIREBASE_SERVICE_ACCOUNT_CLIENT_ID: string;
+    readonly FIREBASE_SERVICE_ACCOUNT_AUTH_URI: string;
+    readonly FIREBASE_SERVICE_ACCOUNT_TOKEN_URI: string;
+    readonly FIREBASE_SERVICE_ACCOUNT_AUTH_PROVIDER_X509_CERT_URL: string;
+    readonly FIREBASE_SERVICE_ACCOUNT_CLIENT_X509_CERT_URL: string;
+    readonly FIREBASE_SERVICE_ACCOUNT_UNIVERSE_DOMAIN: string;
+  }
+}

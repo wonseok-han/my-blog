@@ -27,6 +27,7 @@ yarn-error.log*
 
 # local env files
 .env*.local
+.env
 
 # vercel
 .vercel
@@ -40,3 +41,4 @@ next-env.d.ts
 #pwa
 public/sw.js
 public/workbox-*
+public/firebase-messaging-sw.js
