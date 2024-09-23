@@ -41,7 +41,6 @@ export const requestPermission = async () => {
         });
 
         if (token) {
-          console.log('FCM Token:', token);
           return token; // 이 토큰을 사용해서 푸시 알림을 보냅니다
         } else {
           console.log('푸시 알림 권한이 거부되었습니다.');
@@ -63,11 +62,9 @@ export const requestPermission = async () => {
 };
 
 // 포그라운드 메시지 수신
-export const onMessageListener = () =>
-  new Promise((resolve) => {
-    const messaging = getMessaging(app);
-    onMessage(messaging, (payload) => {
-      console.log('11포그라운드 메시지 수신: ', payload);
-      resolve(payload);
-    });
+export const onMessageListener = (callback: (_payload: unknown) => void) => {
+  const messaging = getMessaging(app);
+  onMessage(messaging, (payload) => {
+    callback(payload);
   });
+};

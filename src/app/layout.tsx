@@ -4,9 +4,9 @@ import { ReactNode } from 'react';
 import { Analytics } from '@vercel/analytics/react';
 import { ThemeProvider } from 'next-themes';
 import dynamic from 'next/dynamic';
+import FirebaseComponent from '@components/filebase-component';
 
 import './globals.css';
-import FirebaseComponent from '@components/filebase-component';
 
 const Header = dynamic(() => import('@components/layout/header'), {
   suspense: true,

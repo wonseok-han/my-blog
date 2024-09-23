@@ -39,6 +39,6 @@ next-env.d.ts
 .eslintcache
 
 #pwa
-public/sw.js
+public/sw.js*
 public/workbox-*
 public/firebase-messaging-sw.js
