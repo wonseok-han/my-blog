@@ -76,7 +76,7 @@ const Navigation = () => {
 
           <div className="h-full flex flex-col justify-center">
             {theme === 'light' ? (
-              <button onClick={() => setTheme('dark')}>
+              <button aria-label="lightButton" onClick={() => setTheme('dark')}>
                 <svg
                   xmlns="http://www.w3.org/2000/svg"
                   fill="none"
@@ -93,7 +93,7 @@ const Navigation = () => {
                 </svg>
               </button>
             ) : (
-              <button onClick={() => setTheme('light')}>
+              <button aria-label="darkButton" onClick={() => setTheme('light')}>
                 <svg
                   xmlns="http://www.w3.org/2000/svg"
                   fill="none"

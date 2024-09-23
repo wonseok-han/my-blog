@@ -14,6 +14,7 @@ const Post = ({ post }: PostProps) => {
           <div className="shadow-sm shadow-gray-300 h-full rounded-md">
             {post.thumbnail ? (
               <Image
+                loading="lazy"
                 className="object-cover rounded-md"
                 alt="postImage"
                 src={post.thumbnail}

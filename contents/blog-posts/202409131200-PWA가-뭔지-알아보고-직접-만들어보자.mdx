@@ -1,0 +1,278 @@
+---
+title: 'PWA가 뭔지 알아보고 직접 만들어보자'
+description: 'PWA가 무엇인지 알아보고 Next.js에서 간단한 PWA를 만들어보는 방법에 대해 알아보자'
+thumbnail: ''
+created: '2024.09.13 11:31'
+---
+
+# Overview
+
+요즘 웹 프론트엔드 개발자가 PWA를 적용해 개발이 가능하기 때문에 사용자들이 마치 앱을 사용하는 것과 같은 경험을 제공할 수 있어 요즘 네이티브 앱 개발자들의 채용이 어렵다고 얼핏 들었다.
+
+그래서 요즘 채용공고를 보면 PWA를 경험해본 개발자를 찾고있는 경우가 많이 보이는데 PWA가 무엇인지 알아보고 직접 간단하게 적용해보기로 했다.
+
+<br />
+<br />
+
+# PWA란?
+
+PWA(Progressive Web App)는 웹과 앱의 장점을 결합한 하이브리드 앱이다. PWA는 웹에서 제공하는 기능을 통해 사용자에게 앱과 같은 경험을 제공한다.
+
+브라우저에서 실행되지만, 서비스 워커(Service Worker)를 통해 오프라인에서도 동작하고, 홈 화면에 설치하거나 푸시 알림을 받을 수 있는 등 네이티브 앱과 유사한 기능을 수행할 수 있다.
+
+<br />
+
+## 장점
+
+* 오프라인에서도 사용 가능
+* 빠른 로딩 속도
+* 사용자 경험 향상
+* 앱 스토어에 등록하지 않아도 사용 가능
+* SEO 향상
+
+<br />
+
+## 단점
+
+* 브라우저 지원 문제
+* 기능 제한
+* 앱보다는 느린 성능
+
+<br />
+<br />
+
+# 환경
+
+* PackageManager: `npm`
+* Next: `14.2.8`
+
+<br />
+<br />
+
+# Getting Started
+
+현재 내가 만든 블로그에서 PWA를 적용해보기로 했다.
+
+<br />
+
+## Install next-pwa
+
+Next.js 프레임워크에서 진행하기 때문에 next-pwa 라이브러리를 설치한다.
+
+```bash
+npm install next-pwa
+```
+
+<br />
+
+## next.config.js 설정
+
+next.config.js 파일에 next-pwa 설정을 추가한다.
+
+처음엔 별다른 설정을 하지 않고 기본 설정만 추가했다.
+
+```js
+// next.config.js
+
+import createPWA from 'next-pwa';
+
+const withPWA = createPWA({
+  dest: 'public', // next export를 사용할 때 필요
+});
+
+export default withPWA(withMDX(nextConfig));
+```
+
+<br />
+
+## manifest.json
+
+**src/app 폴더**에 **manifest.json** 파일을 생성하고 설정을 추가한다.
+
+이 때 icons에 적용할 이미지는 **public** 폴더가 기준이 된다.
+
+```json
+// manifest.json
+
+{
+  "name": "wonseok-han's PWA Blog",
+  "short_name": "Blog PWA App",
+  "description": "A Progressive Web App built with Next.js",
+  "icons": [
+    {
+      "src": "/icons/icon.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any maskable"
+    }
+  ],
+  "theme_color": "#FFFFFF",
+  "background_color": "#FFFFFF",
+  "start_url": "/",
+  "display": "standalone",
+  "orientation": "portrait"
+}
+```
+
+<br />
+
+## 실행
+
+아래 명령을 통해 실행한다.
+
+```bash
+npm run build & npm run start
+```
+
+<br />
+
+## 실행 결과
+
+실행 후 브라우저에서 **localhost:3000**으로 접속하면 다음과 같이 PWA가 적용되고 앱을 설치할 수 있고, 설치하면 앱이 설치 된다.
+
+![localhost-pwa](/images/blog-posts/202409131200-PWA가-뭔지-알아보고-직접-만들어보자/localhost-pwa.png)
+
+<br />
+
+![install-pwa](/images/blog-posts/202409131200-PWA가-뭔지-알아보고-직접-만들어보자/install-pwa.png)
+
+![install-pwa-attribute](/images/blog-posts/202409131200-PWA가-뭔지-알아보고-직접-만들어보자/install-pwa-attribute.png)
+
+<br />
+
+설치된 앱을 실행하면 다음과 같이 PWA가 적용된 내 블로그를 확인할 수 있다.
+
+![execute-pwa](/images/blog-posts/202409131200-PWA가-뭔지-알아보고-직접-만들어보자/execute-pwa.png)
+
+<br />
+
+## LightHouse
+
+* LightHouse는 다음과 같이 웹 앱의 성능, 접근성, PWA, SEO 등을 평가할 수 있는 도구이다. 크롬 브라우저의 개발자 도구에 내장되어 있어 쉽게 사용할 수 있다.
+
+![lighthouse](/images/blog-posts/202409131200-PWA가-뭔지-알아보고-직접-만들어보자/lighthouse.png)
+
+<br />
+
+설정을 모바일로 두고 분석을 진행하면 다음과 같이 결과를 확인할 수 있다.
+
+그리고 성능이 박살난 것을 확인할 수 있었다.
+
+![lighthouse-result](/images/blog-posts/202409131200-PWA가-뭔지-알아보고-직접-만들어보자/lighthouse-result.png)
+
+<br />
+
+## 성능 살짝 개선 후
+
+성능 개선을 위해 코드를 살짝 개선할 수 있는 부분을 수정하고 다시 확인해본 결과 성능 점수가 살짝 오른 것을 확인할 수 있었다.
+
+```js
+// next.config.js
+
+import createPWA from 'next-pwa';
+
+const nextConfig = {
+  ...
+  headers: async () => {
+    return [
+      {
+        // 모든 페이지에 대한 캐시 정책 적용
+        source: '/:path*',
+        headers: [
+          {
+            key: 'Cache-Control',
+            value: 'private, no-cache, no-store, max-age=0, must-revalidate', // 페이지는 캐시하지 않음
+          },
+        ],
+      },
+      {
+        // 정적 파일에 대한 캐시 정책 적용
+        source:
+          '/:path(.+\\.(?:ico|png|svg|jpg|jpeg|gif|webp|json|mp3|mp4|ttf|ttc|otf|woff|woff2)$)',
+        headers: [
+          {
+            key: 'Cache-Control',
+            value: 'public, max-age=31536000, immutable', // 1년 캐시, 변경되지 않는 파일에 적합
+          },
+        ],
+      },
+    ];
+  },
+  ...
+};
+
+const withPWA = createPWA({
+  dest: 'public', // next export를 사용할 때 필요
+  disable: process.env.NODE_ENV === 'development', // 개발 환경에서는 비활성화
+  register: true, // 서비스 워커 등록 여부
+  skipWaiting: true, // 서비스 워커 강제 업데이트
+  runtimeCaching: [
+    // 캐싱 설정
+    {
+      // 이미지 캐싱
+      urlPattern: /\.(?:png|jpg|jpeg|svg|gif|ico)$/i,
+      handler: 'CacheFirst',
+      options: {
+        cacheName: 'images',
+        expiration: {
+          maxEntries: 64,
+          maxAgeSeconds: 30 * 24 * 60 * 60, // 30일
+        },
+      },
+    },
+    {
+      // 정적 리소스 캐싱
+      urlPattern: /\.(?:js|css)$/i,
+      handler: 'StaleWhileRevalidate',
+      options: {
+        cacheName: 'static-resources',
+      },
+    },
+  ],
+});
+
+export default withPWA(nextConfig);
+```
+
+```ts
+// 변경 전
+import Navigation from '@components/layout/navigation'
+
+// 변경 후
+const Navigation = dynamic(() => import('@components/layout/navigation'), {
+  suspense: false,
+});
+```
+
+```tsx
+// 변경 전
+<Image
+  className="h-64 w-full object-cover"
+  alt="postImage"
+  src={thumbnail}
+  width={300}
+  height={300}
+/>
+
+// 변경 후
+<Image
+  className="h-64 w-full object-cover"
+  alt="postImage"
+  src={thumbnail}
+  width={300}
+  height={300}
+  loading="lazy"
+/>
+```
+
+![lighthouse-fix](/images/blog-posts/202409131200-PWA가-뭔지-알아보고-직접-만들어보자/lighthouse-fix.png)
+
+<br />
+<br />
+
+# Reference
+
+* [https://developer.mozilla.org/ko/docs/Web/Progressive_web_apps/Tutorials/js13kGames](https://developer.mozilla.org/ko/docs/Web/Progressive_web_apps/Tutorials/js13kGames)
+* [https://ducanh-next-pwa.vercel.app/docs/next-pwa/getting-started](https://ducanh-next-pwa.vercel.app/docs/next-pwa/getting-started)
+* [https://nextjs.org/docs/app/building-your-application/configuring/progressive-web-apps](https://nextjs.org/docs/app/building-your-application/configuring/progressive-web-apps)
+* [https://velog.io/@ghenmaru/Next-PWA-%EC%9B%B9%EC%95%B1-%EB%A7%8C%EB%93%A4%EA%B8%B0](https://velog.io/@ghenmaru/Next-PWA-%EC%9B%B9%EC%95%B1-%EB%A7%8C%EB%93%A4%EA%B8%B0)
