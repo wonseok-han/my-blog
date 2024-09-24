@@ -26,17 +26,26 @@ const firebaseConfig = {
 const app = initializeApp(firebaseConfig);
 
 // 푸시 알림 수신 권한 요청
-export const requestPermission = async () => {
+export const requestPermission = async (
+  registration: ServiceWorkerRegistration
+) => {
   // 브라우저 환경에서만 실행되도록 체크
   if (typeof window !== 'undefined') {
     try {
       // FCM이 브라우저에서 지원되는지 확인
       const supported = await isSupported();
-      if (supported) {
+      if (!supported) {
+        console.warn('이 브라우저는 FCM을 지원하지 않습니다.');
+        return null;
+      }
+
+      if ('serviceWorker' in navigator && 'PushManager' in window) {
         const messaging = getMessaging(app);
+
         // VAPID 키 설정 (Firebase 콘솔에서 가져온 VAPID 공개 키를 사용)
         const token = await getToken(messaging, {
           vapidKey: process.env.NEXT_PUBLIC_FIREBASE_VAPID_KEY,
+          serviceWorkerRegistration: registration, // 등록된 서비스 워커 참조
         });
 
         if (token) {
@@ -45,9 +54,6 @@ export const requestPermission = async () => {
           console.log('푸시 알림 권한이 거부되었습니다.');
           return null;
         }
-      } else {
-        console.warn('이 브라우저는 FCM을 지원하지 않습니다.');
-        return null;
       }
     } catch (error) {
       console.error('FCM 토큰 요청 중 오류 발생:', error);

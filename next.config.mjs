@@ -40,7 +40,7 @@ const nextConfig = {
     if (!isServer) {
       // 현재 작업 디렉터리로부터 절대 경로를 계산
       const swTemplate = fs.readFileSync(
-        path.resolve(process.cwd(), 'src/firebase-messaging-sw-template.js'), // 서비스 워커 템플릿 경로
+        path.resolve(process.cwd(), 'src/service-worker-template.js'), // 서비스 워커 템플릿 경로
         'utf8'
       );
 
@@ -72,7 +72,7 @@ const nextConfig = {
         );
 
       fs.writeFileSync(
-        path.resolve(process.cwd(), 'public/firebase-messaging-sw.js'), // `__dirname` 대신 `process.cwd()` 사용
+        path.resolve(process.cwd(), 'public/worker/index.js'), // `__dirname` 대신 `process.cwd()` 사용
         swFile
       );
     }
@@ -90,7 +90,9 @@ const withPWA = createPWA({
   dest: 'public', // next export를 사용할 때 필요
   disable: process.env.NODE_ENV === 'development', // 개발 환경에서는 비활성화
   register: true, // 서비스 워커 등록 여부
+  customWorkerDir: 'worker', // 서비스 워커 파일 경로
   skipWaiting: true, // 서비스 워커 강제 업데이트
+  // runtimeCaching은 GenerateSW에서만 사용가능 InjectManifest의 swSrc와 함께 사용할 수 없다.
   runtimeCaching: [
     // 캐싱 설정
     {
