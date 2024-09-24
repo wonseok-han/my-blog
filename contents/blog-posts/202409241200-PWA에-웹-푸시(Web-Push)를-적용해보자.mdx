@@ -1,0 +1,571 @@
+---
+title: 'PWA에 웹 푸시(Web Push)를 적용해보자'
+description: 'PWA로 만들어진 웹 앱에 순수 웹 푸시(Web Push)와 FCM(Firebase Cloud Messaging)을 이용한 Web Push를 적용하는 방법에 대해 알아보자'
+thumbnail: '/thumbnail/blog-posts/202409241200-PWA에-웹-푸시(Web-Push)를-적용해보자.png'
+created: '2024.09.24 12:00'
+---
+
+# Overview
+
+내 블로그에 단순하게 PWA만 적용하는 것이 아니라 웹 푸시 알림을 적용해보고 싶었다.
+
+웹 푸시를 적용하는 방식에는 브라우저가 제공해주는 기본 Push가 있고, FCM(Fire Cloud Messaging)을 이용해서도 적용할 수 있다.
+
+이 포스팅에는 두 가지 방법을 모두 적용해보는 방법을 소개한다.
+
+<br />
+<br />
+
+# 웹 푸시(Web Push)
+
+**웹 푸시(Web Push)** 는 사용자에게 웹 앱이나 웹 사이트를 사용하지 않을 때도 알림을 보낼 수 있는 기능이다.
+
+웹 푸시를 사용하기 위해서는 `Service Worker`를 사용해야 한다.
+
+<br />
+
+### 서비스 워커(Service Worker)
+
+**Service Worker**는 브라우저의 백그라운드에서 실행되는 스크립트로, 웹 앱의 오프라인 경험을 향상시키는 데 사용된다.
+
+<br />
+
+### next-pwa 서비스 워커 설정
+
+* **next-pwa** 라이브러리를 사용해 아래와 같이 **register** 옵션을 true로 설정하면 서비스 워커를 자동으로 등록할 수 있다.
+* 이 때 서비스 워커는 커스텀하게 사용하기 위해 **public/worker** 폴더를 경로를 설정했다.
+
+```js
+// next.config.js
+
+import createPWA from 'next-pwa';
+
+const withPWA = createPWA({
+  ...
+  register: true, // 서비스 워커 등록 여부
+  customWorkerDir: 'worker', // 서비스 워커 파일 경로
+  ...
+});
+```
+
+<br />
+
+### 서비스 워커 설정
+
+**public/service-worker.js** 파일을 생성하고 아래와 같이 기본 서비스 워커 로직을 작성했다.
+
+```js
+// public/service-worker.js
+
+/**
+ * SECTION: PWA를 위한 기본 서비스 워커 로직
+ */
+// 서비스 워커가 설치될 때 호출되는 이벤트 리스너
+self.addEventListener('install', () => {
+  console.log('Service Worker install');
+
+  // skipWaiting()을 호출하면 새 서비스 워커가 대기 중인 상태에서
+  // 즉시 활성화 상태로 전환되도록 강제합니다.
+  self.skipWaiting(); // 기존 서비스 워커를 대체하고 즉시 활성화
+});
+
+// 네트워크 요청을 가로채서 캐싱된 데이터를 우선적으로 반환하는 이벤트 리스너
+self.addEventListener('fetch', (event) => {
+  event.respondWith(
+    caches.match(event.request).then((response) => {
+      // 캐시에 요청이 있는 경우 캐시에서 반환, 없으면 네트워크에서 가져옴
+      return response || fetch(event.request);
+    })
+  );
+});
+
+// 서비스 워커가 푸시 알림을 수신할 때 호출되는 이벤트 리스너
+self.addEventListener('push', (event) => {
+  console.log('[Service Worker] Push Received.', event.data.text()); // 푸시 데이터 출력
+
+  // 푸시 알림의 데이터를 JSON으로 변환
+  const { title, body } = event.data.json().notification; // title과 body를 추출
+
+  // 푸시 알림을 생성 및 표시
+  event.waitUntil(
+    self.registration.showNotification(title, {
+      body, // 푸시 알림 내용
+      icon: '/icons/icon.png', // 알림 아이콘 경로
+      data: {
+        link: '/', // 알림 클릭 시 이동할 URL
+      },
+    })
+  );
+});
+
+// 사용자가 푸시 알림을 클릭했을 때 실행되는 이벤트 리스너
+self.addEventListener('notificationclick', (event) => {
+  console.log('[Service Worker] notificationclick', event.notification.data); // 알림 클릭 시 데이터 출력
+
+  // 알림 클릭 시 지정된 URL로 브라우저 창 열기
+  event.waitUntil(clients.openWindow(event.notification.data.link));
+});
+```
+
+<br />
+
+### 서비스 워커 등록
+
+클라이언트에서 서비스 워커를 등록하기 위해 **worker-component.tsx** 컴포넌트가 마운트되면 해당 함수를 호출하도록 한다.
+
+```tsx
+useEffect(() => {
+  if (typeof window == 'undefined') return;
+
+  // 서비스 워커 등록
+  if ('serviceWorker' in navigator && 'PushManager' in window) {
+    navigator.serviceWorker
+      .register('/worker/index.js')
+      .then(function (registration) {
+        console.log('서비스 워커 등록 성공:', registration);
+      })
+      .catch(function (err) {
+        console.error('서비스 워커 등록 실패:', err);
+      });
+  }
+}, []);
+```
+
+<br />
+
+서비스 워커가 정상적으로 등록된다면 아래와 같이 확인할 수 있다.
+
+![register-service-worker](/images/blog-posts/202409241200-PWA에-웹-푸시(Web-Push)를-적용해보자/register-service-worker.png)
+
+<br />
+
+### 푸시 알림 테스트
+
+위 이미지에서 푸시 버튼을 클릭했을 때 다음과 같이 알림이 발생하면 정상적으로 동작하는 것을 확인할 수 있다.
+
+![web-push-test](/images/blog-posts/202409241200-PWA에-웹-푸시(Web-Push)를-적용해보자/web-push-test.png)
+
+<br />
+<br />
+
+# FCM(Fire Cloud Messaging)
+
+**Firebase Cloud Messaging**은 `Firebase`에서 제공하는 메시징 서비스로, 사용자에게 푸시 알림을 보낼 수 있다.
+
+<br />
+
+## FCM 설정
+
+FCM을 사용하기 위해서는 Firebase 프로젝트를 생성하고 Firebase SDK 설정 작업이 먼저 필요하다.
+
+<br />
+
+### Firebase 프로젝트 생성
+
+**[firebase](https://console.firebase.google.com/)** 에 접속하여 새 프로젝트를 생성한다.
+
+나는 `my-blog`라는 이름으로 프로젝트를 생성했다.
+
+![create-fcm-project](/images/blog-posts/202409241200-PWA에-웹-푸시(Web-Push)를-적용해보자/create-fcm-project.png)
+
+<br />
+
+### Firebase 앱 설정
+
+프로젝트가 생성되면 앱을 추가할 수 있는데, PWA에서 FCM을 사용하기 위해서 웹 앱을 추가한다.
+
+![set-fcm-app](/images/blog-posts/202409241200-PWA에-웹-푸시(Web-Push)를-적용해보자/set-fcm-app.png)
+
+<br />
+
+### 앱 등록
+
+앱 등록을 위해 앱 닉네임을 설정하고 앱을 등록한다. 나는 적용할 호스트가 `https://blog.wonseok-han.dev`이므로 해당 호스트를 등록했다.
+
+![add-fcm-nickname](/images/blog-posts/202409241200-PWA에-웹-푸시(Web-Push)를-적용해보자/add-fcm-nickname.png)
+
+<br />
+
+### Firebase SDK 추가
+
+앱 등록 후 Firebase SDK를 추가할 수 있는 아래와 같은 안내가 나타난다.
+
+```bash
+npm install firebase
+```
+
+<br />
+
+* 아래와 같은 스크립트가 나타날텐데 나는 **utils/firebase.ts** 라는 파일을 생성해서 copy/paste 했다.
+* 정보들이 노출되면 안되기 때문에 전부 **.env** 파일로 분리했다.
+
+```js
+// src/utils/firebase.ts
+
+// Import the functions you need from the SDKs you need
+import { initializeApp } from "firebase/app";
+import { getAnalytics } from "firebase/analytics";
+// TODO: Add SDKs for Firebase products that you want to use
+// https://firebase.google.com/docs/web/setup#available-libraries
+
+// Your web app's Firebase configuration
+// For Firebase JS SDK v7.20.0 and later, measurementId is optional
+const firebaseConfig = {
+  apiKey: process.env.NEXT_PUBLIC_FIREBASE_API_KEY,
+  authDomain: process.env.NEXT_PUBLIC_FIREBASE_AUTH_DOMAIN,
+  projectId: process.env.NEXT_PUBLIC_FIREBASE_PROJECT_ID,
+  storageBucket: process.env.NEXT_PUBLIC_FIREBASE_STORAGE_BUCKET,
+  messagingSenderId: process.env.NEXT_PUBLIC_FIREBASE_MESSAGING_SENDER_ID,
+  appId: process.env.NEXT_PUBLIC_FIREBASE_APP_ID,
+  measurementId: process.env.NEXT_PUBLIC_MEASUREMENT_ID,
+};
+
+// Initialize Firebase
+const app = initializeApp(firebaseConfig);
+const analytics = getAnalytics(app);
+```
+
+<br />
+
+### Firebase CLI 설치 (optional)
+
+나는 내 블로그에 포스팅겸 테스트로 적용할거기때문에 굳이 설치하지 않았다.
+
+* Firebase CLI를 설치하면 로컬에서 Firebase 프로젝트를 관리할 수 있다.
+
+```bash
+npm install -g firebase-tools
+```
+
+<br />
+<br />
+
+## 클라이언트에서 Push 알림 수신 권한 요청
+
+* 사용자가 알림을 수신하기 위해서는 알림 수신 권한 허용이 먼저 필요하다.
+* **firebase.ts** 파일에 다음과 같은 함수를 추가하고 **worker-component.tsx** 파일에서 컴포넌트가 마운트되면 해당 함수를 호출하도록 한다.
+
+```ts
+// src/utils/firebase.ts
+
+// 푸시 알림 수신 권한 요청
+export const requestPermission = async (
+  registration: ServiceWorkerRegistration
+) => {
+  // 브라우저 환경에서만 실행되도록 체크
+  if (typeof window !== 'undefined') {
+    try {
+      // FCM이 브라우저에서 지원되는지 확인
+      const supported = await isSupported();
+      if (!supported) {
+        console.warn('이 브라우저는 FCM을 지원하지 않습니다.');
+        return null;
+      }
+
+      if ('serviceWorker' in navigator && 'PushManager' in window) {
+        const messaging = getMessaging(app);
+
+        // VAPID 키 설정 (Firebase 콘솔에서 가져온 VAPID 공개 키를 사용)
+        const token = await getToken(messaging, {
+          vapidKey: process.env.NEXT_PUBLIC_FIREBASE_VAPID_KEY,
+          serviceWorkerRegistration: registration, // 등록된 서비스 워커 참조
+        });
+
+        if (token) {
+          return token; // 이 토큰을 사용해서 푸시 알림을 보냅니다
+        } else {
+          console.log('푸시 알림 권한이 거부되었습니다.');
+          return null;
+        }
+      }
+    } catch (error) {
+      console.error('FCM 토큰 요청 중 오류 발생:', error);
+      return null;
+    }
+  } else {
+    // 서버사이드 렌더링에서는 null 반환
+    console.warn('서버사이드에서는 FCM 토큰을 요청할 수 없습니다.');
+    return null;
+  }
+};
+```
+
+```tsx
+// compoennts/worker-component.tsx
+
+// 서비스 워커 
+useEffect(() => {
+  if (typeof window == 'undefined') return;
+
+  // 서비스 워커 등록
+  if ('serviceWorker' in navigator && 'PushManager' in window) {
+    navigator.serviceWorker
+      .register('/worker/index.js')
+      .then(function (registration) {
+        console.log('서비스 워커 등록 성공:', registration);
+        const fetchToken = async (
+          registration: ServiceWorkerRegistration
+        ) => {
+          const fcmToken = await requestPermission(registration);
+          if (fcmToken) {
+            setToken(fcmToken); // 토큰을 상태에 저장
+          }
+        };
+
+        fetchToken(registration);
+      })
+      .catch(function (err) {
+        console.error('서비스 워커 등록 실패:', err);
+      });
+  }
+}, []);
+```
+
+아 군데군데 **if (typeof window !== 'undefined')** 이 체크 로직을 넣은 이유는 **Next.js**에서 **SSR(Server Side Rendering)** 을 사용하고 저게 없으면 서버단에서 undefined 에러가 발생하기 때문이다.
+
+<br />
+
+## 백그라운드에서 푸시 알림 수신
+
+* **Service Worker**를 사용해서 백그라운드에서 푸시 알림을 수신하기 위해 **public/firebase-messaging-sw.js** 파일을 생성하고 다음과 같이 작성했다.
+* 백그라운드에서 onBackgroundMessage 리스너가 계속 돌고 있을 것이고 푸시 알림을 수신하면 Push 알림이 생성되도록 했다.
+* <span style={{color: 'tomato'}}>*만약 워커에서 기본 push 이벤트 리스너를 가지고 있다면 push 이벤트를 여기서 이미 땡겨가기 때문에 굳이 추가로 아래 작업을 할 필요는 없다.*</span>
+
+```ts
+// public/firebase-messaging-sw.js
+
+importScripts(
+  'https://www.gstatic.com/firebasejs/9.6.1/firebase-app-compat.js'
+);
+importScripts(
+  'https://www.gstatic.com/firebasejs/9.6.1/firebase-messaging-compat.js'
+);
+
+// Firebase 설정 객체
+const firebaseConfig = {
+  apiKey: '__FIREBASE_API_KEY__', // 환경 변수로 대체됨
+  authDomain: '__FIREBASE_AUTH_DOMAIN__', // 환경 변수로 대체됨
+  projectId: '__FIREBASE_PROJECT_ID__', // 환경 변수로 대체됨
+  storageBucket: '__FIREBASE_STORAGE_BUCKET__', // 환경 변수로 대체됨
+  messagingSenderId: '__FIREBASE_MESSAGING_SENDER_ID__', // 환경 변수로 대체됨
+  appId: '__FIREBASE_APP_ID__', // 환경 변수로 대체됨
+  measurementId: '__FIREBASE_MEASUREMENT_ID__', // 환경 변수로 대체됨
+};
+
+// Firebase 초기화
+firebase.initializeApp(firebaseConfig);
+
+// Firebase Messaging 초기화
+const messaging = firebase.messaging();
+
+// 백그라운드에서 푸시 알림을 수신합니다.
+messaging.onBackgroundMessage(function (payload) {
+  console.log('[firebase-messaging-sw.js] 백그라운드 메시지 수신: ', payload);
+  const notificationTitle = payload.notification.title;
+  const notificationOptions = {
+    body: payload.notification.body,
+    icon: '/icons/icon.png', // 아이콘 경로
+    data: {
+      link: '/', // 알림 클릭 시 이동할 URL
+    },
+  };
+
+  self.registration.showNotification(notificationTitle, notificationOptions);
+});
+```
+
+<br />
+
+## 백그라운드 Push 테스트
+
+* firebase 콘솔에서 **프로젝트 > Cloud Messaging > 캠페인 만들기 > Firebase 알림 메시지** 를 통해 테스트로 푸시 알림을 보내면 백그라운드에서 푸시 알림을 수신할 수 있다.
+* 이 때 vapidKey를 통해 생성된 토큰을 가지고 푸시 알림을 보내야 한다.
+
+![background-fcm-test](/images/blog-posts/202409241200-PWA에-웹-푸시(Web-Push)를-적용해보자/background-fcm-test.png)
+
+<br />
+
+전송하면 다음과 같이 푸쉬 알림이 오는 것을 확인할 수 있다.
+
+![background-push-test](/images/blog-posts/202409241200-PWA에-웹-푸시(Web-Push)를-적용해보자/background-push-test.png)
+
+<br />
+
+## 포그라운드에서 푸시 알림 수신
+
+* 포그라운드 상태에서 푸시 알림을 수신해서 사용자에게 알림을 보여주기 위해 **onMessageListener** 를 추가했다.
+* **firebase.ts** 파일에 다음과 같은 함수를 추가하고 **worker-component.tsx** 파일에서 컴포넌트가 마운트되면 해당 함수를 호출하도록 한다.
+* <span style={{color: 'tomato'}}>*만약 워커에서 기본 push 이벤트 리스너를 가지고 있다면 push 이벤트를 여기서 이미 땡겨가기 때문에 굳이 추가로 아래 작업을 할 필요는 없다.*</span>
+
+```ts
+// src/utils/firebase.ts
+
+// 포그라운드 메시지 수신
+export const onMessageListener = (callback: (_payload: unknown) => void) => {
+  const messaging = getMessaging(app);
+  onMessage(messaging, (payload) => {
+    callback(payload);
+  });
+};
+```
+
+```tsx
+// components/worker-component.tsx
+
+// 포그라운드에서 푸시 알림 수신
+useEffect(() => {
+  // 메시지가 수신될 때마다 호출되는 리스너
+  onMessageListener((payload) => {
+    console.log('포그라운드 메시지 수신: ', payload);
+
+    // Notification API를 통해 포그라운드에서 알림 표시
+    if (Notification.permission !== 'granted') return;
+
+    const result = payload as FCMMessagePayloadType;
+    const notificationTitle = result.notification?.title;
+    const notificationOptions = {
+      body: result.notification?.body,
+      icon: '/icons/icon.png', // 알림 아이콘 경로
+    };
+
+    if (notificationTitle && notificationOptions.body) {
+      // 포그라운드에서 Notification API 사용
+      new Notification(notificationTitle, notificationOptions);
+    }
+  });
+}, []);
+```
+
+<br />
+
+## 포그라운드 Push 테스트
+
+아래의 명령을 통해 Firebase Admin을 설치하면 json 파일로 sdk가 제공되는데 해당 파일을 **.env** 파일로 분리해서 사용했다.
+
+```bash
+npm install firebase-admin
+```
+
+<br />
+
+아래와 같이 푸시 알림을 받기 위한 API를 생성하고 **POST** 요청을 통해 푸시 알림을 보낼 수 있다.
+
+```ts
+// utils/firebase-admin.ts
+
+import admin, { ServiceAccount } from 'firebase-admin';
+
+if (!admin.apps.length) {
+  admin.initializeApp({
+    credential: admin.credential.cert({
+      type: process.env.FIREBASE_SERVICE_ACCOUNT_TYPE,
+      project_id: process.env.FIREBASE_SERVICE_ACCOUNT_PROJECT_ID,
+      private_key_id: process.env.FIREBASE_SERVICE_ACCOUNT_PRIVATE_KEY_ID,
+      private_key: process.env.FIREBASE_SERVICE_ACCOUNT_PRIVATE_KEY?.replace(
+        /\\n/g,
+        '\n'
+      ),
+      client_email: process.env.FIREBASE_SERVICE_ACCOUNT_CLIENT_EMAIL,
+      client_id: process.env.FIREBASE_SERVICE_ACCOUNT_CLIENT_ID,
+      auth_uri: process.env.FIREBASE_SERVICE_ACCOUNT_AUTH_URI,
+      token_uri: process.env.FIREBASE_SERVICE_ACCOUNT_TOKEN_URI,
+      auth_provider_x509_cert_url:
+        process.env.FIREBASE_SERVICE_ACCOUNT_AUTH_PROVIDER_X509_CERT_URL,
+      client_x509_cert_url:
+        process.env.FIREBASE_SERVICE_ACCOUNT_CLIENT_X509_CERT_URL,
+      universe_domain: process.env.FIREBASE_SERVICE_ACCOUNT_UNIVERSE_DOMAIN,
+    } as ServiceAccount),
+  });
+}
+
+export default admin;
+```
+
+```ts
+// app/api/notification/route.ts
+
+import { NextRequest, NextResponse } from 'next/server';
+import admin from '../../../utils/firebase-admin'; // Firebase Admin 초기화된 파일 경로
+
+export async function POST(request: NextRequest) {
+  const { token, title, body } = await request.json();
+
+  if (!token || !title || !body) {
+    return NextResponse.json({ error: 'Missing fields' }, { status: 400 });
+  }
+
+  try {
+    const message = {
+      token, // FCM 토큰
+      notification: {
+        title, // 푸시 알림 제목
+        body, // 푸시 알림 내용
+      },
+    };
+
+    // FCM 메시지 전송
+    await admin.messaging().send(message);
+    return NextResponse.json({ success: true });
+  } catch (error) {
+    console.error('Error sending FCM message:', error);
+    return NextResponse.json(
+      { error: 'Error sending notification' },
+      { status: 500 }
+    );
+  }
+}
+```
+
+<br />
+
+클라이언트단에서 **sendNotification** 함수를 통해 **/api/notification** API를 호출했다.
+
+```tsx
+const sendNotification = async () => {
+  try {
+    const res = await fetch('/api/notification', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({
+        token,
+        title: 'Web Push',
+        body: `${new Date()}`,
+      }),
+    });
+
+    if (res.ok) {
+      alert('Notification sent successfully!');
+    } else {
+      const errorData = await res.json();
+      alert(`Failed to send notification: ${errorData.error}`);
+    }
+  } catch (error) {
+    console.error('Error setting notification:', error);
+  }
+};
+```
+
+![foreground-fcm-test](/images/blog-posts/202409241200-PWA에-웹-푸시(Web-Push)를-적용해보자/foreground-fcm-test.png)
+
+<br />
+<br />
+
+# 마무리
+
+기본 웹 푸시와 FCM을 이용한 웹 푸시를 적용하는 방법에 대해 알아보았다.
+
+위에서 내가 적용한 방식들은 백엔드와는 함께 적용되지 않은 가장 간단하게 구현된 방식이다.
+
+백엔드에서 웹 푸시를 주려고 한다면 클라이언트에서 생성된 토큰을 백엔드와 공유해 백엔드에서 푸시 알림을 보내는 방식으로 구현해야할 것 같다.
+
+<br />
+<br />
+
+# Reference
+
+* [https://velog.io/@jwlee134/PWA-web-push%EB%A5%BC-%EC%82%AC%EC%9A%A9%ED%95%9C-%EC%9B%B9-%ED%91%B8%EC%8B%9C-%EC%95%8C%EB%A6%BC-%EA%B5%AC%ED%98%841](https://velog.io/@jwlee134/PWA-web-push%EB%A5%BC-%EC%82%AC%EC%9A%A9%ED%95%9C-%EC%9B%B9-%ED%91%B8%EC%8B%9C-%EC%95%8C%EB%A6%BC-%EA%B5%AC%ED%98%841)
+* [https://velog.io/@heather128/React-PWA%EC%97%90%EC%84%9C-%EC%95%8C%EB%A6%BC-%EA%B5%AC%ED%98%84%ED%95%98%EA%B8%B0](https://velog.io/@heather128/React-PWA%EC%97%90%EC%84%9C-%EC%95%8C%EB%A6%BC-%EA%B5%AC%ED%98%84%ED%95%98%EA%B8%B0)
+* [https://velog.io/@angelo/Firebase-%EC%82%AC%EC%9A%A9-%EB%B0%A9%EB%B2%95](https://velog.io/@angelo/Firebase-%EC%82%AC%EC%9A%A9-%EB%B0%A9%EB%B2%95)
+* [https://velog.io/@drrobot409/next.js-fcm-%EC%9B%B9-%ED%91%B8%EC%8B%9C-%EA%B5%AC%ED%98%84%ED%95%98%EA%B8%B0](https://velog.io/@drrobot409/next.js-fcm-%EC%9B%B9-%ED%91%B8%EC%8B%9C-%EA%B5%AC%ED%98%84%ED%95%98%EA%B8%B0)
