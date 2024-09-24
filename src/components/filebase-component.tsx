@@ -61,6 +61,20 @@ const FirebaseComponent = () => {
   }, []);
 
   useEffect(() => {
+    // 서비스 워커 등록
+    if ('serviceWorker' in navigator) {
+      navigator.serviceWorker
+        .register('/firebase-messaging-sw.js')
+        .then(function (registration) {
+          console.log('서비스 워커 등록 성공:', registration);
+        })
+        .catch(function (err) {
+          console.error('서비스 워커 등록 실패:', err);
+        });
+    }
+  }, []);
+
+  useEffect(() => {
     // 메시지가 수신될 때마다 호출되는 리스너
     onMessageListener((payload) => {
       console.log('포그라운드 메시지 수신: ', payload);
