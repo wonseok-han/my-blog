@@ -3,6 +3,7 @@ import { MDXComponent } from '@components/mdx-component';
 
 import { getPost, getPosts } from '@utils/lib';
 import dynamic from 'next/dynamic';
+import SampleComponents from '@components/posts/sample-components';
 
 const Comments = dynamic(() => import('@components/comments'), { ssr: false });
 const FloatingButton = dynamic(() => import('@components/floating-button'), {
@@ -37,6 +38,8 @@ export default async function BlogPostPage({
       </div>
       {/* MDX 콘텐츠 렌더링 */}
       <MDXRemote source={post.content} components={MDXComponent} />
+
+      <SampleComponents title={post.frontmatter.title} />
 
       <hr className="my-8" />
 
