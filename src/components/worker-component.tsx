@@ -4,11 +4,14 @@ import { usePushStore } from '@/store/push-store';
 import { useTokenStore } from '@/store/token-store';
 
 import { requestPermission } from '@utils/firebase';
+import { usePathname } from 'next/navigation';
 import { memo, useEffect } from 'react';
 
 const WorkerComponent = () => {
+  const pathname = usePathname();
+
   const { token, setToken } = useTokenStore();
-  const { trigger } = usePushStore();
+  const { trigger, clear } = usePushStore();
 
   const sendNotification = async () => {
     try {
@@ -73,6 +76,10 @@ const WorkerComponent = () => {
         });
     }
   }, []);
+
+  useEffect(() => {
+    clear();
+  }, [pathname]);
 
   useEffect(() => {
     if (trigger > 0) {
