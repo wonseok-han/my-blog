@@ -1,0 +1,319 @@
+---
+title: '설치형(Self-hosted) Gitlab 환경에서 Vercel 배포하기'
+description: '설치형(Self-hosted) Gitlab 환경에서 Vercel 배포하는 방법에 대한 설명'
+thumbnail: '/thumbnail/blog-posts/202410071600-설치형(Self-hosted)-Gitlab-환경에서-Vercel-배포하기.png'
+created: '2024.10.07 16:00'
+---
+
+# Overview
+
+**Self-hosted Gitlab** 환경에서 `gitlab-ci`를 이용해 **Vercel**로 배포하는 방법에 대해 알아보자.
+
+<br />
+
+# 하게된 이유
+
+원래 AWS EC2 환경에 배포 중이던 Next.js 프로젝트를 Vercel로 배포해야할 일이 생겼다. <del>(리더가 바꾸고 싶다고 시켰.. 읍읍..)</del>
+
+프로젝트에선 `develop` - `staging` - `production`의 단계를 거쳐 운영 배포가 되는데 바로 여기서 문제가 발생했다.
+
+**develop**과 **staging** 환경으로 배포할 때는 `Preview`로 배포되기 때문에 별로 상관 없었지만 `Production`으로 배포하자마자 너무 큰 이슈가 발생했다.
+
+바로 각각의 **.env** 파일로 분리해놓은 `환경변수`가 **production**으로 배포하자마자 기존에 Preview로 배포되었던 develop과 staging에 적용되는 문제가 생긴 것이다.
+
+좀 더 자세히 원인을 알아보니 Vercel에 Production으로 배포했을 때 develop, staging에 적용한 모든 커스텀 도메인이 production url에 적용되서 배포되는 것을 확인할 수 있었다.
+
+그래서 `Vercel-CLI`로 배포해보는 경험도 처음이었고, 일주일 내내 CI 만 뚫어지게 바라보며 삽질했던 나로서는 기록하지 않을 수가 없어 포스팅하게 되었다.
+
+<br />
+<br />
+
+# gitlag-cli.yml 작성 기본
+
+Vercel 공식 문서에서는 아래의 스크립트를 제공해준다.
+
+* **vercel link**: 현재 프로젝트를 Vercel 프로젝트와 연결하는 명령
+* **vercel pull**: Vercel에 배포된 프로젝트의 환경 변수, 설정을 가져오는 명령
+* **vercel build**: 로컬에서 현재 프로젝트를 빌드하는 명령
+* **vercel deploy**: 프로젝트를 Vercel에 배포하는 명령 (**--prebuilt** 옵션을 사용하면 로컬에서 빌드한 파일을 기반으로 배포할 수 있다.)
+* **vercel alias**: 배포된 프로젝트에 커스텀 도메인을 설정하는 명령
+
+```yml
+# gitlab-ci.yml
+
+default:
+  image: node:16.16.0
+
+deploy_preview:
+  stage: deploy
+  except:
+    - main
+  script:
+    - npm install --global vercel
+    - vercel link --token=$VERCEL_TOKEN
+    - vercel pull --yes --environment=preview --token=$VERCEL_TOKEN
+    - vercel build --token=$VERCEL_TOKEN
+    - vercel deploy --prebuilt  --token=$VERCEL_TOKEN >deployment-url.txt 2>error.txt
+    # check the exit code
+    code=$?
+    - |
+      if [ $code -eq 0 ]; then
+          # Now you can use the deployment url from stdout for the next step of your workflow
+          deploymentUrl=`cat deployment-url.txt`
+          vercel alias $deploymentUrl my-custom-domain.com
+      else
+          # Handle the error
+          errorMessage=`cat error.txt`
+          echo "There was an error: $errorMessage"
+          exit 1
+      fi
+
+deploy_production:
+  stage: deploy
+  only:
+    - main
+  script:
+    - npm install --global vercel
+    - vercel link --token=$VERCEL_TOKEN
+    - vercel pull --yes --environment=production --token=$VERCEL_TOKEN
+    - vercel build --prod --token=$VERCEL_TOKEN
+    - vercel deploy --prebuilt --prod --token=$VERCEL_TOKEN >deployment-url.txt 2>error.txt
+    # check the exit code
+    code=$?
+    - |
+      if [ $code -eq 0 ]; then
+          # Now you can use the deployment url from stdout for the next step of your workflow
+          deploymentUrl=`cat deployment-url.txt`
+          vercel alias $deploymentUrl my-custom-domain.com
+      else
+          # Handle the error
+          errorMessage=`cat error.txt`
+          echo "There was an error: $errorMessage"
+          exit 1
+      fi
+```
+
+<br />
+<br />
+
+# gitlag-cli.yml 작성 변경
+
+위 과정까지의 스크립트만 가지고 진행하게 되면 **--prod** 배포시 내가 겪었던 모든 커스텀 도메인이 Production을 바라보게 되는 문제를 겪게된다.
+
+그래서 스크립트를 다음과 같이 변경할 수 있다.
+
+* **--skip-domain**: 배포시 도메인 설정을 건너뛰는 옵션
+* **vercel promote**: preview로 배포된 프로젝트를 production으로 승격하는 명령
+
+```yml
+# gitlab-ci.yml
+
+default:
+  image: node:16.16.0
+
+deploy_preview:
+  stage: deploy
+  except:
+    - main
+  script:
+    - npm install --global vercel
+    - vercel link --token=$VERCEL_TOKEN
+    - vercel pull --yes --environment=preview --token=$VERCEL_TOKEN
+    - vercel build --token=$VERCEL_TOKEN
+    - vercel deploy --prebuilt  --token=$VERCEL_TOKEN >deployment-url.txt 2>error.txt
+    # check the exit code
+    code=$?
+    - |
+      if [ $code -eq 0 ]; then
+          # Now you can use the deployment url from stdout for the next step of your workflow
+          deploymentUrl=`cat deployment-url.txt`
+          vercel alias $deploymentUrl my-custom-domain.com
+      else
+          # Handle the error
+          errorMessage=`cat error.txt`
+          echo "There was an error: $errorMessage"
+          exit 1
+      fi
+
+
+deploy_production:
+  stage: deploy
+  only:
+    - main
+  script:
+    - npm install --global vercel
+    - vercel link --token=$VERCEL_TOKEN
+    - vercel pull --yes --environment=production --token=$VERCEL_TOKEN
+    - vercel build --prod --token=$VERCEL_TOKEN
+    - vercel deploy --prebuilt --prod --skip-domain --token=$VERCEL_TOKEN >deployment-url.txt 2>error.txt # --skip-domain 옵션 추가
+    # check the exit code
+    code=$?
+    # promote 전에 이미 preview로 배포된 develop과 staging 환경 커스텀 도메인에 배포되있는 url을 가져온다.
+    - DEPLOYED_DEV_URL=$(vercel alias ls --limit 100 --token=${VERCEL_TOKEN} | grep -E "my-custom-dev-domain.com" | awk '{print $1}')
+    - DEPLOYED_STG_URL=$(vercel alias ls --limit 100 --token=${VERCEL_TOKEN} | grep -E "my-custom-stg-domain.com" | awk '{print $1}')
+    # vercel promote 명령을 사용해 배포된 Preview를 Production으로 승격하는 스크립트를 추가했다.
+    # (그리고 승격시에 모든 커스텀 도메인이 승격된 Production을 바라보게 된다.)
+    # promote 후에 배포되었었던 develop, staging URL에 커스텀 도메인을 alias로 다시 설정 한다.
+    - |
+      if [ $code -eq 0 ]; then
+          # Now you can use the deployment url from stdout for the next step of your workflow
+          deploymentUrl=`cat deployment-url.txt`
+          vercel alias $deploymentUrl my-custom-domain.com
+          vercel promote --yes $deploymentUrl --token=$VERCEL_TOKEN
+
+          if [ -n "$DEPLOYED_DEV_URL" ]; then
+            vercel alias set ${DEPLOYED_DEV_URL} ${DEV_DOMAIN} --token=${VERCEL_TOKEN}
+          fi
+
+          if [ -n "$DEPLOYED_DEV_URL" ]; then
+            vercel alias set ${DEPLOYED_STG_URL} ${STG_DOMAIN} --token=${VERCEL_TOKEN}
+          fi
+      else
+          # Handle the error
+          errorMessage=`cat error.txt`
+          echo "There was an error: $errorMessage"
+          exit 1
+      fi
+```
+
+<br />
+<br />
+
+# 단계 요약
+
+스크립트에 주석으로 설명은 썼지만 따로 단계를 요약하면 아래와 같다.
+
+1. vercel link
+2. vercel pull
+3. vercel build
+4. vercel deploy --skip-domain
+5. vercel alias (Production 커스텀 도메인 설정)
+6. vercel promote (Preview -> Production 승격)
+7. vercel alias (기존 Preview로 배포되었던 develop, staging 커스텀 도메인 재설정)
+
+<br />
+<br />
+
+# 로컬에서 Vercel-CLI 사용하기
+
+Gitlab-ci로 계속 커밋하면서 확인하다보니 커밋 내역이 너무 지저분해지고 불편했다.
+
+그래서 내 로컬(WSL Ubuntu) 환경에서 직접 Vercel-CLI를 사용해 배포하면서 확인할 수 있도록 했다.
+
+Vercel 토큰의 경우에는 `vercel login` 명령어로 로그인을 하면 명령에 토큰을 사용하지 않아도 CLI를 사용할 수 있다.
+
+<br />
+
+## vercel 설치
+
+```bash
+npm install --global vercel
+```
+
+<br />
+
+## 쉘 스크립트 작성
+
+```bash
+# deploy.sh
+
+#!/bin/bash
+
+PROJECT_NAME=my-vercel-project-name
+PROJECT_SCOPE=my-vercel-project-scope
+VERCEL_TOKEN=my-vercel-token
+
+DEV_DOMAIN=my-custom-dev-domain.com
+STG_DOMAIN=my-custom-stg-domain.com
+PROD_DOMAIN=my-custom-prod-domain.com
+
+# # NOTE: Production
+# VERCEL_ENV=production
+# BUILD_ENV=prod
+# DEPLOY_FLAGS=--prod
+# ALIAS_DOMAIN=$PROD_DOMAIN
+
+# NOTE: Development
+VERCEL_ENV=preview
+BUILD_ENV=dev
+DEPLOY_FLAGS=
+ALIAS_DOMAIN=$DEV_DOMAIN
+
+echo ">>>>>>>>>>>>>>>>>>>>>>>>>>>>>>> ${PROJECT_NAME} 프로젝트로 링크합니다..."
+vercel link --yes --project ${PROJECT_NAME} --token=${VERCEL_TOKEN}
+
+echo ">>>>>>>>>>>>>>>>>>>>>>>>>>>>>>> ${PROJECT_NAME} 프로젝트의 설정을 내려 받습니다..."
+vercel pull --yes --environment=${VERCEL_ENV} --token=${VERCEL_TOKEN}
+
+echo ">>>>>>>>>>>>>>>>>>>>>>>>>>>>>>> 로컬에서 ${PROJECT_NAME} 프로젝트를 빌드합니다..."
+vercel build ${DEPLOY_FLAGS} --token=${VERCEL_TOKEN} >build-process.txt 2>build-error.txt
+BUILD_EXIT_CODE=$?
+
+if [ "$BUILD_EXIT_CODE" -ne 0 ]; then
+  echo ">>>>>>>>>>>>>>>>>>>>>>>>>>>>>>> 빌드 에러..."
+  cat build-error.txt
+  exit 1
+fi
+
+echo ">>>>>>>>>>>>>>>>>>>>>>>>>>>>>>> ${PROJECT_NAME} 프로젝트를 ${VERCEL_ENV}로 배포합니다..."
+vercel deploy --archive=tgz --prebuilt --skip-domain ${DEPLOY_FLAGS} --token=${VERCEL_TOKEN} >deployment-url.txt 2>deploy-error.txt
+DEPLOYMENT_EXIT_CODE=$?
+
+if [ "$DEPLOYMENT_EXIT_CODE" -ne 0 ]; then
+  echo ">>>>>>>>>>>>>>>>>>>>>>>>>>>>>>> 배포 에러..."
+  cat deploy-error.txt
+  exit 1
+fi
+
+echo ">>>>>>>>>>>>>>>>>>>>>>>>>>>>>>> ${PROJECT_NAME} 프로젝트가 ${DEPLOYMENT_URL} URL로 배포되었습니다..."
+cat deployment-url.txt
+DEPLOYMENT_URL=$(cat deployment-url.txt)
+
+echo ">>>>>>>>>>>>>>>>>>>>>>>>>>>>>>> ${PROJECT_NAME} 프로젝트의 ${DEPLOYMENT_URL} URL이 ${ALIAS_DOMAIN}로 설정됩니다..."
+vercel alias set ${DEPLOYMENT_URL} ${ALIAS_DOMAIN} --token=${VERCEL_TOKEN} --scope=${PROJECT_SCOPE}
+
+if [ "$VERCEL_ENV" == "production" ]; then
+  echo ">>>>>>>>>>>>>>>>>>>>>>>>>>>>>>> develop과 staging URL을 저장합니다..."
+  DEPLOYED_DEV_URL=$(vercel alias ls --limit 100 --token=${VERCEL_TOKEN} | grep -E "$DEV_DOMAIN" | awk '{print $1}')
+  DEPLOYED_STG_URL=$(vercel alias ls --limit 100 --token=${VERCEL_TOKEN} | grep -E "$STG_DOMAIN" | awk '{print $1}')
+
+  echo ">>>>>>>>>>>>>>>>>>>>>>>>>>>>>>> ${DEPLOYMENT_URL}(${ALIAS_DOMAIN}) 가 Production으로 승격됩니다..."
+  vercel promote --yes ${DEPLOYMENT_URL} --token=${VERCEL_TOKEN} --scope=${PROJECT_SCOPE}
+
+  if [ -n "$DEPLOYED_DEV_URL" ]; then
+    echo ">>>>>>>>>>>>>>>>>>>>>>>>>>>>>>> develop URL을 다시 ${DEV_DOMAIN}으로 alias 설정합니다..."
+    vercel alias set ${DEPLOYED_DEV_URL} ${DEV_DOMAIN} --token=${VERCEL_TOKEN} --scope=${PROJECT_SCOPE}
+  fi
+
+  if [ -n "$DEPLOYED_DEV_URL" ]; then
+    echo ">>>>>>>>>>>>>>>>>>>>>>>>>>>>>>> staging URL을 다시 ${STG_DOMAIN}으로 alias 설정합니다..."
+    vercel alias set ${DEPLOYED_STG_URL} ${STG_DOMAIN} --token=${VERCEL_TOKEN} --scope=${PROJECT_SCOPE}
+  fi
+fi
+```
+
+<br />
+
+## 쉘 스크립트 실행
+
+```bash
+bash deploy.sh
+```
+
+<br />
+<br />
+
+# 마치며
+
+고통스러웠다.
+
+![failed-ci](/images/blog-posts/202410071600-설치형(Self-hosted)-Gitlab-환경에서-Vercel-배포하기/failed-ci.png)
+
+<br />
+<br />
+
+# Reference
+
+* [https://docs.gitlab.com/ee/ci/](https://docs.gitlab.com/ee/ci/)
+* [https://vercel.com/docs/cli](https://vercel.com/docs/cli)
+* [https://vercel.com/guides/how-can-i-use-gitlab-pipelines-with-vercel](https://vercel.com/guides/how-can-i-use-gitlab-pipelines-with-vercel)
