@@ -9,21 +9,27 @@ created: '2024.10.07 16:00'
 
 **Self-hosted Gitlab** 환경에서 `gitlab-ci`를 이용해 **Vercel**로 배포하는 방법에 대해 알아보자.
 
+`Vercel-CLI`로 배포해보는 경험도 처음이었고, 일주일 내내 CI 만 뚫어지게 바라보며 삽질했던 나로서는 기록하지 않을 수가 없어 포스팅하게 되었다.
+
 <br />
 
 # 하게된 이유
 
-원래 AWS EC2 환경에 배포 중이던 Next.js 프로젝트를 Vercel로 배포해야할 일이 생겼다. <del>(리더가 바꾸고 싶다고 시켰.. 읍읍..)</del>
+원래 AWS EC2 환경에 배포 중이던 Next.js 프로젝트를 Vercel 배포로 변경해야할 일이 생겼다.
+
+리더가 바꾸고 싶다고 했는데 아마 EC2로 나가는 비용이 커서 이를 줄이기 위해서인 것 같았다.
+
+<br />
+
+# 하면서 생긴 이슈
 
 프로젝트에선 `develop` - `staging` - `production`의 단계를 거쳐 운영 배포가 되는데 바로 여기서 문제가 발생했다.
 
-**develop**과 **staging** 환경으로 배포할 때는 `Preview`로 배포되기 때문에 별로 상관 없었지만 `Production`으로 배포하자마자 너무 큰 이슈가 발생했다.
+**develop**과 **staging** 환경으로 배포할 때는 `Preview`로 배포되기 때문에 별로 상관 없었지만 `Production`으로 배포하자마자 이슈가 발생했다.
 
 바로 각각의 **.env** 파일로 분리해놓은 `환경변수`가 **production**으로 배포하자마자 기존에 Preview로 배포되었던 develop과 staging에 적용되는 문제가 생긴 것이다.
 
 좀 더 자세히 원인을 알아보니 Vercel에 Production으로 배포했을 때 develop, staging에 적용한 모든 커스텀 도메인이 production url에 적용되서 배포되는 것을 확인할 수 있었다.
-
-그래서 `Vercel-CLI`로 배포해보는 경험도 처음이었고, 일주일 내내 CI 만 뚫어지게 바라보며 삽질했던 나로서는 기록하지 않을 수가 없어 포스팅하게 되었다.
 
 <br />
 <br />
