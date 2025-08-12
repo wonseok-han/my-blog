@@ -61,13 +61,13 @@ self.addEventListener('notificationclick', (event) => {
 
 // // Firebase 설정 객체
 // const firebaseConfig = {
-//   apiKey: 'AIzaSyAhpAGyg4xj0YLJIFt8lJ7keCR4IBLlV7I', // 환경 변수로 대체됨
-//   authDomain: 'my-blog-15d5c.firebaseapp.com', // 환경 변수로 대체됨
-//   projectId: 'my-blog-15d5c', // 환경 변수로 대체됨
-//   storageBucket: 'my-blog-15d5c.appspot.com', // 환경 변수로 대체됨
-//   messagingSenderId: '1081981120024', // 환경 변수로 대체됨
-//   appId: '1:1081981120024:web:ce050399628be80f8a5d6d', // 환경 변수로 대체됨
-//   measurementId: 'G-PGYJP75SK2', // 환경 변수로 대체됨
+//   apiKey: 'undefined', // 환경 변수로 대체됨
+//   authDomain: 'undefined', // 환경 변수로 대체됨
+//   projectId: 'undefined', // 환경 변수로 대체됨
+//   storageBucket: 'undefined', // 환경 변수로 대체됨
+//   messagingSenderId: 'undefined', // 환경 변수로 대체됨
+//   appId: 'undefined', // 환경 변수로 대체됨
+//   measurementId: 'undefined', // 환경 변수로 대체됨
 // };
 
 // // Firebase 초기화
