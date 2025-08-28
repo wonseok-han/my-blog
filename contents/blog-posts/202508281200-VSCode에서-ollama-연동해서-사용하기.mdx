@@ -1,0 +1,295 @@
+---
+title: 'VSCode에서 ollama 연동해서 사용하기'
+description: 'VSCode에서 ollama를 연동하여 AI 코딩 어시스턴트를 활용하는 방법에 대해 알아보자'
+thumbnail: '/thumbnail/blog-posts/202508281200-VSCode에서-ollama-연동해서-사용하기.png'
+created: '2025.08.28 12:00'
+---
+
+# Overview
+
+요즘 AI 코딩 어시스턴트가 생산성을 크게 향상시키기 때문에 초급 개발자들의 일자리를 앗아가고 있는데 나 또한 `Cursor`를 많이 애용 중이다.
+
+물론 Cursor만큼은 아니겠지만 사내 보안 정책으로 인해 외부 서비스를 사용하지 못할 경우 오프라인에서 Cursor처럼 활용 가능한 `ollama`을 VSCode에서 연동해서 사용해보기로 했다.
+
+당연히 IDE와 연동이 없어도 일반적으로 ChatGPT를 사용하는 것처럼 채팅 방식으로 사용할 수도 있다.
+
+ollama은 로컬에서 AI 모델을 실행할 수 있어서 인터넷 연결 없이도 사용할 수 있고, 개인정보가 외부로 전송되지 않는다는 장점이 있다.
+
+<br />
+<br />
+
+# ollama이란?
+
+ollama은 로컬 환경에서 다양한 AI 모델을 실행할 수 있게 해주는 도구다. Docker와 유사하게 모델을 다운로드하고 실행할 수 있으며, REST API를 통해 사용할 수도 있다.
+
+## 장점
+
+* **정보 보호**: 모든 데이터가 로컬에서 처리되기 때문에 내부 정보가 외부로 전송되지 않는다.
+* **오프라인 사용**: 인터넷 연결 없이도 AI 모델을 사용할 수 있다.
+* **다양한 모델**: Llama, Mistral, CodeLlama 등 다양한 모델을 지원한다.
+* **무료 사용**: 대부분의 모델을 무료로 사용할 수 있다.
+* **커스터마이징**: 모델을 수정하고 파인튜닝할 수 있다.
+
+## 단점
+
+* **하드웨어 요구사항**: GPU 메모리와 성능이 필요하다.
+* **모델 크기**: 대용량 모델 다운로드에 시간이 소요된다.
+* **성능 제한**: 클라우드 기반 솔루션보다 느릴 수 있다.
+
+<br />
+<br />
+
+# 환경
+
+* **OS**: macOS (Apple Silicon)
+* **VSCode**: 1.102.3
+* **ollama**: 0.11.7
+
+<br />
+<br />
+
+# Getting Started
+
+## 1. ollama 설치
+
+### macOS에서 설치
+
+brew로 Install 하는 방법도 있지만 [ollama 다운로드 공식 홈페이지](https://ollama.com/download)에서 다운로드 받아서 설치하는 방법도 있다.
+나는 공식 홈페이지에서 다운로드 받아서 설치했다.
+
+```bash
+# Homebrew를 사용한 설치
+brew install ollama
+
+# 또는 공식 설치 스크립트 사용
+curl -fsSL https://ollama.ai/install.sh | sh
+```
+
+### 설치 확인
+
+```bash
+ollama --version
+```
+
+<br />
+
+## 2. AI 모델 다운로드
+
+[모델 목록](https://ollama.com/search)을 확인한 후 모델을 Pull 해준다.
+
+버전에 따라 더 높은 서버 사양이 필요할 수 있으므로 모델을 선택할 때 주의해야 한다.
+
+```bash
+ollama pull llama3.1:8b
+```
+
+### 모델 목록 확인
+
+```bash
+ollama list
+```
+
+<br />
+
+## 3. ollama 서비스 시작
+
+```bash
+# ollama 서비스 시작
+ollama serve
+
+# 백그라운드에서 실행하려면
+ollama serve &
+```
+
+<br />
+
+## 4. VSCode 확장 프로그램 설치
+
+VSCode에서 ollama을 사용하기 위한 확장 프로그램을 설치한다.
+
+### 추천 확장 프로그램
+
+* **Continue** - AI 코딩 어시스턴트
+
+처음에는 **VSCode Ollama** 확장 프로그램을 설치하고 사용해봤지만 실제 Cursor의 반의 반도 못하는 것 같아서 포기했다.
+그래도 Continue는 창을 한쪽으로 띄워놓고 사용할 수도 있었고, 프로젝트 디렉토리를 읽어서 직접 파일을 선택해서 지시하는 등 Cursor와 유사하게 사용할 수 있었다.
+
+### 설치 방법
+
+1. VSCode에서 `Ctrl+Shift+X` (또는 `Cmd+Shift+X`)를 눌러 확장 프로그램 탭 열기
+2. 검색창에 "ollama" 입력
+3. "Continue는" 확장 프로그램 설치
+
+<br />
+
+# Continue 사용 방법
+
+## 1. 기본 사용법
+
+### Continue 패널 열기
+
+1. `Cmd+Shift+P` (또는 `Ctrl+Shift+P`)를 눌러 명령 팔레트 열기
+2. "Continue: Continue보기에 포커스" 입력 (설치가 완료되면 패널에 Continue가 있음)
+3. Continue 패널이 왼쪽에 열림
+
+### 초기 설정
+
+Continue를 설치한 후 `Models`에 톱니바퀴 아이콘을 클릭하면 `config.yaml` 파일이 열린다.
+
+```yaml
+# 초기엔 파일이 다음과 같이 설정되어 있다.
+
+name: Local Agent
+version: 1.0.0
+schema: v1
+models:
+  - name: Llama 3.1 8B
+    provider: ollama
+    model: llama3.1:8b
+    roles:
+      - chat
+      - edit
+      - apply
+  - name: Qwen2.5-Coder 1.5B
+    provider: ollama
+    model: qwen2.5-coder:1.5b-base
+    roles:
+      - autocomplete
+  - name: Nomic Embed
+    provider: ollama
+    model: nomic-embed-text:latest
+    roles:
+      - embed
+context:
+  - provider: code
+  - provider: docs
+  - provider: diff
+  - provider: terminal
+  - provider: problems
+  - provider: folder
+  - provider: codebase
+```
+
+그럼 파일의 설정된 기본 model들이 있는데 `llama3.1:8b`, `qwen2.5-coder:1.5b-base`, `nomic-embed-text:latest`가 있다.
+
+`ollama`를 설치한 이후 저 모델들을 Pull 해주지 않으면 에러가 발생하므로 모델을 Pull 해준다.
+
+```bash
+ollama pull llama3.1:8b
+ollama pull qwen2.5-coder:1.5b-base
+ollama pull nomic-embed-text:latest
+```
+
+### 채팅 열기
+
+1. `Cmd+Shift+P` (또는 `Ctrl+Shift+P`)를 눌러 명령 팔레트 열기
+2. "Continue: Focus Continue Chat" 입력
+3. Continue 패널이 왼쪽에 열림
+
+모델을 선택하고 채팅을 시작할 수 있으며, Cursor를 쓰는 방식과 동일하게 사용할 수 있다.
+
+<br />
+
+## 2. 고급 기능
+
+### 파일 분석
+
+Continue 패널에서 특정 파일을 선택하고 분석 요청을 할 수 있다.
+
+### 코드 리뷰
+
+Git diff나 특정 코드 블록을 선택하여 AI에게 리뷰를 요청할 수 있다.
+
+### 프로젝트 컨텍스트 활용
+
+Continue는 프로젝트 전체 디렉토리를 읽어서 컨텍스트를 파악하고, 관련 파일들을 참조하여 더 정확한 답변을 제공한다.
+
+<br />
+
+## 3. Continue 활용 팁
+
+### 예시 프롬프트
+
+```
+"Next.js에서 사용자 로그인 폼을 만들어줘. 
+- 이메일과 비밀번호 입력 필드
+- 유효성 검사
+- 로그인 버튼
+- 에러 메시지 표시
+- Tailwind CSS 스타일링 적용"
+```
+
+### Continue의 장점
+
+* **프로젝트 컨텍스트**: 전체 프로젝트 구조를 파악하여 더 정확한 답변
+* **파일 선택**: 특정 파일을 선택하여 해당 코드에 대한 질문 가능
+* **코드 블록 선택**: 에디터에서 코드 블록을 선택하여 직접 수정 요청
+
+### Rules 설정
+
+Cursor와 동일하게 프로젝트에 규칙을 부여하고싶다면 프로젝트 폴더 내에 `.continue/rules.md` 파일을 생성하여 규칙을 설정할 수 있다.
+
+<br />
+<br />
+
+# ollama 모델 선택 가이드
+
+* **7B 모델**: 빠른 응답, 기본적인 코딩 지원
+* **13B 모델**: 더 정확한 응답, 복잡한 코드 생성
+* **34B+ 모델**: 최고 품질, 높은 하드웨어 요구사항
+
+<br />
+<br />
+
+# 실제 사용 예시
+
+## 1. React 컴포넌트 생성
+
+```
+프롬프트: "React로 사용자 프로필 카드 컴포넌트를 만들어줘. 
+사용자 이름, 이메일, 프로필 이미지를 표시하고, 
+편집 버튼과 삭제 버튼을 포함해줘."
+```
+
+## 2. API 엔드포인트 생성
+
+```
+프롬프트: "Express.js로 사용자 CRUD API를 만들어줘. 
+GET, POST, PUT, DELETE 메서드를 포함하고, 
+JWT 인증과 유효성 검사를 적용해줘."
+```
+
+## 3. 데이터베이스 스키마 설계
+
+```
+프롬프트: "PostgreSQL로 블로그 시스템을 위한 데이터베이스 스키마를 설계해줘. 
+사용자, 게시글, 댓글, 카테고리 테이블을 포함하고, 
+적절한 관계와 인덱스를 설정해줘."
+```
+
+<br />
+<br />
+
+# 결론
+
+VSCode에서 Continue와 ollama을 연동하여 사용하면 개인정보 보호와 오프라인 사용이 가능한 AI 코딩 어시스턴트를 활용할 수 있다. 
+
+Continue는 Cursor와 유사한 경험을 제공하면서도 로컬 환경에서 실행되어 보안 정책이 엄격한 회사에서도 사용할 수 있을 듯 하다.
+
+초기 설정에 시간이 걸리지만, 한 번 설정하면 매우 유용한 도구가 된다. 특히 코딩 학습, 코드 리뷰, 빠른 프로토타이핑에 큰 도움이 된다.
+
+ollama의 다양한 모델을 시도해보고, 자신의 하드웨어와 요구사항에 맞는 모델을 선택하여 사용하는 것을 추천한다.
+
+그러나 Cursor에서 사용하던 룰을 그대로 적용하고 Continue+ollama를 사용하니 Cursor 사용자이던 나로서는 역체감이 너무 심했다.
+
+![continue-sample](/images/blog-posts/202508281200-VSCode에서-ollama-연동해서-사용하기/continue-sample.png)
+
+<br />
+<br />
+
+# 참고 자료
+
+* [ollama 공식 사이트](https://ollama.com/)
+* [VSCode Ollama 확장 프로그램](https://marketplace.visualstudio.com/items?itemName=warm3snow.vscode-ollama)
+* [Continue AI 코딩 어시스턴트](https://continue.dev/)
+
