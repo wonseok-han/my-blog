@@ -58,11 +58,7 @@ export default async function HomePage() {
 
             return (
               <Link key={item.slug} href={`/posts/${item.slug}`}>
-                <PostCard
-                  title={post.frontmatter.title}
-                  created={post.frontmatter.created}
-                  thumbnail={post.frontmatter.thumbnail}
-                />
+                <PostCard {...post.frontmatter} slug={item.slug} />
               </Link>
             );
           })}

@@ -15,8 +15,8 @@ import {
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Search, Filter, Calendar, Tag, TrendingUp, X } from 'lucide-react';
 import Link from 'next/link';
-import Image from 'next/image';
 import { searchPosts, getSearchSuggestions } from '@/utils/search';
+import PostCard from '@/components/post-card';
 
 interface PostsPageClientProps {
   posts: PostType[];
@@ -221,88 +221,7 @@ const PostsPageClient = ({ posts }: PostsPageClientProps) => {
               <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6">
                 {filteredPosts.map((post) => (
                   <Link key={post.slug} href={`/posts/${post.slug}`}>
-                    <Card className="group hover:shadow-lg transition-all duration-300 cursor-pointer border-0 bg-card/50 hover:bg-card h-full">
-                      <CardContent className="p-6 h-full flex flex-col">
-                        {post.thumbnail ? (
-                          <div className="mb-4 overflow-hidden rounded-lg">
-                            <Image
-                              src={post.thumbnail}
-                              alt={post.title}
-                              width={300}
-                              height={192}
-                              className="w-full h-48 object-cover group-hover:scale-105 transition-transform duration-300"
-                            />
-                          </div>
-                        ) : (
-                          <div className="mb-4 w-full h-48 bg-muted rounded-lg flex items-center justify-center">
-                            <svg
-                              xmlns="http://www.w3.org/2000/svg"
-                              fill="none"
-                              viewBox="0 0 24 24"
-                              strokeWidth={1.5}
-                              stroke="currentColor"
-                              className="w-16 h-16 text-muted-foreground"
-                              preserveAspectRatio="xMidYMid meet"
-                            >
-                              <path
-                                strokeLinecap="round"
-                                strokeLinejoin="round"
-                                d="m2.25 15.75 5.159-5.159a2.25 2.25 0 0 1 3.182 0l5.159 5.159m-1.5-1.5 1.409-1.409a2.25 2.25 0 0 1 3.182 0l2.909 2.909m-18 3.75h16.5a1.5 1.5 0 0 0 1.5-1.5V6a1.5 1.5 0 0 0-1.5-1.5H3.75A1.5 1.5 0 0 0 2.25 6v12a1.5 1.5 0 0 0 1.5 1.5Zm10.5-11.25h.008v.008h-.008V8.25Zm.375 0a.375.375 0 1 1-.75 0 .375.375 0 0 1 .75 0Z"
-                              />
-                            </svg>
-                          </div>
-                        )}
-
-                        <div className="space-y-3 flex-1">
-                          {post.category && (
-                            <Badge variant="secondary" className="text-xs">
-                              {post.category}
-                            </Badge>
-                          )}
-
-                          <h3 className="line-clamp-2 group-hover:text-primary transition-colors font-semibold">
-                            {post.title}
-                          </h3>
-
-                          {post.description && (
-                            <p className="text-muted-foreground line-clamp-2 text-sm">
-                              {post.description}
-                            </p>
-                          )}
-
-                          <div className="flex items-center justify-between text-xs text-muted-foreground mt-auto">
-                            <div className="flex items-center gap-1">
-                              <Calendar className="h-3 w-3" />
-                              <time dateTime={post.created}>
-                                {post.created}
-                              </time>
-                            </div>
-
-                            {post.tags && post.tags.length > 0 && (
-                              <div className="flex gap-1">
-                                {post.tags.slice(0, 2).map((tag) => (
-                                  <Badge
-                                    key={tag}
-                                    variant="outline"
-                                    className="text-xs px-2 py-0"
-                                  >
-                                    {tag}
-                                  </Badge>
-                                ))}
-                                {post.tags.length > 2 && (
-                                  <Badge
-                                    variant="outline"
-                                    className="text-xs px-2 py-0"
-                                  >
-                                    +{post.tags.length - 2}
-                                  </Badge>
-                                )}
-                              </div>
-                            )}
-                          </div>
-                        </div>
-                      </CardContent>
-                    </Card>
+                    <PostCard {...post} />
                   </Link>
                 ))}
               </div>

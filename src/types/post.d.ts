@@ -5,5 +5,5 @@ export type PostType = {
   created: string;
   category?: string;
   tags?: string[];
-  slug: string;
+  slug?: string;
 };
