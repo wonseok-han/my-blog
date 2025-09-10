@@ -1,30 +1,38 @@
 import { PostType } from '@/types/post';
 import Image from 'next/image';
+import { Card, CardContent } from '@/components/ui/card';
+import { Calendar } from 'lucide-react';
 
 interface PostCardProps extends PostType {}
 
+/**
+ * 블로그 포스트 카드 컴포넌트
+ * 포스트의 썸네일, 제목, 작성일을 표시합니다.
+ */
 const PostCard = ({ title, created, thumbnail }: PostCardProps) => {
   return (
-    <div className="w-full overflow-hidden rounded-2xl shadow-sm shadow-gray-300">
-      <div>
+    <Card className="group hover:shadow-lg transition-all duration-300 cursor-pointer border-0 bg-card/50 hover:bg-card">
+      <CardContent className="p-6">
         {thumbnail ? (
-          <Image
-            className="h-64 w-full object-cover"
-            alt="postImage"
-            src={thumbnail}
-            width={300}
-            height={300}
-            loading="lazy"
-          />
+          <div className="mb-4 overflow-hidden rounded-lg">
+            <Image
+              className="w-full h-48 object-cover group-hover:scale-105 transition-transform duration-300"
+              alt={title}
+              src={thumbnail}
+              width={300}
+              height={192}
+              loading="lazy"
+            />
+          </div>
         ) : (
-          <div className="w-full min-h-[256px]">
+          <div className="mb-4 w-full h-48 bg-muted rounded-lg flex items-center justify-center">
             <svg
               xmlns="http://www.w3.org/2000/svg"
               fill="none"
               viewBox="0 0 24 24"
               strokeWidth={1.5}
               stroke="currentColor"
-              className="w-full h-full"
+              className="w-16 h-16 text-muted-foreground"
               preserveAspectRatio="xMidYMid meet"
             >
               <path
@@ -35,16 +43,24 @@ const PostCard = ({ title, created, thumbnail }: PostCardProps) => {
             </svg>
           </div>
         )}
-      </div>
-      <div className="w-full bg-gray-200 h-16 px-3 py-2 space-y-2">
-        <p className="line-clamp-1 font-semibold text-black" title={title}>
-          {title}
-        </p>
-        <p className="text-sm font-semibold text-right text-gray-700">
-          {created}
-        </p>
-      </div>
-    </div>
+
+        <div className="space-y-3">
+          <h3
+            className="line-clamp-2 group-hover:text-primary transition-colors font-semibold"
+            title={title}
+          >
+            {title}
+          </h3>
+
+          <div className="flex items-center justify-between text-xs text-muted-foreground">
+            <div className="flex items-center gap-1">
+              <Calendar className="h-3 w-3" />
+              <time dateTime={created}>{created}</time>
+            </div>
+          </div>
+        </div>
+      </CardContent>
+    </Card>
   );
 };
 

@@ -42,3 +42,5 @@ next-env.d.ts
 public/sw.js*
 public/workbox-*
 public/worker
+
+migration_blog_design/

@@ -11,9 +11,6 @@ import './globals.css';
 const Header = dynamic(() => import('@components/layout/header'), {
   suspense: true,
 });
-const Navigation = dynamic(() => import('@components/layout/navigation'), {
-  suspense: false,
-});
 const Main = dynamic(() => import('@components/layout/main'), {
   suspense: true,
 });
@@ -35,11 +32,12 @@ export const metadata: Metadata = {
       { url: '/icons/icon-192x192.png', sizes: '192x192', type: 'image/png' },
     ],
   },
-  viewport: {
-    width: 'device-width',
-    initialScale: 1,
-    maximumScale: 1,
-  },
+};
+
+export const viewport = {
+  width: 'device-width',
+  initialScale: 1,
+  maximumScale: 1,
 };
 
 export default function RootLayout({
@@ -48,12 +46,11 @@ export default function RootLayout({
   children: ReactNode;
 }>) {
   return (
-    <html lang="en">
-      <body className={`antialiased w-full dark:bg-nosferatu-900`}>
-        <ThemeProvider attribute="class">
+    <html lang="ko" suppressHydrationWarning>
+      <body className="min-h-screen bg-background font-sans antialiased">
+        <ThemeProvider attribute="class" defaultTheme="system" enableSystem>
           <WorkerComponent />
-          <div className="mx-auto max-w-3xl px-6 lg:max-w-6xl lg:px-8 dark:text-dracula-200">
-            <Navigation />
+          <div className="relative flex min-h-screen flex-col">
             <Header />
             <Main>{children}</Main>
             <Footer />

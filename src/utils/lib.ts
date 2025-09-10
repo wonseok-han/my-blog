@@ -78,8 +78,8 @@ export const getParsedPosts = async () => {
       const post = (await getPost(slug)).frontmatter;
 
       return {
-        slug,
         ...post,
+        slug: encodeURIComponent(slug), // URL 인코딩된 slug 사용 (덮어쓰기)
       };
     })
   );

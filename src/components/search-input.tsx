@@ -3,6 +3,9 @@
 import { useSearchStore } from '@/store/search-store';
 import { useRouter } from 'next/navigation';
 import { useEffect, useRef, useState } from 'react';
+import { Input } from '@/components/ui/input';
+import { Search, X } from 'lucide-react';
+import { Button } from '@/components/ui/button';
 
 interface SearchInputProps {
   useAnimation?: boolean;
@@ -10,6 +13,10 @@ interface SearchInputProps {
   onFocusOut?: () => void;
 }
 
+/**
+ * 검색 입력 컴포넌트
+ * 포스트 검색 기능을 제공합니다.
+ */
 const SearchInput = ({
   useAnimation = false,
   isFocus = false,
@@ -39,67 +46,77 @@ const SearchInput = ({
 
   useEffect(() => {
     if (isInputShow && inputRef?.current) {
-      // 애니메이션이 완료된 후 포커스를 설정하기 위해 약간의 지연시간을 둠
       setTimeout(() => {
         inputRef.current?.focus();
-      }, 300); // 300ms는 애니메이션의 지속 시간에 맞게 조절 가능
+      }, 300);
     }
   }, [isInputShow]);
 
+  const handleSearch = () => {
+    setSearchInput(value);
+  };
+
+  const handleClear = () => {
+    setValue('');
+    setSearchInput('');
+    setIsInputShow(false);
+    onFocusOut?.();
+  };
+
   return (
-    <>
-      <div className={`relative`}>
-        <input
-          ref={inputRef}
-          className={`w-60 h-10 border rounded-lg text-sm font-light pl-2 pr-8 py-1 dark:bg-nosferatu-900 transition-all duration-300 ease-in-out transform origin-right ${
-            (isInputShow && useAnimation) || !useAnimation
-              ? 'visible opacity-100 w-full'
-              : 'invisible opacity-0 scale-x-0'
-          }`}
-          value={value}
-          placeholder="Search..."
-          onChange={(event) => {
-            setValue(event.target.value);
-          }}
-          onBlur={() => {
-            if (!value) {
-              setIsInputShow(false);
-              onFocusOut?.();
-            }
-          }}
-          onKeyDown={(event) => {
-            if (event.key === 'Enter') {
-              setSearchInput(value);
-            }
-          }}
-        />
-        <span
-          className={`absolute right-2 top-1/2 -translate-y-1/2 cursor-pointer`}
-          onClick={() => {
-            if (isInputShow) {
-              setSearchInput(value);
-            } else {
-              setIsInputShow(true);
-            }
-          }}
-        >
-          <svg
-            xmlns="http://www.w3.org/2000/svg"
-            fill="none"
-            viewBox="0 0 24 24"
-            strokeWidth={1.5}
-            stroke="currentColor"
-            className="size-5"
-          >
-            <path
-              strokeLinecap="round"
-              strokeLinejoin="round"
-              d="m21 21-5.197-5.197m0 0A7.5 7.5 0 1 0 5.196 5.196a7.5 7.5 0 0 0 10.607 10.607Z"
-            />
-          </svg>
-        </span>
+    <div className="relative">
+      <div
+        className={`transition-all duration-300 ease-in-out transform origin-right ${
+          (isInputShow && useAnimation) || !useAnimation
+            ? 'visible opacity-100 w-full'
+            : 'invisible opacity-0 scale-x-0'
+        }`}
+      >
+        <div className="relative">
+          <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
+          <Input
+            ref={inputRef}
+            className="pl-10 pr-20 w-full"
+            value={value}
+            placeholder="포스트 검색..."
+            onChange={(event) => {
+              setValue(event.target.value);
+            }}
+            onBlur={() => {
+              if (!value) {
+                setIsInputShow(false);
+                onFocusOut?.();
+              }
+            }}
+            onKeyDown={(event) => {
+              if (event.key === 'Enter') {
+                handleSearch();
+              }
+            }}
+          />
+          <div className="absolute right-2 top-1/2 -translate-y-1/2 flex gap-1">
+            {value && (
+              <Button
+                variant="ghost"
+                size="icon"
+                className="h-6 w-6"
+                onClick={handleClear}
+              >
+                <X className="h-3 w-3" />
+              </Button>
+            )}
+            <Button
+              variant="ghost"
+              size="icon"
+              className="h-6 w-6"
+              onClick={handleSearch}
+            >
+              <Search className="h-3 w-3" />
+            </Button>
+          </div>
+        </div>
       </div>
-    </>
+    </div>
   );
 };
 
