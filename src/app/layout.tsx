@@ -6,6 +6,7 @@ import { ThemeProvider } from 'next-themes';
 import dynamic from 'next/dynamic';
 import WorkerComponent from '@components/worker-component';
 
+import '../../public/fonts/fonts.css';
 import './globals.css';
 
 const Header = dynamic(() => import('@components/layout/header'), {
@@ -47,7 +48,7 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="ko" suppressHydrationWarning>
-      <body className="min-h-screen bg-background font-sans antialiased">
+      <body className="min-h-screen bg-background antialiased">
         <ThemeProvider attribute="class" defaultTheme="system" enableSystem>
           <WorkerComponent />
           <div className="relative flex min-h-screen flex-col">

@@ -1,6 +1,5 @@
 @import "tailwindcss";
 
-@import '../../public/fonts/fonts.css';
 @import './index.css';
 
 @custom-variant dark (&:is(.dark *));
@@ -137,7 +136,7 @@
 
   body {
     @apply bg-background text-foreground;
-    font-family: 'Aggro', sans-serif;
+    font-family: var(--font-aggro);
   }
 }
 

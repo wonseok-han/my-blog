@@ -78,6 +78,7 @@
     :host {
       --font-sans: ui-sans-serif, system-ui, sans-serif, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol", "Noto Color Emoji";
       --font-mono: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+      --font-aggro: 'Aggro', sans-serif;
       --color-gray-100: oklch(.967 .003 264.542);
       --color-black: #000;
       --color-white: #fff;
@@ -118,7 +119,7 @@
       --aspect-video: 16 / 9;
       --default-transition-duration: .15s;
       --default-transition-timing-function: cubic-bezier(.4, 0, .2, 1);
-      --default-font-family: var(--font-sans);
+      --default-font-family: var(--font-aggro);
       --default-font-feature-settings: var(--font-sans--font-feature-settings);
       --default-font-variation-settings: var(--font-sans--font-variation-settings);
       --default-mono-font-family: var(--font-mono);
@@ -2011,6 +2012,10 @@
 
     .font-sans {
       font-family: var(--font-sans);
+    }
+
+    .font-aggro {
+      font-family: var(--font-aggro);
     }
 
     .text-2xl {
