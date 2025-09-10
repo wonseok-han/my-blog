@@ -88,7 +88,7 @@ const PostsPageClient = ({ posts }: PostsPageClientProps) => {
   );
 
   return (
-    <div className="container mx-auto px-4 py-8">
+    <div className="container mx-auto px-4 py-8 max-w-7xl">
       {/* Page Header */}
       <div className="mb-8 space-y-4">
         <div className="space-y-2">

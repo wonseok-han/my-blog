@@ -55,6 +55,10 @@ export const highlightSearchTerm = (
  * 기존 포스트에서 자주 사용되는 단어들을 추출합니다.
  */
 export const getSearchSuggestions = (posts: PostType[]): string[] => {
+  if (!posts || !Array.isArray(posts)) {
+    return [];
+  }
+
   const wordCount = new Map<string, number>();
 
   posts.forEach((post) => {

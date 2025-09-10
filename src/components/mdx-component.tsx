@@ -8,53 +8,136 @@ import { dracula } from 'react-syntax-highlighter/dist/esm/styles/prism';
  * 블로그 포스트의 마크다운 요소들을 커스텀 스타일로 렌더링합니다.
  */
 export const MDXComponent: MDXRemoteComponents = {
-  h1: (props: React.HTMLAttributes<HTMLHeadingElement>) => (
-    <h1
-      className="text-3xl font-bold tracking-tight mt-8 mb-4 first:mt-0 border-b border-border pb-2"
-      {...props}
-    />
-  ),
-  h2: (props: React.HTMLAttributes<HTMLHeadingElement>) => (
-    <h2
-      className="!text-2xl !font-semibold tracking-tight !mt-6 mb-3"
-      style={{ fontSize: '1.5rem', fontWeight: '600', marginTop: '1.5rem' }}
-      {...props}
-    />
-  ),
-  h3: (props: React.HTMLAttributes<HTMLHeadingElement>) => (
-    <h3
-      className="!text-xl !font-semibold tracking-tight !mt-5 mb-2"
-      style={{ fontSize: '1.25rem', fontWeight: '600', marginTop: '1.25rem' }}
-      {...props}
-    />
-  ),
-  h4: (props: React.HTMLAttributes<HTMLHeadingElement>) => (
-    <h4
-      className="!text-lg !font-medium tracking-tight !mt-4 mb-2"
-      style={{ fontSize: '1.125rem', fontWeight: '500', marginTop: '1rem' }}
-      {...props}
-    />
-  ),
-  h5: (props: React.HTMLAttributes<HTMLHeadingElement>) => (
-    <h5
-      className="!text-base !font-medium tracking-tight !mt-3 mb-2"
-      style={{ fontSize: '1rem', fontWeight: '500', marginTop: '0.75rem' }}
-      {...props}
-    />
-  ),
-  h6: (props: React.HTMLAttributes<HTMLHeadingElement>) => (
-    <h6
-      className="!text-sm !font-medium tracking-tight !mt-3 mb-2"
-      style={{ fontSize: '0.875rem', fontWeight: '500', marginTop: '0.75rem' }}
-      {...props}
-    />
-  ),
+  h1: (props: React.HTMLAttributes<HTMLHeadingElement>) => {
+    const id = props.children
+      ? String(props.children)
+          .toLowerCase()
+          .replace(/[^\u3131-\u3163\uac00-\ud7a3\w\s-]/g, '')
+          .replace(/\s+/g, '-')
+          .replace(/-+/g, '-')
+          .replace(/^-+|-+$/g, '')
+          .trim() || 'heading'
+      : 'heading';
+    return (
+      <h1
+        id={id}
+        className="text-3xl font-bold tracking-tight mt-8 mb-4 first:mt-0 border-b border-border pb-2"
+        {...props}
+      />
+    );
+  },
+  h2: (props: React.HTMLAttributes<HTMLHeadingElement>) => {
+    const id = props.children
+      ? String(props.children)
+          .toLowerCase()
+          .replace(/[^\u3131-\u3163\uac00-\ud7a3\w\s-]/g, '')
+          .replace(/\s+/g, '-')
+          .replace(/-+/g, '-')
+          .replace(/^-+|-+$/g, '')
+          .trim() || 'heading'
+      : 'heading';
+    return (
+      <h2
+        id={id}
+        className="!text-2xl !font-semibold tracking-tight !mt-6 mb-3"
+        style={{ fontSize: '1.5rem', fontWeight: '600', marginTop: '1.5rem' }}
+        {...props}
+      />
+    );
+  },
+  h3: (props: React.HTMLAttributes<HTMLHeadingElement>) => {
+    const id = props.children
+      ? String(props.children)
+          .toLowerCase()
+          .replace(/[^\u3131-\u3163\uac00-\ud7a3\w\s-]/g, '')
+          .replace(/\s+/g, '-')
+          .replace(/-+/g, '-')
+          .replace(/^-+|-+$/g, '')
+          .trim() || 'heading'
+      : 'heading';
+    return (
+      <h3
+        id={id}
+        className="!text-xl !font-semibold tracking-tight !mt-5 mb-2"
+        style={{ fontSize: '1.25rem', fontWeight: '600', marginTop: '1.25rem' }}
+        {...props}
+      />
+    );
+  },
+  h4: (props: React.HTMLAttributes<HTMLHeadingElement>) => {
+    const id = props.children
+      ? String(props.children)
+          .toLowerCase()
+          .replace(/[^\u3131-\u3163\uac00-\ud7a3\w\s-]/g, '')
+          .replace(/\s+/g, '-')
+          .replace(/-+/g, '-')
+          .replace(/^-+|-+$/g, '')
+          .trim() || 'heading'
+      : 'heading';
+    return (
+      <h4
+        id={id}
+        className="!text-lg !font-medium tracking-tight !mt-4 mb-2"
+        style={{ fontSize: '1.125rem', fontWeight: '500', marginTop: '1rem' }}
+        {...props}
+      />
+    );
+  },
+  h5: (props: React.HTMLAttributes<HTMLHeadingElement>) => {
+    const id = props.children
+      ? String(props.children)
+          .toLowerCase()
+          .replace(/[^\u3131-\u3163\uac00-\ud7a3\w\s-]/g, '')
+          .replace(/\s+/g, '-')
+          .replace(/-+/g, '-')
+          .replace(/^-+|-+$/g, '')
+          .trim() || 'heading'
+      : 'heading';
+    return (
+      <h5
+        id={id}
+        className="!text-base !font-medium tracking-tight !mt-3 mb-2"
+        style={{ fontSize: '1rem', fontWeight: '500', marginTop: '0.75rem' }}
+        {...props}
+      />
+    );
+  },
+  h6: (props: React.HTMLAttributes<HTMLHeadingElement>) => {
+    const id = props.children
+      ? String(props.children)
+          .toLowerCase()
+          .replace(/[^\u3131-\u3163\uac00-\ud7a3\w\s-]/g, '')
+          .replace(/\s+/g, '-')
+          .replace(/-+/g, '-')
+          .replace(/^-+|-+$/g, '')
+          .trim() || 'heading'
+      : 'heading';
+    return (
+      <h6
+        id={id}
+        className="!text-sm !font-medium tracking-tight !mt-3 mb-2"
+        style={{
+          fontSize: '0.875rem',
+          fontWeight: '500',
+          marginTop: '0.75rem',
+        }}
+        {...props}
+      />
+    );
+  },
   p: (props: React.HTMLAttributes<HTMLParagraphElement>) => (
     <p className="text-base leading-7 my-4 text-foreground" {...props} />
   ),
   a: (props: React.AnchorHTMLAttributes<HTMLAnchorElement>) => (
     <a
-      className="text-primary underline underline-offset-4 hover:text-primary/80 transition-colors break-words"
+      className="underline underline-offset-4 transition-colors break-words font-medium"
+      style={{
+        color: '#2563eb', // blue-600
+        textDecoration: 'underline',
+        textUnderlineOffset: '4px',
+      }}
+      target="_blank"
+      rel="noopener noreferrer"
       {...props}
     />
   ),
