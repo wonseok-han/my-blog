@@ -178,6 +178,10 @@
     font-weight: var(--font-weight-normal);
   }
 
+  button {
+    cursor: pointer;
+  }
+
   /* 입력/텍스트 영역 플레이스홀더 전역 스타일 */
   input::placeholder,
   textarea::placeholder {
