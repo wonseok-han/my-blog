@@ -139,18 +139,6 @@ export default async function BlogPostPage({
 
         {/* Sidebar */}
         <aside className="space-y-6">
-          {/* Table of Contents */}
-          {toc.length > 0 && (
-            <Card>
-              <CardHeader>
-                <CardTitle className="text-lg">목차</CardTitle>
-              </CardHeader>
-              <CardContent>
-                <TOC items={toc} />
-              </CardContent>
-            </Card>
-          )}
-
           {/* Related Posts */}
           <Card>
             <CardHeader>
@@ -182,6 +170,18 @@ export default async function BlogPostPage({
               ))}
             </CardContent>
           </Card>
+
+          {/* Table of Contents */}
+          {toc.length > 0 && (
+            <Card className="sticky top-20 lg:overflow-y-auto lg:max-h-[calc(100vh-10rem)]">
+              <CardHeader>
+                <CardTitle className="text-lg">목차</CardTitle>
+              </CardHeader>
+              <CardContent>
+                <TOC items={toc} />
+              </CardContent>
+            </Card>
+          )}
         </aside>
       </div>
 
