@@ -1,7 +1,7 @@
 'use server';
 
-import { getParsedPosts } from '@/utils/lib';
-import { searchPosts, getSearchSuggestions } from '@/utils/search';
+import { searchPosts, getSearchSuggestions } from '@utils/search';
+import { getParsedPosts } from '@utils/server';
 
 /**
  * 서버 액션: 포스트 검색

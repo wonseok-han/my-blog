@@ -1,9 +1,10 @@
 import Link from 'next/link';
-import { getPost, getPosts } from '@utils/lib';
+
 import dynamic from 'next/dynamic';
 import { Button } from '@/components/ui/button';
 import { Separator } from '@/components/ui/separator';
 import { ArrowRight } from 'lucide-react';
+import { getPost, getPosts } from '@utils/server';
 
 const PostCard = dynamic(() => import('@components/post-card'));
 

@@ -1,6 +1,6 @@
 import { MDXRemote } from 'next-mdx-remote/rsc';
 import { MDXComponent } from '@components/mdx-component';
-import { getPost, getParsedPosts } from '@utils/lib';
+
 import { generateTOC, buildTOCHierarchy } from '@utils/toc';
 import dynamic from 'next/dynamic';
 import SampleComponents from '@components/posts/sample-components';
@@ -17,6 +17,7 @@ import {
   ChevronRight,
 } from 'lucide-react';
 import Link from 'next/link';
+import { getParsedPosts, getPost } from '@utils/server';
 
 // 클라이언트 컴포넌트들을 동적으로 임포트
 const TOC = dynamic(() => import('@components/toc'), { ssr: false });

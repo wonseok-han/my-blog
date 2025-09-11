@@ -1,9 +1,9 @@
-import { getParsedPosts } from '@/utils/lib';
 import { searchPosts } from '@/utils/search';
 import PostCard from '@/components/post-card';
 import { Search, ArrowLeft } from 'lucide-react';
 import Link from 'next/link';
 import { Button } from '@/components/ui/button';
+import { getParsedPosts } from '@utils/server';
 
 interface SearchPageProps {
   searchParams: {
@@ -51,7 +51,9 @@ export default async function SearchPage({ searchParams }: SearchPageProps) {
         searchResults.length > 0 ? (
           <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
             {searchResults.map((post) => (
-              <PostCard key={post.slug} {...post} />
+              <Link key={post.slug} href={`/posts/${post.slug}`}>
+                <PostCard key={post.slug} {...post} />
+              </Link>
             ))}
           </div>
         ) : (
@@ -86,6 +88,8 @@ export default async function SearchPage({ searchParams }: SearchPageProps) {
 
 /**
  * 메타데이터 생성
+ * @param searchParams - 검색 파라미터
+ * @returns 메타데이터
  */
 export async function generateMetadata({ searchParams }: SearchPageProps) {
   const query = searchParams.q || '';

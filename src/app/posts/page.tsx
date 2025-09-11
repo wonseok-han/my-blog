@@ -1,4 +1,4 @@
-import { getParsedPosts } from '@utils/lib';
+import { getParsedPosts } from '@utils/server';
 import PostsPageClient from './posts-page-client';
 
 /**
