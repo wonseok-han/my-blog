@@ -4,7 +4,7 @@ import dynamic from 'next/dynamic';
 import { Button } from '@/components/ui/button';
 import { Separator } from '@/components/ui/separator';
 import { ArrowRight } from 'lucide-react';
-import { getPost, getPosts } from '@utils/server';
+import { getParsedPosts } from '@utils/server';
 
 const PostCard = dynamic(() => import('@components/post-card'));
 
@@ -13,7 +13,8 @@ const PostCard = dynamic(() => import('@components/post-card'));
  * 최근 포스트들을 카드 형태로 표시합니다.
  */
 export default async function HomePage() {
-  const posts = getPosts();
+  // Git 정보가 포함된 포스트 데이터 가져오기
+  const posts = await getParsedPosts();
 
   return (
     <main className="container mx-auto px-4 py-8">
@@ -54,15 +55,11 @@ export default async function HomePage() {
 
         {/* Posts Grid */}
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
-          {posts.map(async (item) => {
-            const post = await getPost(item.slug);
-
-            return (
-              <Link key={item.slug} href={`/posts/${item.slug}`}>
-                <PostCard {...post.frontmatter} slug={item.slug} />
-              </Link>
-            );
-          })}
+          {posts.map((post) => (
+            <Link key={post.slug} href={`/posts/${post.slug}`}>
+              <PostCard {...post} />
+            </Link>
+          ))}
         </div>
 
         {/* Load More */}

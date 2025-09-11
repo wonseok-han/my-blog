@@ -87,8 +87,12 @@ export default async function BlogPostPage({
             <time dateTime={post.frontmatter.created}>
               {new Date(post.frontmatter.created).toLocaleDateString('ko-KR', {
                 year: 'numeric',
-                month: 'long',
-                day: 'numeric',
+                month: '2-digit',
+                day: '2-digit',
+                hour: '2-digit',
+                minute: '2-digit',
+                hour12: false,
+                timeZone: Intl.DateTimeFormat().resolvedOptions().timeZone,
               })}
             </time>
           </div>

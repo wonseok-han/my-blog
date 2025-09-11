@@ -43,3 +43,4 @@ public/sw.js*
 public/workbox-*
 public/worker
 
+git-metadata.json

@@ -6,4 +6,10 @@ export type PostType = {
   category?: string;
   tags?: string[];
   slug?: string;
+  gitInfo?: {
+    created: string;
+    modified: string;
+    commitCount: number;
+    source: 'git' | 'filesystem' | 'metadata' | 'fallback';
+  };
 };

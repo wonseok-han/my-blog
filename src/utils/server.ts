@@ -2,6 +2,7 @@ import { PostType } from '@/types/post';
 import matter from 'gray-matter';
 import path from 'path';
 import fs from 'fs';
+import { getStaticFileInfo } from '@/lib/git-server';
 
 /**
  * 포스트가 저장된 디렉토리 경로를 가져오는 함수
@@ -40,37 +41,41 @@ export const getPost = async (slug: string) => {
 
   const { content, data } = matter(fileContents); // frontmatter와 본문 분리
 
-  // 파일 생성 시간으로 created 처리
-  const created = (await fs.promises.stat(fullPath)).birthtime;
+  // Git 정보 가져오기
+  const gitInfo = await getStaticFileInfo(
+    `contents/blog-posts/${decodedSlug}.mdx`
+  );
+
+  // 사용자 시간대 설정
   const userTimeZone = Intl.DateTimeFormat().resolvedOptions().timeZone;
 
-  if (created && process.env.NODE_ENV === 'development') {
-    const date = new Date(created);
-    const options = {
-      year: 'numeric',
-      month: '2-digit',
-      day: '2-digit',
-      hour: '2-digit',
-      minute: '2-digit',
-      hour12: false,
-      timeZone: userTimeZone,
-    } as Intl.DateTimeFormatOptions;
+  // Git 생성일자를 포맷팅
+  const gitCreatedDate = new Date(gitInfo.created);
+  const options = {
+    year: 'numeric',
+    month: '2-digit',
+    day: '2-digit',
+    hour: '2-digit',
+    minute: '2-digit',
+    hour12: false,
+    timeZone: userTimeZone,
+  } as Intl.DateTimeFormatOptions;
 
-    const formattedDate = date.toLocaleString('ko-KR', options);
+  const formattedGitDate = gitCreatedDate.toLocaleString('ko-KR', options);
 
-    return {
-      content,
-      frontmatter: {
-        ...data,
-        created: formattedDate,
-      } as PostType,
-    };
-  } else {
-    return {
-      content,
-      frontmatter: data as PostType,
-    };
-  }
+  return {
+    content,
+    frontmatter: {
+      ...data,
+      created: formattedGitDate, // Git 생성일자로 덮어쓰기
+      gitInfo: {
+        created: gitInfo.created,
+        modified: gitInfo.modified,
+        commitCount: gitInfo.commitCount,
+        source: gitInfo.source,
+      },
+    } as PostType,
+  };
 };
 
 /**
@@ -87,9 +92,38 @@ export const getParsedPosts = async () => {
       const slug = filename.replace(/\.mdx$/, '');
       const post = (await getPost(slug)).frontmatter;
 
+      // Git 정보 가져오기
+      const gitInfo = await getStaticFileInfo(
+        `contents/blog-posts/${filename}`
+      );
+
+      // 사용자 시간대 설정
+      const userTimeZone = Intl.DateTimeFormat().resolvedOptions().timeZone;
+
+      // Git 생성일자를 포맷팅
+      const gitCreatedDate = new Date(gitInfo.created);
+      const options = {
+        year: 'numeric',
+        month: '2-digit',
+        day: '2-digit',
+        hour: '2-digit',
+        minute: '2-digit',
+        hour12: false,
+        timeZone: userTimeZone,
+      } as Intl.DateTimeFormatOptions;
+
+      const formattedGitDate = gitCreatedDate.toLocaleString('ko-KR', options);
+
       return {
         ...post,
-        slug: encodeURIComponent(slug), // URL 인코딩된 slug 사용 (덮어쓰기)
+        slug: slug, // URL 인코딩된 slug 사용 (덮어쓰기)
+        created: formattedGitDate, // Git 생성일자로 덮어쓰기
+        gitInfo: {
+          created: gitInfo.created,
+          modified: gitInfo.modified,
+          commitCount: gitInfo.commitCount,
+          source: gitInfo.source,
+        },
       };
     })
   );

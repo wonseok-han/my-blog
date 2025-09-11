@@ -302,8 +302,14 @@ const PostsPageClient = ({ posts }: PostsPageClientProps) => {
                     <Calendar className="h-3 w-3" />
                     <time dateTime={post.created}>
                       {new Date(post.created).toLocaleDateString('ko-KR', {
-                        month: 'short',
-                        day: 'numeric',
+                        year: 'numeric',
+                        month: '2-digit',
+                        day: '2-digit',
+                        hour: '2-digit',
+                        minute: '2-digit',
+                        hour12: false,
+                        timeZone:
+                          Intl.DateTimeFormat().resolvedOptions().timeZone,
                       })}
                     </time>
                   </div>

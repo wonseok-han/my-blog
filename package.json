@@ -10,7 +10,9 @@
   "private": true,
   "scripts": {
     "prepare": "husky",
+    "predev": "node scripts/generate-git-metadata.js",
     "dev": "NODE_ENV=development next dev",
+    "prebuild": "node scripts/generate-git-metadata.js",
     "build": "next build",
     "start": "next start",
     "pwa": "next build && next start",
