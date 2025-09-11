@@ -44,12 +44,6 @@ const Header = () => {
   useEffect(() => {
     const query = searchParams.get('q') || '';
     setSearchQuery(query);
-
-    // URL에 검색어가 있으면 검색 모달 열기
-    if (query.trim()) {
-      setIsSearchOpen(true);
-      document.body.style.overflow = 'hidden';
-    }
   }, [searchParams]);
 
   // 검색 모달이 열릴 때 포커스 설정 및 최근 검색어 표시
@@ -165,15 +159,6 @@ const Header = () => {
   const handleInputChange = (e: ChangeEvent<HTMLInputElement>) => {
     const query = e.target.value;
     setSearchQuery(query);
-
-    // URL 파라미터 업데이트
-    const params = new URLSearchParams(searchParams.toString());
-    if (query.trim()) {
-      params.set('q', query);
-    } else {
-      params.delete('q');
-    }
-    router.push(`?${params.toString()}`);
   };
 
   const handleSuggestionClick = (suggestion: string) => {
