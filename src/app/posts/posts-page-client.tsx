@@ -116,7 +116,7 @@ const PostsPageClient = ({ posts }: PostsPageClientProps) => {
         {/* Search and Filter Bar */}
         <div className="flex flex-col md:flex-row gap-4">
           <div className="relative flex-1">
-            <Search className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
+            <Search className="absolute left-5 top-1/2 -translate-1/2 h-4 w-4 text-muted-foreground" />
             <Input
               placeholder="포스트 검색..."
               value={searchQuery}
@@ -131,7 +131,7 @@ const PostsPageClient = ({ posts }: PostsPageClientProps) => {
 
             {/* Search Suggestions */}
             {showSuggestions && searchSuggestions.length > 0 && (
-              <div className="absolute top-full left-0 right-0 mt-1 bg-background border border-border rounded-md shadow-lg z-10 max-h-60 overflow-y-auto">
+              <div className="absolute top-full left-0 right-0 mt-1 bg-background border rounded-md shadow-lg z-10 max-h-60 overflow-y-auto">
                 {searchSuggestions
                   .filter((suggestion) =>
                     suggestion.toLowerCase().includes(searchQuery.toLowerCase())

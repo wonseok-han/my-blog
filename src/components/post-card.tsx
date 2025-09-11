@@ -22,13 +22,13 @@ const PostCard = ({
     <Card className="group hover:shadow-lg transition-all duration-300 cursor-pointer border-0 bg-card/50 hover:bg-card h-full">
       <CardContent className="p-6 h-full flex flex-col">
         {thumbnail ? (
-          <div className="mb-4 overflow-hidden rounded-lg">
+          <div className="my-4 w-full h-48 overflow-hidden rounded-lg relative">
             <Image
-              className="w-full h-48 object-cover group-hover:scale-105 transition-transform duration-300"
+              className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
               alt={title}
               src={thumbnail}
-              width={300}
-              height={192}
+              fill
+              sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
               loading="lazy"
             />
           </div>
@@ -90,7 +90,7 @@ const PostCard = ({
                   <Badge
                     key={tag}
                     variant="outline"
-                    className="text-xs px-2 py-0.5"
+                    className="text-xs px-2 py-0.5 font-normal"
                   >
                     {tag}
                   </Badge>

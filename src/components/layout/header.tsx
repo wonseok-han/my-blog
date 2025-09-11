@@ -120,9 +120,11 @@ const Header = () => {
           setShowSuggestions(true);
         }
       } else {
-        // 검색어가 없을 때는 최근 검색어 표시 (이미 위의 useEffect에서 처리됨)
-        // setSuggestions(recentSearches.slice(0, 5));
-        // setShowSuggestions(recentSearches.length > 0);
+        // 검색어가 없을 때는 최근 검색어 표시
+        if (recentSearches.length > 0) {
+          setSuggestions(recentSearches.slice(0, 5));
+          setShowSuggestions(true);
+        }
       }
     }, 300); // 300ms 디바운싱
 
@@ -291,7 +293,7 @@ const Header = () => {
                       placeholder="포스트 검색..."
                       value={searchQuery}
                       onChange={handleInputChange}
-                      className="border-0 focus-visible:ring-0 text-lg"
+                      className="border-0 bg-popover text-lg focus-visible:!ring-0"
                       autoFocus
                     />
                   </form>
@@ -393,7 +395,7 @@ const Header = () => {
               </div>
             </div>
           </div>,
-          document.body
+          document.getElementById('portal-root') as HTMLElement
         )}
     </header>
   );

@@ -21,7 +21,7 @@ export const MDXComponent: MDXRemoteComponents = {
     return (
       <h1
         id={id}
-        className="text-3xl font-bold tracking-tight mt-8 mb-4 first:mt-0 border-b border-border pb-2"
+        className="text-3xl font-bold tracking-tight mt-8 mb-4 first:mt-0 border-b pb-2"
         {...props}
       />
     );
@@ -39,8 +39,7 @@ export const MDXComponent: MDXRemoteComponents = {
     return (
       <h2
         id={id}
-        className="!text-2xl !font-semibold tracking-tight !mt-6 mb-3"
-        style={{ fontSize: '1.5rem', fontWeight: '600', marginTop: '1.5rem' }}
+        className="text-2xl font-semibold tracking-tight mt-6 mb-3"
         {...props}
       />
     );
@@ -58,8 +57,7 @@ export const MDXComponent: MDXRemoteComponents = {
     return (
       <h3
         id={id}
-        className="!text-xl !font-semibold tracking-tight !mt-5 mb-2"
-        style={{ fontSize: '1.25rem', fontWeight: '600', marginTop: '1.25rem' }}
+        className="text-xl font-semibold tracking-tight mt-5 mb-2"
         {...props}
       />
     );
@@ -77,8 +75,7 @@ export const MDXComponent: MDXRemoteComponents = {
     return (
       <h4
         id={id}
-        className="!text-lg !font-medium tracking-tight !mt-4 mb-2"
-        style={{ fontSize: '1.125rem', fontWeight: '500', marginTop: '1rem' }}
+        className="text-lg font-medium tracking-tight mt-4 mb-2"
         {...props}
       />
     );
@@ -96,8 +93,7 @@ export const MDXComponent: MDXRemoteComponents = {
     return (
       <h5
         id={id}
-        className="!text-base !font-medium tracking-tight !mt-3 mb-2"
-        style={{ fontSize: '1rem', fontWeight: '500', marginTop: '0.75rem' }}
+        className="text-base font-medium tracking-tight mt-3 mb-2"
         {...props}
       />
     );
@@ -126,29 +122,27 @@ export const MDXComponent: MDXRemoteComponents = {
     );
   },
   p: (props: React.HTMLAttributes<HTMLParagraphElement>) => (
-    <p className="text-base leading-7 my-4 text-foreground" {...props} />
+    <p
+      className="text-base leading-7 my-0 text-foreground font-light"
+      {...props}
+    />
   ),
   a: (props: React.AnchorHTMLAttributes<HTMLAnchorElement>) => (
     <a
-      className="underline underline-offset-4 transition-colors break-words font-medium"
-      style={{
-        color: '#2563eb', // blue-600
-        textDecoration: 'underline',
-        textUnderlineOffset: '4px',
-      }}
+      className="underline underline-offset-4 transition-colors break-words font-medium text-blue-600"
       target="_blank"
       rel="noopener noreferrer"
       {...props}
     />
   ),
   ul: (props: React.HTMLAttributes<HTMLUListElement>) => (
-    <ul className="list-disc list-inside ml-4 my-4 space-y-2" {...props} />
+    <ul className="list-disc list-inside ml-5" {...props} />
   ),
   ol: (props: React.HTMLAttributes<HTMLOListElement>) => (
-    <ol className="list-decimal list-inside ml-4 my-4 space-y-2" {...props} />
+    <ol className="list-decimal list-inside ml-5" {...props} />
   ),
   li: (props: React.HTMLAttributes<HTMLLIElement>) => (
-    <li className="text-base leading-4 break-words pl-2" {...props} />
+    <li className="my-1 font-light break-all" {...props} />
   ),
   blockquote: (props: React.BlockquoteHTMLAttributes<HTMLQuoteElement>) => (
     <blockquote
@@ -162,22 +156,13 @@ export const MDXComponent: MDXRemoteComponents = {
 
     if (isInline) {
       return (
-        <code
-          className="relative font-mono text-sm font-medium"
-          style={{
-            backgroundColor: 'hsl(var(--highlight))',
-            color: 'hsl(var(--highlight-foreground))',
-            border: '1px solid hsl(var(--highlight-border))',
-            borderRadius: '0.25rem',
-            padding: '0.15rem 0.1rem',
-          }}
-        >
+        <code className="relative font-mono text-sm font-medium">
           {children}
         </code>
       );
     } else {
       return (
-        <div className="my-6 rounded-lg overflow-hidden border">
+        <div className="rounded-lg overflow-hidden border">
           <div className="bg-card px-4 py-2 text-sm font-medium text-card-foreground border-b">
             {language}
           </div>
@@ -200,27 +185,24 @@ export const MDXComponent: MDXRemoteComponents = {
     }
   },
   pre: (props: React.HTMLAttributes<HTMLPreElement>) => (
-    <pre className="overflow-x-auto rounded-lg bg-card p-1 my-6" {...props} />
+    <pre className="overflow-x-auto rounded-lg bg-card p-1 my-2" {...props} />
   ),
   table: (props: React.HTMLAttributes<HTMLTableElement>) => (
     <div className="my-6 overflow-x-auto">
-      <table
-        className="w-full border-collapse border border-border rounded-lg"
-        {...props}
-      />
+      <table className="w-full border-collapse border rounded-lg" {...props} />
     </div>
   ),
   th: (props: React.HTMLAttributes<HTMLTableCellElement>) => (
     <th
-      className="border border-border bg-muted px-4 py-2 text-left font-medium"
+      className="border bg-muted px-4 py-2 text-left font-medium"
       {...props}
     />
   ),
   td: (props: React.HTMLAttributes<HTMLTableCellElement>) => (
-    <td className="border border-border px-4 py-2" {...props} />
+    <td className="border px-4 py-2" {...props} />
   ),
   hr: (props: React.HTMLAttributes<HTMLHRElement>) => (
-    <hr className="my-8 border-border" {...props} />
+    <hr className="my-8" {...props} />
   ),
   img: (props: React.ImgHTMLAttributes<HTMLImageElement>) => (
     <img

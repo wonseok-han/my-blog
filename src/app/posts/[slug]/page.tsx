@@ -22,9 +22,7 @@ import Link from 'next/link';
 const TOC = dynamic(() => import('@components/toc'), { ssr: false });
 
 const Comments = dynamic(() => import('@components/comments'), { ssr: false });
-const FloatingButton = dynamic(() => import('@components/floating-button'), {
-  ssr: false,
-});
+
 const ActionButtons = dynamic(() => import('@components/action-buttons'), {
   ssr: false,
 });
@@ -124,12 +122,12 @@ export default async function BlogPostPage({
 
       <div className="grid grid-cols-1 lg:grid-cols-4 gap-8">
         {/* Main Content */}
-        <article className="lg:col-span-3 prose prose-neutral dark:prose-invert max-w-none">
+        <article className="lg:col-span-3 max-w-none">
           {/* Action Buttons - Sticky */}
           <ActionButtons />
 
           {/* Post Content */}
-          <div className="prose-content space-y-6">
+          <div className="space-y-6">
             <MDXRemote source={post.content} components={MDXComponent} />
           </div>
         </article>
@@ -212,8 +210,6 @@ export default async function BlogPostPage({
           </Button>
         )}
       </nav>
-
-      <FloatingButton />
     </div>
   );
 }

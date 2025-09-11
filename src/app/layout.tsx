@@ -6,7 +6,6 @@ import { ThemeProvider } from 'next-themes';
 import dynamic from 'next/dynamic';
 import WorkerComponent from '@components/worker-component';
 
-import '../../public/fonts/fonts.css';
 import './globals.css';
 
 const Header = dynamic(() => import('@components/layout/header'), {
@@ -56,6 +55,7 @@ export default function RootLayout({
             <Main>{children}</Main>
             <Footer />
           </div>
+          <div id="portal-root" />
           <Analytics />
         </ThemeProvider>
       </body>
