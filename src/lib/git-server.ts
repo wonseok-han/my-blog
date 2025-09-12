@@ -1,92 +1,46 @@
-import { execSync } from 'child_process';
-import { readFileSync, statSync } from 'fs';
+import { readFileSync, statSync, existsSync } from 'fs';
 import { join } from 'path';
+
+const METADATA_PATH = 'public/metadata/post-metadata.json';
 
 /**
  * Vercel 호환 Git 정보 가져오기
  * 빌드 시점에 실행되어 정적 정보로 사용
  */
 
-// Vercel 환경 감지
-const isVercel = process.env.VERCEL === '1';
-const isProduction = process.env.NODE_ENV === 'production';
+// 메타데이터 캐시 (프로세스 단위)
+let cachedMetadata: Record<string, unknown> = {};
 
-export async function getStaticFileInfo(filePath: string) {
-  // Vercel 환경에서는 빌드 시점에만 Git 정보를 가져올 수 있음
-  if (isVercel && isProduction) {
-    // 프로덕션에서는 미리 생성된 메타데이터 사용
-    return getFileInfoFromMetadata(filePath);
-  }
-  try {
-    // 로컬 개발 환경에서만 Git 명령어 실행
-    const created = execSync(
-      `git log --follow --format=%ad --date=iso -- "${filePath}" | tail -1`,
-      { encoding: 'utf8' }
-    ).trim();
-
-    const modified = execSync(
-      `git log -1 --format=%ad --date=iso -- "${filePath}"`,
-      { encoding: 'utf8' }
-    ).trim();
-
-    const commitCount = execSync(`git rev-list --count HEAD -- "${filePath}"`, {
-      encoding: 'utf8',
-    }).trim();
-
-    return {
-      created: created || new Date().toISOString().split('T')[0],
-      modified: modified || new Date().toISOString().split('T')[0],
-      commitCount: parseInt(commitCount) || 0,
-      source: 'git',
-    };
-  } catch (error) {
-    console.log('error', error);
-    // Git 정보를 가져올 수 없으면 파일 시스템 정보 사용
+function loadMetadata(): Record<string, unknown> {
+  if (Object.keys(cachedMetadata).length) return cachedMetadata;
+  const p = join(process.cwd(), METADATA_PATH);
+  if (existsSync(p)) {
     try {
-      const fullPath = join(process.cwd(), filePath);
-      const stats = statSync(fullPath);
-
-      return {
-        created: stats.birthtime.toISOString().split('T')[0],
-        modified: stats.mtime.toISOString().split('T')[0],
-        commitCount: 0,
-        source: 'filesystem',
-      };
+      cachedMetadata = JSON.parse(readFileSync(p, 'utf8'));
+      return cachedMetadata;
     } catch {
-      return {
-        created: new Date().toISOString().split('T')[0],
-        modified: new Date().toISOString().split('T')[0],
-        commitCount: 0,
-        source: 'fallback',
-      };
+      // fallthrough
     }
   }
+  cachedMetadata = {};
+  return cachedMetadata;
 }
 
-/**
- * 메타데이터 파일에서 파일 정보를 가져옵니다
- * Vercel 배포 시 사용
- */
-function getFileInfoFromMetadata(filePath: string) {
-  try {
-    // 빌드 시점에 생성된 메타데이터 파일 읽기ㄷ
-    const isProduction = process.env.NODE_ENV === 'production';
-    const metadataPath = join(
-      process.cwd(),
-      isProduction
-        ? '.next/static/post-metadata.json'
-        : 'data/post-metadata.json'
-    );
-    const metadata = JSON.parse(readFileSync(metadataPath, 'utf8'));
+export async function getStaticFileInfo(filePath: string) {
+  // 빌드 시 생성된 JSON 메타데이터만 참조 (로컬/프로덕션 동일)
+  const meta = getFileInfoFromMetadata(filePath);
+  if (meta) return meta;
 
-    return (
-      metadata[filePath] || {
-        created: new Date().toISOString().split('T')[0],
-        modified: new Date().toISOString().split('T')[0],
-        commitCount: 0,
-        source: 'metadata',
-      }
-    );
+  // 메타데이터에 없으면 파일 시스템 정보로 폴백
+  try {
+    const fullPath = join(process.cwd(), filePath);
+    const stats = statSync(fullPath);
+    return {
+      created: stats.birthtime.toISOString().split('T')[0],
+      modified: stats.mtime.toISOString().split('T')[0],
+      commitCount: 0,
+      source: 'filesystem',
+    };
   } catch {
     return {
       created: new Date().toISOString().split('T')[0],
@@ -98,29 +52,21 @@ function getFileInfoFromMetadata(filePath: string) {
 }
 
 /**
- * 모든 MDX 파일의 Git 정보를 가져오는 함수
+ * 메타데이터 파일에서 파일 정보를 가져옵니다
+ * Vercel 배포 시 사용
  */
-export async function getAllPostsGitInfo() {
-  try {
-    const files = execSync('find contents/blog-posts -name "*.mdx" -type f', {
-      encoding: 'utf8',
-    })
-      .trim()
-      .split('\n');
+function getFileInfoFromMetadata(filePath: string) {
+  const metadata = loadMetadata();
+  console.log('metadata', metadata);
+  if (!metadata) return null as unknown;
 
-    const postsInfo = await Promise.all(
-      files.map(async (file) => {
-        const info = await getStaticFileInfo(file);
-        return {
-          file,
-          ...info,
-        };
-      })
-    );
-
-    return postsInfo;
-  } catch (error) {
-    console.warn('포스트 파일 정보를 가져올 수 없습니다:', error);
-    return [];
+  // 키 매칭: 원본 경로, 베이스네임, contents/blog-posts/ + 베이스네임
+  const basename = filePath.split('/').pop() || filePath;
+  const variants = [filePath, basename, `contents/blog-posts/${basename}`];
+  for (const key of variants) {
+    if (metadata[key]) {
+      return { ...metadata[key], source: 'metadata' };
+    }
   }
+  return null as unknown;
 }

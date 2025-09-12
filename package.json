@@ -13,7 +13,6 @@
     "predev": "node scripts/generate-git-metadata.cjs",
     "dev": "NODE_ENV=development next dev",
     "build": "next build",
-    "postbuild": "cp data/post-metadata.json .next/static/post-metadata.json",
     "start": "next start",
     "pwa": "next build && next start",
     "lint": "next lint",

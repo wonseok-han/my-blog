@@ -98,10 +98,9 @@ filesToTrack.forEach((filePath) => {
 });
 
 // 메타데이터 파일 저징
-const isProduction = process.env.NODE_ENV === 'production';
 const outputPath = path.join(
   process.cwd(),
-  isProduction ? '.next/static/post-metadata.json' : 'data/post-metadata.json'
+  'public/metadata/post-metadata.json'
 );
 const outputDir = path.dirname(outputPath);
 
