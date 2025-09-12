@@ -1,9 +1,9 @@
-import PostCard from '@/components/post-card';
 import { Search, ArrowLeft } from 'lucide-react';
 import Link from 'next/link';
 import { Button } from '@/components/ui/button';
 import { apiGet, parseApiResponse } from '@/utils/client';
 import { PostsResponseType } from '@typings/post';
+import SearchResults from '@/app/search/components/search-results';
 
 interface SearchPageProps {
   searchParams: Promise<{
@@ -47,52 +47,13 @@ export default async function SearchPage({ searchParams }: SearchPageProps) {
               {query ? `"${query}" 검색 결과` : '검색'}
             </h1>
           </div>
-
-          {query && (
-            <p className="text-muted-foreground">
-              {searchResults.posts.length}개의 포스트를 찾았습니다.
-            </p>
-          )}
         </div>
 
         {/* 검색 결과 */}
-        {query ? (
-          searchResults.posts.length > 0 ? (
-            <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
-              {searchResults.posts.map((post) => (
-                <Link key={post.slug} href={`/posts/${post.slug}`}>
-                  <PostCard key={post.slug} {...post} />
-                </Link>
-              ))}
-            </div>
-          ) : (
-            <div className="text-center py-12">
-              <Search className="h-16 w-16 mx-auto mb-4 text-muted-foreground opacity-50" />
-              <h2 className="text-2xl font-semibold mb-2">
-                검색 결과가 없습니다
-              </h2>
-              <p className="text-muted-foreground mb-6">
-                다른 키워드로 검색해보세요.
-              </p>
-              <Link href="/posts">
-                <Button variant="outline">모든 포스트 보기</Button>
-              </Link>
-            </div>
-          )
-        ) : (
-          <div className="text-center py-12">
-            <Search className="h-16 w-16 mx-auto mb-4 text-muted-foreground opacity-50" />
-            <h2 className="text-2xl font-semibold mb-2">
-              검색어를 입력해주세요
-            </h2>
-            <p className="text-muted-foreground mb-6">
-              상단의 검색 아이콘을 클릭하여 검색해보세요.
-            </p>
-            <Link href="/posts">
-              <Button variant="outline">모든 포스트 보기</Button>
-            </Link>
-          </div>
-        )}
+        <SearchResults
+          initialQuery={query}
+          initialResults={searchResults.posts}
+        />
       </div>
     );
   } catch (error) {

@@ -4,7 +4,7 @@ import { MDXRemote, MDXRemoteSerializeResult } from 'next-mdx-remote';
 import { MDXComponent } from '@components/mdx-component';
 import { serialize } from 'next-mdx-remote/serialize';
 import { useEffect, useState } from 'react';
-import { Skeleton } from '@/components/ui/skeleton';
+import { Skeleton } from '@components/skeleton/skeleton';
 
 interface MDXRendererProps {
   content: string;

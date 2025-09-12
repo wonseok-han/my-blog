@@ -11,7 +11,7 @@ import {
   SelectValue,
 } from '@/components/ui/select';
 import { Search, Filter } from 'lucide-react';
-import InfinitePosts from '@/components/infinite-posts';
+import InfinitePosts from '@/app/posts/components/infinite-posts';
 
 interface PostsPageClientProps {
   categories: string[];

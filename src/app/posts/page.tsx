@@ -4,7 +4,7 @@ import { Badge } from '@/components/ui/badge';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Filter, Calendar, Tag, TrendingUp } from 'lucide-react';
 import Link from 'next/link';
-import PostsPageClient from './posts-page-client';
+import PostsPageClient from './components/posts-page-client';
 import { PostsResponseType } from '@typings/post';
 
 /**

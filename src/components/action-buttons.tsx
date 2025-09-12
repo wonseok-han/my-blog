@@ -26,7 +26,7 @@ export default function ActionButtons() {
   };
 
   return (
-    <div className="lg:fixed lg:left-8 lg:top-1/2 lg:-translate-y-1/2 mb-8 lg:mb-0">
+    <div className="z-20 lg:fixed lg:left-8 lg:top-1/2 lg:-translate-y-1/2 mb-8 lg:mb-0">
       <div className="flex lg:flex-col gap-2">
         <Button
           size="sm"

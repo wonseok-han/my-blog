@@ -19,3 +19,12 @@ export const classnames = (
 ): string => {
   return classNames.filter(Boolean).join(' ');
 };
+
+/**
+ * 모바일 감지 함수
+ * @returns 모바일 여부
+ */
+export const isMobile = () => {
+  if (typeof window === 'undefined') return false;
+  return window.innerWidth < 768; // md 브레이크포인트
+};

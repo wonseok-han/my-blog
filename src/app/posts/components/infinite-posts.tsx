@@ -8,12 +8,7 @@ import { Loader2 } from 'lucide-react';
 import Link from 'next/link';
 import { PostsGridSkeleton } from '@/components/skeleton/posts-grid-skeleton';
 import { PostsResponseType, PostType } from '@typings/post';
-
-// 모바일 감지 함수
-const isMobile = () => {
-  if (typeof window === 'undefined') return false;
-  return window.innerWidth < 768; // md 브레이크포인트
-};
+import { isMobile } from '@utils/lib';
 
 interface InfinitePostsProps {
   search?: string;

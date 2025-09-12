@@ -1,12 +1,10 @@
 import Link from 'next/link';
-import dynamic from 'next/dynamic';
 import { Button } from '@/components/ui/button';
 import { Separator } from '@/components/ui/separator';
 import { ArrowRight } from 'lucide-react';
 import { apiGet, parseApiResponse } from '@/utils/client';
 import { PostsResponseType } from '@typings/post';
-
-const PostCard = dynamic(() => import('@components/post-card'));
+import HomePosts from '@/app/components/home-posts';
 
 /**
  * 홈페이지 컴포넌트 (서버 컴포넌트)
@@ -47,33 +45,8 @@ export default async function HomePage() {
         <Separator className="my-16" />
 
         {/* Recent Posts Section */}
-        <section className="space-y-8">
-          <div className="flex items-center justify-between">
-            <h2 className="text-2xl md:text-3xl">Recent Posts</h2>
-            <Button
-              variant="ghost"
-              className="text-sm text-muted-foreground"
-              asChild
-            >
-              <Link href="/posts">모두보기 →</Link>
-            </Button>
-          </div>
-
-          {/* Posts Grid */}
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
-            {posts.map((post) => (
-              <Link key={post.slug} href={`/posts/${post.slug}`}>
-                <PostCard {...post} />
-              </Link>
-            ))}
-          </div>
-
-          {/* Load More */}
-          <div className="text-center pt-8">
-            <Button variant="outline" size="lg" asChild>
-              <Link href="/posts">더 많은 포스트 보기</Link>
-            </Button>
-          </div>
+        <section>
+          <HomePosts initialPosts={posts} />
         </section>
       </main>
     );
