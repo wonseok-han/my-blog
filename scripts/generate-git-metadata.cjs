@@ -98,11 +98,7 @@ filesToTrack.forEach((filePath) => {
 });
 
 // 메타데이터 파일 저장
-const isProduction = process.env.NODE_ENV === 'production';
-const outputPath = path.join(
-  process.cwd(),
-  isProduction ? '.next/static/git-metadata.json' : 'git-metadata.json'
-);
+const outputPath = path.join(process.cwd(), 'data/post-metadata.json');
 const outputDir = path.dirname(outputPath);
 
 // 디렉토리 생성
