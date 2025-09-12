@@ -39,7 +39,7 @@ const PostsPageClient = ({
   const [showSuggestions, setShowSuggestions] = useState(false);
   const [selectedTags, setSelectedTags] = useState<string[]>([]);
 
-  const { posts } = initialPosts;
+  const { posts, filters } = initialPosts;
   const recentPosts = posts.slice(0, 5);
 
   // 검색 제안어 생성
@@ -242,9 +242,7 @@ const PostsPageClient = ({
               전체 ({initialPosts.pagination.total})
             </Button>
             {categories.map((category) => {
-              const count = posts.filter(
-                (post) => post.category === category
-              ).length;
+              const count = filters.totalCategories[category];
               return (
                 <Button
                   key={category}

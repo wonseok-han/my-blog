@@ -62,6 +62,16 @@ export async function GET(request: NextRequest) {
       return a.title.localeCompare(b.title);
     });
 
+    // 카테고리별 포스트 수 계산
+    const categoryCount = allPosts.reduce(
+      (acc, post) => {
+        const category = post.category || '미분류';
+        acc[category] = (acc[category] || 0) + 1;
+        return acc;
+      },
+      {} as Record<string, number>
+    );
+
     // 페이지네이션
     const total = filteredPosts.length;
     const totalPages = Math.ceil(total / limit);
@@ -92,6 +102,7 @@ export async function GET(request: NextRequest) {
       filters: {
         categories,
         tags: allTags,
+        totalCategories: categoryCount,
       },
     });
   } catch (error) {

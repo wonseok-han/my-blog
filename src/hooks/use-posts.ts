@@ -1,6 +1,8 @@
 import { useInfiniteQuery, useQuery } from '@tanstack/react-query';
+
 import { apiGet, parseApiResponse } from '@/utils/client';
 import { PostDetailResponseType, PostsResponseType } from '@typings/post';
+import { useDebouncedValue } from '@/hooks/use-debounce';
 
 /**
  * 포스트 목록을 무한스크롤로 조회하는 훅
@@ -12,11 +14,14 @@ export function useInfinitePosts(params: {
   limit?: number;
   tags?: string[];
 }) {
+  // 검색어에 500ms 디바운싱 적용
+  const debouncedSearch = useDebouncedValue(params.search || '', 500);
+
   return useInfiniteQuery({
     queryKey: [
       'posts',
       'infinite',
-      params.search || '',
+      debouncedSearch,
       params.category || '',
       params.sortBy || 'latest',
       params.limit || 10,
@@ -26,7 +31,7 @@ export function useInfinitePosts(params: {
       const response = await apiGet('/api/posts', {
         page: pageParam.toString(),
         limit: (params.limit || 10).toString(),
-        search: params.search || '',
+        search: debouncedSearch,
         category: params.category || '',
         sortBy: params.sortBy || 'latest',
         tags: params.tags?.join(',') || '',

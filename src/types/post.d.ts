@@ -27,6 +27,7 @@ export type PostsResponseType = {
   filters: {
     categories: string[];
     tags: string[];
+    totalCategories: Record<string, number>;
   };
 };
 
