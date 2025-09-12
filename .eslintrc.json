@@ -2,6 +2,9 @@
   "env": {
     "jest": true
   },
+  "globals": {
+    "RequestInit": true
+  },
   "extends": [
     "next/core-web-vitals",
     "next",

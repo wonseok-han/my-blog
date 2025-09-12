@@ -13,3 +13,24 @@ export type PostType = {
     source: 'git' | 'filesystem' | 'metadata' | 'fallback';
   };
 };
+
+export type PostsResponseType = {
+  posts: PostType[];
+  pagination: {
+    page: number;
+    limit: number;
+    total: number;
+    totalPages: number;
+    hasNext: boolean;
+    hasPrev: boolean;
+  };
+  filters: {
+    categories: string[];
+    tags: string[];
+  };
+};
+
+export type PostDetailResponseType = {
+  post: PostType;
+  content: string;
+};

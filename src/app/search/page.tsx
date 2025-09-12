@@ -1,89 +1,117 @@
-import { searchPosts } from '@/utils/search';
 import PostCard from '@/components/post-card';
 import { Search, ArrowLeft } from 'lucide-react';
 import Link from 'next/link';
 import { Button } from '@/components/ui/button';
-import { getParsedPosts } from '@utils/server';
+import { apiGet, parseApiResponse } from '@/utils/client';
+import { PostsResponseType } from '@typings/post';
 
 interface SearchPageProps {
-  searchParams: {
+  searchParams: Promise<{
     q?: string;
-  };
+  }>;
 }
 
 /**
- * 검색 결과 페이지
+ * 검색 결과 페이지 (서버 컴포넌트)
+ * API를 통해 검색 결과를 가져옵니다.
  */
 export default async function SearchPage({ searchParams }: SearchPageProps) {
-  const query = searchParams.q || '';
-  const allPosts = await getParsedPosts();
-  const searchResults = query ? searchPosts(allPosts, query) : [];
+  const { q } = await searchParams;
+  const query = q || '';
 
-  return (
-    <div className="container mx-auto px-4 py-8 max-w-7xl">
-      {/* 헤더 */}
-      <div className="mb-8">
-        <div className="flex items-center gap-4 mb-4">
-          <Link href="/">
-            <Button variant="ghost" size="sm">
-              <ArrowLeft className="h-4 w-4 mr-2" />
-              홈으로
-            </Button>
-          </Link>
-        </div>
+  try {
+    // 검색 쿼리가 있으면 API로 검색, 없으면 빈 결과
+    const searchResults = query
+      ? await apiGet('/api/posts', {
+          search: query,
+          limit: '100', // 검색 결과는 충분히 가져오기
+        }).then((response) => parseApiResponse<PostsResponseType>(response))
+      : { posts: [], pagination: { total: 0 } };
 
-        <div className="flex items-center gap-2 mb-2">
-          <Search className="h-6 w-6 text-muted-foreground" />
-          <h1 className="text-3xl font-bold">
-            {query ? `"${query}" 검색 결과` : '검색'}
-          </h1>
-        </div>
-
-        {query && (
-          <p className="text-muted-foreground">
-            {searchResults.length}개의 포스트를 찾았습니다.
-          </p>
-        )}
-      </div>
-
-      {/* 검색 결과 */}
-      {query ? (
-        searchResults.length > 0 ? (
-          <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
-            {searchResults.map((post) => (
-              <Link key={post.slug} href={`/posts/${post.slug}`}>
-                <PostCard key={post.slug} {...post} />
-              </Link>
-            ))}
+    return (
+      <div className="container mx-auto px-4 py-8 max-w-7xl">
+        {/* 헤더 */}
+        <div className="mb-8">
+          <div className="flex items-center gap-4 mb-4">
+            <Link href="/">
+              <Button variant="ghost" size="sm">
+                <ArrowLeft className="h-4 w-4 mr-2" />
+                홈으로
+              </Button>
+            </Link>
           </div>
+
+          <div className="flex items-center gap-2 mb-2">
+            <Search className="h-6 w-6 text-muted-foreground" />
+            <h1 className="text-3xl font-bold">
+              {query ? `"${query}" 검색 결과` : '검색'}
+            </h1>
+          </div>
+
+          {query && (
+            <p className="text-muted-foreground">
+              {searchResults.posts.length}개의 포스트를 찾았습니다.
+            </p>
+          )}
+        </div>
+
+        {/* 검색 결과 */}
+        {query ? (
+          searchResults.posts.length > 0 ? (
+            <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
+              {searchResults.posts.map((post) => (
+                <Link key={post.slug} href={`/posts/${post.slug}`}>
+                  <PostCard key={post.slug} {...post} />
+                </Link>
+              ))}
+            </div>
+          ) : (
+            <div className="text-center py-12">
+              <Search className="h-16 w-16 mx-auto mb-4 text-muted-foreground opacity-50" />
+              <h2 className="text-2xl font-semibold mb-2">
+                검색 결과가 없습니다
+              </h2>
+              <p className="text-muted-foreground mb-6">
+                다른 키워드로 검색해보세요.
+              </p>
+              <Link href="/posts">
+                <Button variant="outline">모든 포스트 보기</Button>
+              </Link>
+            </div>
+          )
         ) : (
           <div className="text-center py-12">
             <Search className="h-16 w-16 mx-auto mb-4 text-muted-foreground opacity-50" />
             <h2 className="text-2xl font-semibold mb-2">
-              검색 결과가 없습니다
+              검색어를 입력해주세요
             </h2>
             <p className="text-muted-foreground mb-6">
-              다른 키워드로 검색해보세요.
+              상단의 검색 아이콘을 클릭하여 검색해보세요.
             </p>
             <Link href="/posts">
               <Button variant="outline">모든 포스트 보기</Button>
             </Link>
           </div>
-        )
-      ) : (
-        <div className="text-center py-12">
-          <Search className="h-16 w-16 mx-auto mb-4 text-muted-foreground opacity-50" />
-          <h2 className="text-2xl font-semibold mb-2">검색어를 입력해주세요</h2>
+        )}
+      </div>
+    );
+  } catch (error) {
+    return (
+      <div className="container mx-auto px-4 py-8 max-w-7xl">
+        <div className="text-center py-16">
+          <h1 className="text-2xl font-bold mb-4">
+            검색 중 오류가 발생했습니다
+          </h1>
           <p className="text-muted-foreground mb-6">
-            상단의 검색 아이콘을 클릭하여 검색해보세요.
+            잠시 후 다시 시도해주세요.
           </p>
-          <Link href="/posts">
-            <Button variant="outline">모든 포스트 보기</Button>
-          </Link>
+          <Button asChild>
+            <Link href="/posts">포스트 목록 보기</Link>
+          </Button>
         </div>
-      )}
-    </div>
-  );
+      </div>
+    );
+  }
 }
 
 /**
@@ -92,7 +120,8 @@ export default async function SearchPage({ searchParams }: SearchPageProps) {
  * @returns 메타데이터
  */
 export async function generateMetadata({ searchParams }: SearchPageProps) {
-  const query = searchParams.q || '';
+  const { q } = await searchParams;
+  const query = q || '';
 
   if (query) {
     return {

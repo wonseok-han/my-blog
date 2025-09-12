@@ -1,13 +1,19 @@
 'use client';
 
-import { useState, useEffect, useRef, ChangeEvent, FormEvent } from 'react';
+import {
+  useState,
+  useEffect,
+  useRef,
+  useCallback,
+  ChangeEvent,
+  FormEvent,
+} from 'react';
 import { createPortal } from 'react-dom';
 import { useRouter } from 'next/navigation';
 import { Search, X } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { useSearchStore } from '@/store/search-store';
-import { getSearchSuggestionsAction } from '@/actions/search';
 
 interface SearchModalProps {
   isOpen: boolean;
@@ -25,7 +31,6 @@ const SearchModal = ({
   initialQuery = '',
 }: SearchModalProps) => {
   const [searchQuery, setSearchQuery] = useState(initialQuery);
-  const [suggestions, setSuggestions] = useState<string[]>([]);
   const [showSuggestions, setShowSuggestions] = useState(false);
   const [isAnimating, setIsAnimating] = useState(false);
   const [mounted, setMounted] = useState(false);
@@ -61,24 +66,22 @@ const SearchModal = ({
 
       // 검색어가 없을 때 최근 검색어 표시
       if (!initialQuery.trim() && recentSearches.length > 0) {
-        setSuggestions(recentSearches.slice(0, 5));
         setShowSuggestions(true);
       }
     }
   }, [isOpen, initialQuery, recentSearches]);
 
   // 모달 닫기 함수
-  const closeModal = () => {
+  const closeModal = useCallback(() => {
     setIsAnimating(false);
     // 애니메이션 완료 후 상태 초기화
     setTimeout(() => {
       onClose();
       setSearchQuery('');
-      setSuggestions([]);
       setShowSuggestions(false);
       document.body.style.overflow = 'unset';
     }, 200); // CSS 트랜지션 시간과 맞춤
-  };
+  }, [onClose]);
 
   // ESC 키로 모달 닫기
   useEffect(() => {
@@ -95,33 +98,23 @@ const SearchModal = ({
     return () => {
       document.removeEventListener('keydown', handleEscape);
     };
-  }, [isOpen]);
+  }, [isOpen, closeModal]);
 
   // 검색어 입력 처리
   const handleInputChange = (e: ChangeEvent<HTMLInputElement>) => {
     const value = e.target.value;
     setSearchQuery(value);
     setShowSuggestions(true);
+  };
 
-    if (value.trim()) {
-      // 디바운싱으로 추천 검색어 가져오기
-      const timeoutId = setTimeout(async () => {
-        try {
-          const suggestions = await getSearchSuggestionsAction(value);
-          setSuggestions(suggestions);
-        } catch (error) {
-          console.error('추천 검색어를 가져오는데 실패했습니다:', error);
-          setSuggestions([]);
-        }
-      }, 300); // 300ms 디바운싱
+  // 최근 검색어 삭제
+  const handleRemoveRecentSearch = (query: string) => {
+    removeSearchQuery(query);
+  };
 
-      return () => clearTimeout(timeoutId);
-    } else {
-      // 검색어가 없을 때 최근 검색어 표시
-      if (recentSearches.length > 0) {
-        setSuggestions(recentSearches.slice(0, 5));
-      }
-    }
+  // 최근 검색어 전체 삭제
+  const handleClearHistory = () => {
+    clearSearchHistory();
   };
 
   // 추천 검색어 클릭 처리
@@ -147,18 +140,6 @@ const SearchModal = ({
       router.push(`/search?q=${encodeURIComponent(searchQuery)}`);
       closeModal();
     }
-  };
-
-  // 최근 검색어 제거
-  const handleRemoveRecentSearch = (query: string) => {
-    removeSearchQuery(query);
-    setSuggestions(suggestions.filter((s) => s !== query));
-  };
-
-  // 검색 히스토리 전체 삭제
-  const handleClearHistory = () => {
-    clearSearchHistory();
-    setSuggestions([]);
   };
 
   if (!mounted) return null;
@@ -205,48 +186,44 @@ const SearchModal = ({
 
         {/* Content */}
         <div className="max-h-96 overflow-y-auto">
-          {/* Suggestions */}
-          {showSuggestions && suggestions.length > 0 && (
+          {/* 최근 검색어 */}
+          {showSuggestions && recentSearches.length > 0 && (
             <div className="p-4">
               <div className="flex items-center justify-between mb-3">
                 <h3 className="text-sm font-medium text-muted-foreground">
-                  {searchQuery.trim() ? '추천 검색어' : '최근 검색어'}
+                  최근 검색어
                 </h3>
-                {!searchQuery.trim() && recentSearches.length > 0 && (
-                  <Button
-                    variant="ghost"
-                    size="sm"
-                    onClick={handleClearHistory}
-                    className="text-xs text-muted-foreground hover:text-foreground"
-                  >
-                    전체 삭제
-                  </Button>
-                )}
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  onClick={handleClearHistory}
+                  className="text-xs text-muted-foreground hover:text-foreground"
+                >
+                  전체 삭제
+                </Button>
               </div>
               <div className="space-y-1">
-                {suggestions.map((suggestion, index) => (
+                {recentSearches.slice(0, 5).map((search, index) => (
                   <div
                     key={index}
                     className="flex items-center px-2 justify-between rounded-md hover:bg-muted cursor-pointer group"
-                    onClick={() => handleSuggestionClick(suggestion)}
+                    onClick={() => handleSuggestionClick(search)}
                   >
                     <div className="flex items-center gap-2">
                       <Search className="h-4 w-4 text-muted-foreground" />
-                      <span className="text-sm">{suggestion}</span>
+                      <span className="text-sm">{search}</span>
                     </div>
-                    {!searchQuery.trim() && (
-                      <Button
-                        variant="ghost"
-                        size="sm"
-                        onClick={(e) => {
-                          e.stopPropagation();
-                          handleRemoveRecentSearch(suggestion);
-                        }}
-                        className="opacity-0 group-hover:opacity-100 transition-opacity h-6 w-6 p-0"
-                      >
-                        <X className="h-3 w-3" />
-                      </Button>
-                    )}
+                    <Button
+                      variant="ghost"
+                      size="sm"
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        handleRemoveRecentSearch(search);
+                      }}
+                      className="opacity-0 group-hover:opacity-100 transition-opacity h-6 w-6 p-0"
+                    >
+                      <X className="h-3 w-3" />
+                    </Button>
                   </div>
                 ))}
               </div>

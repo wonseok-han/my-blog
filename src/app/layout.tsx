@@ -7,16 +7,11 @@ import dynamic from 'next/dynamic';
 import WorkerComponent from '@components/worker-component';
 
 import './globals.css';
+import { CustomQueryClientProvider } from '@components/providers/custom-query-client-provider';
 
-const Header = dynamic(() => import('@components/layout/header'), {
-  suspense: true,
-});
-const Main = dynamic(() => import('@components/layout/main'), {
-  suspense: true,
-});
-const Footer = dynamic(() => import('@components/layout/footer'), {
-  suspense: false,
-});
+const Header = dynamic(() => import('@components/layout/header'));
+const Main = dynamic(() => import('@components/layout/main'));
+const Footer = dynamic(() => import('@components/layout/footer'));
 
 export const metadata: Metadata = {
   title: `까먹을게 분명하기 때문에 기록하는 블로그`,
@@ -48,16 +43,18 @@ export default function RootLayout({
   return (
     <html lang="ko" suppressHydrationWarning>
       <body className="min-h-screen bg-background antialiased">
-        <ThemeProvider attribute="class" defaultTheme="system" enableSystem>
-          <WorkerComponent />
-          <div className="relative flex min-h-screen flex-col">
-            <Header />
-            <Main>{children}</Main>
-            <Footer />
-          </div>
-          <div id="portal-root" />
-          <Analytics />
-        </ThemeProvider>
+        <CustomQueryClientProvider>
+          <ThemeProvider attribute="class" defaultTheme="system" enableSystem>
+            <WorkerComponent />
+            <div className="relative flex min-h-screen flex-col">
+              <Header />
+              <Main>{children}</Main>
+              <Footer />
+            </div>
+            <div id="portal-root" />
+            <Analytics />
+          </ThemeProvider>
+        </CustomQueryClientProvider>
       </body>
     </html>
   );
