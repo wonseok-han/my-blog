@@ -1,11 +1,19 @@
 'use client';
 
-import { useEffect, useRef } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { useInfinitePosts } from '@/hooks/use-posts';
 import PostCard from '@/components/post-card';
 import { Button } from '@/components/ui/button';
 import { Loader2 } from 'lucide-react';
 import Link from 'next/link';
+import { PostsGridSkeleton } from '@/components/skeleton/posts-grid-skeleton';
+import { PostsResponseType, PostType } from '@typings/post';
+
+// 모바일 감지 함수
+const isMobile = () => {
+  if (typeof window === 'undefined') return false;
+  return window.innerWidth < 768; // md 브레이크포인트
+};
 
 interface InfinitePostsProps {
   search?: string;
@@ -38,6 +46,19 @@ export default function InfinitePosts({
   });
 
   const loadMoreRef = useRef<HTMLDivElement>(null);
+  const [isMobileView, setIsMobileView] = useState(false);
+
+  // 모바일 감지 및 리사이즈 이벤트 처리
+  useEffect(() => {
+    const checkMobile = () => {
+      setIsMobileView(isMobile());
+    };
+
+    checkMobile();
+    window.addEventListener('resize', checkMobile);
+
+    return () => window.removeEventListener('resize', checkMobile);
+  }, []);
 
   // 무한스크롤을 위한 Intersection Observer
   useEffect(() => {
@@ -59,9 +80,10 @@ export default function InfinitePosts({
 
   if (isLoading) {
     return (
-      <div className="flex justify-center items-center py-16">
-        <Loader2 className="h-8 w-8 animate-spin" />
-      </div>
+      <PostsGridSkeleton
+        count={isMobileView ? 1 : 6}
+        useFadeInOut={!isMobileView}
+      />
     );
   }
 
@@ -75,7 +97,10 @@ export default function InfinitePosts({
     );
   }
 
-  const allPosts = data?.pages.flatMap((page) => page.posts) || [];
+  const allPosts =
+    (data as unknown as { pages: PostsResponseType[] })?.pages?.flatMap(
+      (page: PostsResponseType) => page.posts
+    ) || [];
 
   if (allPosts.length === 0) {
     return (
@@ -102,7 +127,7 @@ export default function InfinitePosts({
   return (
     <div className="space-y-6">
       <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6">
-        {allPosts.map((post) => (
+        {allPosts.map((post: PostType) => (
           <Link key={post.slug} href={`/posts/${post.slug}`}>
             <PostCard {...post} />
           </Link>

@@ -1,16 +1,16 @@
+import React from 'react';
 import { cn } from '@utils/lib';
-import { HTMLAttributes } from 'react';
 
 /**
- * 스켈레톤 컴포넌트
- * 로딩 상태를 표시하는 애니메이션 효과를 제공합니다.
+ * 스켈레톤 UI 컴포넌트
+ * 로딩 상태를 시각적으로 표현합니다.
  */
-function Skeleton({ className, ...props }: HTMLAttributes<HTMLDivElement>) {
+function Skeleton({
+  className,
+  ...props
+}: React.HTMLAttributes<HTMLDivElement>) {
   return (
-    <div
-      className={cn('animate-pulse rounded-md bg-muted', className)}
-      {...props}
-    />
+    <div className={cn('rounded-md skeleton-shimmer', className)} {...props} />
   );
 }
 
