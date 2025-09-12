@@ -19,5 +19,6 @@ declare namespace NodeJS {
     readonly FIREBASE_SERVICE_ACCOUNT_AUTH_PROVIDER_X509_CERT_URL: string;
     readonly FIREBASE_SERVICE_ACCOUNT_CLIENT_X509_CERT_URL: string;
     readonly FIREBASE_SERVICE_ACCOUNT_UNIVERSE_DOMAIN: string;
+    readonly NEXT_PUBLIC_BASE_URL: string;
   }
 }

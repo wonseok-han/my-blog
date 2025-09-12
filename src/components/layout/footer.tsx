@@ -29,9 +29,24 @@ const Footer = () => {
               Contact
             </Link>
             <Link
-              href="/rss"
-              className="hover:text-foreground transition-colors"
+              href="/api/rss"
+              target="_blank"
+              className="hover:text-foreground transition-colors flex items-center"
             >
+              <svg
+                role="img"
+                aria-label="RSS icon"
+                viewBox="0 0 24 24"
+                width="16"
+                height="16"
+                xmlns="http://www.w3.org/2000/svg"
+                className="mr-1"
+              >
+                <path
+                  d="M4.259 3.09c1.187-.108 2.35.39 3.2 1.24.85.85 1.348 2.013 1.24 3.2-.108 1.187-.69 2.3-1.6 3.2-.91.91-2.013 1.492-3.2 1.6-1.187.108-2.35-.39-3.2-1.24-.85-.85-1.348-2.013-1.24-3.2.108-1.187.69-2.3 1.6-3.2.91-.91 2.013-1.492 3.2-1.6zM2.4 6.8c-.44 0-.8.36-.8.8s.36.8.8.8.8-.36.8-.8-.36-.8-.8-.8zm1.6 2.4c0-1.1-.9-2-2-2s-2 .9-2 2 .9 2 2 2 2-.9 2-2zm6.4 0c0-4.4-3.6-8-8-8s-8 3.6-8 8 3.6 8 8 8 8-3.6 8-8zm-8 6.4c-3.5 0-6.4-2.9-6.4-6.4S3.5 2.4 7 2.4s6.4 2.9 6.4 6.4-2.9 6.4-6.4 6.4z"
+                  fill="currentColor"
+                />
+              </svg>
               RSS
             </Link>
             <Link
