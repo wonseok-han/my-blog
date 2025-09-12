@@ -13,6 +13,7 @@ export async function GET(request: NextRequest) {
     const search = searchParams.get('search') || '';
     const category = searchParams.get('category') || '';
     const sortBy = searchParams.get('sortBy') || 'latest';
+    const tags = searchParams.get('tags') || '';
 
     // 모든 포스트 가져오기
     const allPosts = await getParsedPosts();
@@ -36,6 +37,20 @@ export async function GET(request: NextRequest) {
     if (category && category !== 'all') {
       filteredPosts = filteredPosts.filter(
         (post) => post.category === category
+      );
+    }
+
+    // 태그 필터
+    if (tags && tags !== 'all') {
+      const selectedTags = tags
+        .split(',')
+        .map((tag) => tag.trim().toLowerCase());
+      filteredPosts = filteredPosts.filter((post) =>
+        selectedTags.some((selectedTag) =>
+          post.tags?.some((postTag) =>
+            postTag.toLowerCase().includes(selectedTag)
+          )
+        )
       );
     }
 

@@ -1,9 +1,5 @@
 import { apiGet, parseApiResponse } from '@/utils/client';
-import { Button } from '@/components/ui/button';
-import { Badge } from '@/components/ui/badge';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { Filter, Calendar, Tag, TrendingUp } from 'lucide-react';
-import Link from 'next/link';
+
 import PostsPageClient from './components/posts-page-client';
 import { PostsResponseType } from '@typings/post';
 
@@ -21,10 +17,9 @@ export default async function PostsPage() {
     });
     const postsData = await parseApiResponse<PostsResponseType>(response);
 
-    const { posts, filters } = postsData;
+    const { filters } = postsData;
     const categories = filters.categories;
     const allTags = filters.tags;
-    const recentPosts = posts.slice(0, 5);
 
     return (
       <div className="container mx-auto px-4 py-8 max-w-7xl">
@@ -38,109 +33,11 @@ export default async function PostsPage() {
           </div>
         </div>
 
-        <div className="grid grid-cols-1 lg:grid-cols-4 gap-8">
-          {/* Main Content */}
-          <div className="lg:col-span-3">
-            {/* Posts Grid - 클라이언트 컴포넌트에서 렌더링 */}
-            <PostsPageClient categories={categories} allTags={allTags} />
-          </div>
-
-          {/* Sidebar */}
-          <div className="space-y-6">
-            {/* Recent Posts */}
-            <Card>
-              <CardHeader>
-                <CardTitle className="flex items-center gap-2 text-lg">
-                  <TrendingUp className="h-5 w-5" />
-                  최근 포스트
-                </CardTitle>
-              </CardHeader>
-              <CardContent className="space-y-4">
-                {recentPosts.map((post) => (
-                  <Link
-                    key={post.slug}
-                    href={`/posts/${post.slug}`}
-                    className="space-y-2 block w-full text-left hover:bg-muted/50 p-2 rounded-md transition-colors"
-                  >
-                    <h4 className="line-clamp-2 hover:text-primary transition-colors text-sm">
-                      {post.title}
-                    </h4>
-                    <div className="flex items-center gap-2 text-xs text-muted-foreground">
-                      <Calendar className="h-3 w-3" />
-                      <time dateTime={post.created}>
-                        {new Date(post.created).toLocaleDateString('ko-KR', {
-                          year: 'numeric',
-                          month: '2-digit',
-                          day: '2-digit',
-                          hour: '2-digit',
-                          minute: '2-digit',
-                          hour12: false,
-                          timeZone:
-                            Intl.DateTimeFormat().resolvedOptions().timeZone,
-                        })}
-                      </time>
-                    </div>
-                  </Link>
-                ))}
-              </CardContent>
-            </Card>
-
-            {/* Categories */}
-            <Card>
-              <CardHeader>
-                <CardTitle className="flex items-center gap-2 text-lg">
-                  <Filter className="h-5 w-5" />
-                  카테고리
-                </CardTitle>
-              </CardHeader>
-              <CardContent className="space-y-2">
-                <Button
-                  variant="secondary"
-                  className="w-full justify-start text-sm"
-                >
-                  전체 ({postsData.pagination.total})
-                </Button>
-                {categories.map((category) => {
-                  const count = posts.filter(
-                    (post) => post.category === category
-                  ).length;
-                  return (
-                    <Button
-                      key={category}
-                      variant="ghost"
-                      className="w-full justify-start text-sm"
-                    >
-                      {category} ({count})
-                    </Button>
-                  );
-                })}
-              </CardContent>
-            </Card>
-
-            {/* Tags */}
-            <Card>
-              <CardHeader>
-                <CardTitle className="flex items-center gap-2 text-lg">
-                  <Tag className="h-5 w-5" />
-                  인기 태그
-                </CardTitle>
-              </CardHeader>
-              <CardContent>
-                <div className="flex flex-wrap gap-2">
-                  {allTags.slice(0, 15).map((tag) => (
-                    <Badge
-                      key={tag}
-                      variant="outline"
-                      className="text-xs cursor-pointer hover:bg-secondary"
-                    >
-                      {tag}
-                    </Badge>
-                  ))}
-                </div>
-              </CardContent>
-            </Card>
-          </div>
-        </div>
+        <PostsPageClient
+          categories={categories}
+          allTags={allTags}
+          initialPosts={postsData}
+        />
       </div>
     );
   } catch (error) {

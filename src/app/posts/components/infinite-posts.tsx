@@ -15,6 +15,7 @@ interface InfinitePostsProps {
   category?: string;
   sortBy?: string;
   limit?: number;
+  tags?: string[];
 }
 
 /**
@@ -25,6 +26,7 @@ export default function InfinitePosts({
   category = '',
   sortBy = 'latest',
   limit = 10,
+  tags = [],
 }: InfinitePostsProps) {
   const {
     data,
@@ -38,6 +40,7 @@ export default function InfinitePosts({
     category,
     sortBy,
     limit,
+    tags,
   });
 
   const loadMoreRef = useRef<HTMLDivElement>(null);

@@ -10,9 +10,18 @@ export function useInfinitePosts(params: {
   category?: string;
   sortBy?: string;
   limit?: number;
+  tags?: string[];
 }) {
   return useInfiniteQuery({
-    queryKey: ['posts', 'infinite', params],
+    queryKey: [
+      'posts',
+      'infinite',
+      params.search || '',
+      params.category || '',
+      params.sortBy || 'latest',
+      params.limit || 10,
+      params.tags?.sort().join(',') || '',
+    ],
     queryFn: async ({ pageParam = 1 }) => {
       const response = await apiGet('/api/posts', {
         page: pageParam.toString(),
@@ -20,6 +29,7 @@ export function useInfinitePosts(params: {
         search: params.search || '',
         category: params.category || '',
         sortBy: params.sortBy || 'latest',
+        tags: params.tags?.join(',') || '',
       });
       return parseApiResponse<PostsResponseType>(response);
     },
