@@ -59,9 +59,7 @@ const Comments = () => {
         {isLoading && (
           <div className="flex items-center justify-center py-8">
             <Loader2 className="h-6 w-6 animate-spin text-muted-foreground" />
-            <span className="ml-2 text-muted-foreground">
-              댓글을 불러오는 중...
-            </span>
+            <span className="ml-2 text-muted-foreground">댓글 개발 중...</span>
           </div>
         )}
         <div ref={ref} className="min-h-[200px]" />
