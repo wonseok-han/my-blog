@@ -1,6 +1,6 @@
 import type { Metadata } from 'next';
 
-import { ReactNode } from 'react';
+import { ReactNode, Suspense } from 'react';
 import { Analytics } from '@vercel/analytics/react';
 import { ThemeProvider } from 'next-themes';
 import dynamic from 'next/dynamic';
@@ -15,7 +15,8 @@ const Footer = dynamic(() => import('@components/layout/footer'));
 
 export const metadata: Metadata = {
   title: `까먹을게 분명하기 때문에 기록하는 블로그`,
-  description: '까먹을게 분명하기 때문에 기록하는 블로그',
+  description:
+    '개발 경험과 학습 내용을 기록하고 공유하는 공간입니다. 프론트엔드 개발, 웹 기술, 문제 해결 과정을 다룹니다.',
   manifest: './manifest.json',
   icons: {
     icon: [
@@ -46,11 +47,19 @@ export default function RootLayout({
         <CustomQueryClientProvider>
           <ThemeProvider attribute="class" defaultTheme="system" enableSystem>
             <WorkerComponent />
-            <div className="relative flex min-h-screen flex-col">
-              <Header />
-              <Main>{children}</Main>
-              <Footer />
-            </div>
+            <Suspense
+              fallback={
+                <div className="container mx-auto px-4 py-8 text-sm text-muted-foreground">
+                  로딩 중...
+                </div>
+              }
+            >
+              <div className="relative flex min-h-screen flex-col">
+                <Header />
+                <Main>{children}</Main>
+                <Footer />
+              </div>
+            </Suspense>
             <div id="portal-root" />
             <Analytics />
           </ThemeProvider>
