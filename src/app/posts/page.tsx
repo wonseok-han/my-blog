@@ -1,7 +1,33 @@
 import { apiGet, parseApiResponse } from '@/utils/client';
-
+import { Metadata } from 'next';
 import PostsPageClient from './components/posts-page-client';
 import { PostsResponseType } from '@typings/post';
+
+export const metadata: Metadata = {
+  title: 'All Posts | 까먹을게 분명하기 때문에 기록하는 블로그',
+  description:
+    '개발 경험과 학습 내용을 담은 모든 포스트를 확인하세요. 프론트엔드 개발, 웹 기술, 문제 해결 과정을 다룹니다.',
+  keywords: [
+    '개발 블로그',
+    '포스트 목록',
+    '프론트엔드',
+    'React',
+    'Next.js',
+    'TypeScript',
+    '웹 개발',
+  ],
+  authors: [{ name: 'wonseok-han' }],
+  openGraph: {
+    title: 'All Posts | 까먹을게 분명하기 때문에 기록하는 블로그',
+    description: '개발 경험과 학습 내용을 담은 모든 포스트를 확인하세요.',
+    type: 'website',
+    locale: 'ko_KR',
+  },
+  robots: {
+    index: true,
+    follow: true,
+  },
+};
 
 /**
  * 포스트 목록 페이지 (서버 컴포넌트)

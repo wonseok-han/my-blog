@@ -19,10 +19,77 @@ import ActionButtons from '@components/action-buttons';
 import MDXRenderer from '@components/mdx-renderer';
 import TOC from '@components/toc';
 import Comments from '@components/comments';
+import { Metadata } from 'next';
 
 interface PostDetailResponse {
   post: PostType;
   content: string;
+}
+
+/**
+ * 포스트 상세 페이지 메타데이터 생성
+ * @param params - URL 파라미터
+ * @returns 메타데이터
+ */
+export async function generateMetadata({
+  params,
+}: {
+  params: Promise<{ slug: string }>;
+}): Promise<Metadata> {
+  const { slug } = await params;
+  const decodedSlug = decodeURIComponent(slug);
+
+  try {
+    // 포스트 데이터 가져오기
+    const postResponse = await apiGet(`/api/posts/${decodedSlug}`);
+    const postData = await parseApiResponse<PostDetailResponse>(postResponse);
+    const { post } = postData;
+
+    const baseUrl = process.env.NEXT_PUBLIC_BASE_URL || 'http://localhost:3000';
+    const postUrl = `${baseUrl}/posts/${slug}`;
+
+    return {
+      title: `${post.title} | 까먹을게 분명하기 때문에 기록하는 블로그`,
+      description: post.description || `${post.title}에 대한 포스트입니다.`,
+      keywords: [
+        '개발 블로그',
+        '프론트엔드',
+        '웹 개발',
+        post.category || '',
+        ...(post.tags || []),
+      ],
+      authors: [{ name: 'wonseok-han' }],
+      openGraph: {
+        title: post.title,
+        description: post.description || `${post.title}에 대한 포스트입니다.`,
+        type: 'article',
+        locale: 'ko_KR',
+        url: postUrl,
+        publishedTime: post.created,
+        modifiedTime: post.created,
+        authors: ['wonseok-han'],
+        section: post.category,
+        tags: post.tags,
+      },
+      robots: {
+        index: true,
+        follow: true,
+      },
+      alternates: {
+        canonical: postUrl,
+      },
+    };
+  } catch (error) {
+    return {
+      title:
+        '포스트를 찾을 수 없습니다 | 까먹을게 분명하기 때문에 기록하는 블로그',
+      description: '요청하신 포스트를 찾을 수 없습니다.',
+      robots: {
+        index: false,
+        follow: false,
+      },
+    };
+  }
 }
 
 /**
@@ -35,10 +102,11 @@ export default async function BlogPostPage({
   params: Promise<{ slug: string }>;
 }) {
   const { slug } = await params;
+  const decodedSlug = decodeURIComponent(slug);
 
   try {
     // 개별 포스트 데이터 가져오기
-    const postResponse = await apiGet(`/api/posts/${slug}`);
+    const postResponse = await apiGet(`/api/posts/${decodedSlug}`);
     const postData = await parseApiResponse<PostDetailResponse>(postResponse);
 
     // 모든 포스트 데이터 가져오기 (관련 포스트용)
@@ -50,11 +118,13 @@ export default async function BlogPostPage({
 
     const { post, content } = postData;
     const allPosts = allPostsData.posts;
-    const currentIndex = allPosts.findIndex((p) => p.slug === slug);
+    const currentIndex = allPosts.findIndex((p) => p.slug === decodedSlug);
     const prevPost = currentIndex > 0 ? allPosts[currentIndex - 1] : null;
     const nextPost =
       currentIndex < allPosts.length - 1 ? allPosts[currentIndex + 1] : null;
-    const relatedPosts = allPosts.filter((p) => p.slug !== slug).slice(0, 3);
+    const relatedPosts = allPosts
+      .filter((p) => p.slug !== decodedSlug)
+      .slice(0, 3);
 
     // 목차 생성
     const headings = generateTOC(content);

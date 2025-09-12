@@ -270,7 +270,7 @@ const PostsPageClient = ({
           <CardHeader>
             <CardTitle className="flex items-center gap-2 text-lg">
               <Tag className="h-5 w-5" />
-              인기 태그
+              태그
             </CardTitle>
           </CardHeader>
           <CardContent>

@@ -4,6 +4,56 @@ import { Button } from '@/components/ui/button';
 import { apiGet, parseApiResponse } from '@/utils/client';
 import { PostsResponseType } from '@typings/post';
 import SearchResults from '@/app/search/components/search-results';
+import { Metadata } from 'next';
+
+/**
+ * 메타데이터 생성
+ * @param searchParams - 검색 파라미터
+ * @returns 메타데이터
+ */
+export async function generateMetadata({
+  searchParams,
+}: SearchPageProps): Promise<Metadata> {
+  const { q } = await searchParams;
+  const query = q || '';
+
+  if (query) {
+    return {
+      title: `"${query}" 검색 결과 | 까먹을게 분명하기 때문에 기록하는 블로그`,
+      description: `"${query}"에 대한 검색 결과를 확인해보세요. 개발 경험과 학습 내용을 담은 포스트들을 찾아보세요.`,
+      keywords: ['검색', '개발 블로그', query, '프론트엔드', '웹 개발'],
+      authors: [{ name: 'wonseok-han' }],
+      openGraph: {
+        title: `"${query}" 검색 결과 | 까먹을게 분명하기 때문에 기록하는 블로그`,
+        description: `"${query}"에 대한 검색 결과를 확인해보세요.`,
+        type: 'website',
+        locale: 'ko_KR',
+      },
+      robots: {
+        index: true,
+        follow: true,
+      },
+    };
+  }
+
+  return {
+    title: '검색 | 까먹을게 분명하기 때문에 기록하는 블로그',
+    description:
+      '블로그 포스트를 검색해보세요. 개발 경험과 학습 내용을 담은 포스트들을 찾아보세요.',
+    keywords: ['검색', '개발 블로그', '프론트엔드', '웹 개발', '기술 블로그'],
+    authors: [{ name: 'wonseok-han' }],
+    openGraph: {
+      title: '검색 | 까먹을게 분명하기 때문에 기록하는 블로그',
+      description: '블로그 포스트를 검색해보세요.',
+      type: 'website',
+      locale: 'ko_KR',
+    },
+    robots: {
+      index: true,
+      follow: true,
+    },
+  };
+}
 
 interface SearchPageProps {
   searchParams: Promise<{
@@ -73,26 +123,4 @@ export default async function SearchPage({ searchParams }: SearchPageProps) {
       </div>
     );
   }
-}
-
-/**
- * 메타데이터 생성
- * @param searchParams - 검색 파라미터
- * @returns 메타데이터
- */
-export async function generateMetadata({ searchParams }: SearchPageProps) {
-  const { q } = await searchParams;
-  const query = q || '';
-
-  if (query) {
-    return {
-      title: `"${query}" 검색 결과 | 블로그`,
-      description: `"${query}"에 대한 검색 결과를 확인해보세요.`,
-    };
-  }
-
-  return {
-    title: '검색 | 블로그',
-    description: '블로그 포스트를 검색해보세요.',
-  };
 }

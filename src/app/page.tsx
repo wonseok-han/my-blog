@@ -5,6 +5,33 @@ import { ArrowRight } from 'lucide-react';
 import { apiGet, parseApiResponse } from '@/utils/client';
 import { PostsResponseType } from '@typings/post';
 import HomePosts from '@/app/components/home-posts';
+import { Metadata } from 'next';
+
+export const metadata: Metadata = {
+  title: '까먹을게 분명하기 때문에 기록하는 블로그',
+  description:
+    '개발 경험과 학습 내용을 기록하고 공유하는 공간입니다. 프론트엔드 개발, 웹 기술, 문제 해결 과정을 다룹니다.',
+  keywords: [
+    '개발 블로그',
+    '프론트엔드',
+    'React',
+    'Next.js',
+    'TypeScript',
+    '웹 개발',
+    '기술 블로그',
+  ],
+  authors: [{ name: 'wonseok-han' }],
+  openGraph: {
+    title: '까먹을게 분명하기 때문에 기록하는 블로그',
+    description: '개발 경험과 학습 내용을 기록하고 공유하는 공간입니다.',
+    type: 'website',
+    locale: 'ko_KR',
+  },
+  robots: {
+    index: true,
+    follow: true,
+  },
+};
 
 /**
  * 홈페이지 컴포넌트 (서버 컴포넌트)
