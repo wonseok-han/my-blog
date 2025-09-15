@@ -145,14 +145,7 @@ export const getParsedPosts = () => {
     const post = getPost(slug).frontmatter;
 
     // Git 정보 가져오기
-    // const gitInfo = getPostMetadata(`contents/blog-posts/${filename}`);
-    // 임시 Git 정보 설정
-    const gitInfo = {
-      created: '2024-09-10 10:00:00 +0900',
-      modified: '2024-09-10 10:00:00 +0900',
-      commitCount: 1,
-      source: 'fallback' as const,
-    };
+    const gitInfo = getPostMetadata(`contents/blog-posts/${filename}`);
 
     // 사용자 시간대 설정
     const userTimeZone = Intl.DateTimeFormat().resolvedOptions().timeZone;
