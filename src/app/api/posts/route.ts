@@ -16,7 +16,7 @@ export async function GET(request: NextRequest) {
     const tags = searchParams.get('tags') || '';
 
     // 모든 포스트 가져오기
-    const allPosts = await getParsedPosts();
+    const allPosts = getParsedPosts();
 
     // 필터링 및 정렬
     let filteredPosts = allPosts;

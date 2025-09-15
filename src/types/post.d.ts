@@ -1,3 +1,12 @@
+/**
+ * 포스트 메타데이터 타입 정의
+ */
+export type PostMetadataType = {
+  created: string;
+  modified: string;
+  source: 'git' | 'filesystem' | 'fallback';
+};
+
 export type PostType = {
   title: string;
   description?: string;
