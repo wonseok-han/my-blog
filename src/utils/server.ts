@@ -147,27 +147,10 @@ export const getParsedPosts = () => {
     // Git 정보 가져오기
     const gitInfo = getPostMetadata(`contents/blog-posts/${filename}`);
 
-    // 사용자 시간대 설정
-    const userTimeZone = Intl.DateTimeFormat().resolvedOptions().timeZone;
-
-    // Git 생성일자를 포맷팅
-    const gitCreatedDate = new Date(gitInfo.created);
-    const options = {
-      year: 'numeric',
-      month: '2-digit',
-      day: '2-digit',
-      hour: '2-digit',
-      minute: '2-digit',
-      hour12: false,
-      timeZone: userTimeZone,
-    } as Intl.DateTimeFormatOptions;
-
-    const formattedGitDate = gitCreatedDate.toLocaleString('ko-KR', options);
-
     return {
       ...post,
       slug: slug, // URL 인코딩된 slug 사용 (덮어쓰기)
-      created: formattedGitDate, // Git 생성일자로 덮어쓰기
+      created: gitInfo.created, // Git 생성일자로 덮어쓰기
       gitInfo: {
         created: gitInfo.created,
         modified: gitInfo.modified,

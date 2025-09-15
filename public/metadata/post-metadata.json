@@ -1,80 +1,80 @@
 {
   "contents/blog-posts/0-post-sample.mdx": {
-    "created": "2025-09-15",
-    "modified": "2025-09-15",
-    "commitCount": 0,
+    "created": "2024-09-05 18:30:59 +0900",
+    "modified": "2025-09-15 11:58:12 +0900",
+    "commitCount": 1,
     "source": "git"
   },
   "contents/blog-posts/3-Sonarcube-소스-정적분석-툴-적용하기.mdx": {
-    "created": "2025-09-15",
-    "modified": "2025-09-15",
-    "commitCount": 0,
+    "created": "2024-09-10 09:48:38 +0900",
+    "modified": "2025-09-15 11:58:12 +0900",
+    "commitCount": 1,
     "source": "git"
   },
   "contents/blog-posts/5-터미널-zsh-환경-구축하기.mdx": {
-    "created": "2025-09-15",
-    "modified": "2025-09-15",
-    "commitCount": 0,
+    "created": "2024-09-10 17:18:18 +0900",
+    "modified": "2025-09-15 11:58:12 +0900",
+    "commitCount": 1,
     "source": "git"
   },
   "contents/blog-posts/10-PWA에-웹-푸시(Web-Push)를-적용해보자.mdx": {
-    "created": "2025-09-15",
-    "modified": "2025-09-15",
-    "commitCount": 0,
+    "created": "2024-09-24 15:22:27 +0900",
+    "modified": "2025-09-15 11:58:12 +0900",
+    "commitCount": 1,
     "source": "git"
   },
   "contents/blog-posts/11-설치형(Self-hosted)-Gitlab-환경에서-Vercel-배포하기.mdx": {
-    "created": "2025-09-15",
-    "modified": "2025-09-15",
-    "commitCount": 0,
+    "created": "2024-10-08 12:28:12 +0900",
+    "modified": "2025-09-15 11:58:12 +0900",
+    "commitCount": 1,
     "source": "git"
   },
   "contents/blog-posts/7-TDD와-테스트의-종류에-대해-알아보자.mdx": {
-    "created": "2025-09-15",
-    "modified": "2025-09-15",
-    "commitCount": 0,
+    "created": "2024-09-11 17:23:00 +0900",
+    "modified": "2025-09-15 11:58:12 +0900",
+    "commitCount": 1,
     "source": "git"
   },
   "contents/blog-posts/1-Puppeteer로-정적-웹-페이지-추출하기.mdx": {
-    "created": "2025-09-15",
-    "modified": "2025-09-15",
-    "commitCount": 0,
+    "created": "2024-09-09 11:38:29 +0900",
+    "modified": "2025-09-15 11:58:12 +0900",
+    "commitCount": 1,
     "source": "git"
   },
   "contents/blog-posts/9-PWA가-뭔지-알아보고-직접-만들어보자.mdx": {
-    "created": "2025-09-15",
-    "modified": "2025-09-15",
-    "commitCount": 0,
+    "created": "2024-09-13 12:56:38 +0900",
+    "modified": "2025-09-15 11:58:12 +0900",
+    "commitCount": 1,
     "source": "git"
   },
   "contents/blog-posts/4-CSR-SSR-SSG-ISR이-뭔지-알아보자.mdx": {
-    "created": "2025-09-15",
-    "modified": "2025-09-15",
-    "commitCount": 0,
+    "created": "2024-09-10 15:13:55 +0900",
+    "modified": "2025-09-15 11:58:12 +0900",
+    "commitCount": 1,
     "source": "git"
   },
   "contents/blog-posts/8-jest를-적용해서-테스트-코드를-작성해보자.mdx": {
-    "created": "2025-09-15",
-    "modified": "2025-09-15",
-    "commitCount": 0,
+    "created": "2024-09-12 11:35:46 +0900",
+    "modified": "2025-09-15 11:58:12 +0900",
+    "commitCount": 1,
     "source": "git"
   },
   "contents/blog-posts/6-터미널에서-git-사용하기.mdx": {
-    "created": "2025-09-15",
-    "modified": "2025-09-15",
-    "commitCount": 0,
+    "created": "2024-09-11 11:50:14 +0900",
+    "modified": "2025-09-15 11:58:12 +0900",
+    "commitCount": 1,
     "source": "git"
   },
   "contents/blog-posts/12-VSCode에서-ollama-연동해서-사용하기.mdx": {
-    "created": "2025-09-15",
-    "modified": "2025-09-15",
-    "commitCount": 0,
+    "created": "2025-08-28 15:43:46 +0900",
+    "modified": "2025-09-15 11:58:12 +0900",
+    "commitCount": 1,
     "source": "git"
   },
   "contents/blog-posts/2-Package.json-dependencies-라이센스-추출하기.mdx": {
-    "created": "2025-09-15",
-    "modified": "2025-09-15",
-    "commitCount": 0,
+    "created": "2024-09-09 13:47:19 +0900",
+    "modified": "2025-09-15 11:58:12 +0900",
+    "commitCount": 1,
     "source": "git"
   }
 }
