@@ -1,8 +1,7 @@
 ---
 title: 'Next.js에서 jest를 적용해서 테스트 코드를 작성해보자'
 description: 'NextJs에서 jest를 적용해서 간단한 테스트 코드를 작성하는 방법에 대한 설명'
-thumbnail: '/thumbnail/blog-posts/202409120900-jest를-적용해서-테스트-코드를-작성해보자.png'
-created: '2024.09.12 17:22'
+thumbnail: '/thumbnail/blog-posts/8-jest를-적용해서-테스트-코드를-작성해보자.png'
 category: 'Frontend'
 tags: ['Testing', 'Next.js', 'Jest', 'React Testing Library', 'Unit Test', 'TDD', 'Test Setup', 'JSDOM']
 ---
@@ -56,13 +55,13 @@ jest init 할 때 여러 선택란이 주어지는데 나는 다음과 같이 �
 안맞으면 수동으로 바꾸지 뭐
 (참고로 environment 설정은 나중에 config 파일에서 jsdom으로 수동으로 변경했다ㅋㅋㅋ)
 
-![jest-init](/images/blog-posts/202409120900-jest를-적용해서-테스트-코드를-작성해보자/jest-init.png)
+![jest-init](/images/blog-posts/8-jest를-적용해서-테스트-코드를-작성해보자/jest-init.png)
 
 <br />
 
 호기롭게 "좋았어! package.json에 jest로 test 명령도 추가됬겠다 한 번 돌려보자!" 하고 돌렸더니 터졌다.
 
-![ts-node-error](/images/blog-posts/202409120900-jest를-적용해서-테스트-코드를-작성해보자/ts-node-error.png)
+![ts-node-error](/images/blog-posts/8-jest를-적용해서-테스트-코드를-작성해보자/ts-node-error.png)
 
 <br />
 
@@ -72,7 +71,7 @@ jest init 할 때 여러 선택란이 주어지는데 나는 다음과 같이 �
 npm install ts-node --save-dev
 ```
 
-![jest-init-test](/images/blog-posts/202409120900-jest를-적용해서-테스트-코드를-작성해보자/jest-init-test.png)
+![jest-init-test](/images/blog-posts/8-jest를-적용해서-테스트-코드를-작성해보자/jest-init-test.png)
 
 <br />
 
@@ -308,7 +307,7 @@ npm run test
 
 test 명령을 수행하여 다음과 같은 결과를 얻을 수 있었다.
 
-![test-result](/images/blog-posts/202409120900-jest를-적용해서-테스트-코드를-작성해보자/test-result.png)
+![test-result](/images/blog-posts/8-jest를-적용해서-테스트-코드를-작성해보자/test-result.png)
 
 <br />
 <br />

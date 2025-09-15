@@ -1,8 +1,7 @@
 ---
 title: 'PWA에 웹 푸시(Web Push)를 적용해보자'
 description: 'PWA로 만들어진 웹 앱에 순수 웹 푸시(Web Push)와 FCM(Firebase Cloud Messaging)을 이용한 Web Push를 적용하는 방법에 대해 알아보자'
-thumbnail: '/thumbnail/blog-posts/202409241200-PWA에-웹-푸시(Web-Push)를-적용해보자.png'
-created: '2024.09.24 12:00'
+thumbnail: '/thumbnail/blog-posts/10-PWA에-웹-푸시(Web-Push)를-적용해보자.png'
 category: 'Frontend'
 tags: ['PWA', 'Web Push', 'FCM', 'Firebase', 'Service Worker', 'Notification', 'Push API', 'Firebase Admin']
 ---
@@ -137,7 +136,7 @@ useEffect(() => {
 
 서비스 워커가 정상적으로 등록된다면 아래와 같이 확인할 수 있다.
 
-![register-service-worker](/images/blog-posts/202409241200-PWA에-웹-푸시(Web-Push)를-적용해보자/register-service-worker.png)
+![register-service-worker](/images/blog-posts/10-PWA에-웹-푸시(Web-Push)를-적용해보자/register-service-worker.png)
 
 <br />
 
@@ -145,7 +144,7 @@ useEffect(() => {
 
 위 이미지에서 푸시 버튼을 클릭했을 때 다음과 같이 알림이 발생하면 정상적으로 동작하는 것을 확인할 수 있다.
 
-![web-push-test](/images/blog-posts/202409241200-PWA에-웹-푸시(Web-Push)를-적용해보자/web-push-test.png)
+![web-push-test](/images/blog-posts/10-PWA에-웹-푸시(Web-Push)를-적용해보자/web-push-test.png)
 
 <br />
 <br />
@@ -168,7 +167,7 @@ FCM을 사용하기 위해서는 Firebase 프로젝트를 생성하고 Firebase 
 
 나는 `my-blog`라는 이름으로 프로젝트를 생성했다.
 
-![create-fcm-project](/images/blog-posts/202409241200-PWA에-웹-푸시(Web-Push)를-적용해보자/create-fcm-project.png)
+![create-fcm-project](/images/blog-posts/10-PWA에-웹-푸시(Web-Push)를-적용해보자/create-fcm-project.png)
 
 <br />
 
@@ -176,7 +175,7 @@ FCM을 사용하기 위해서는 Firebase 프로젝트를 생성하고 Firebase 
 
 프로젝트가 생성되면 앱을 추가할 수 있는데, PWA에서 FCM을 사용하기 위해서 웹 앱을 추가한다.
 
-![set-fcm-app](/images/blog-posts/202409241200-PWA에-웹-푸시(Web-Push)를-적용해보자/set-fcm-app.png)
+![set-fcm-app](/images/blog-posts/10-PWA에-웹-푸시(Web-Push)를-적용해보자/set-fcm-app.png)
 
 <br />
 
@@ -184,7 +183,7 @@ FCM을 사용하기 위해서는 Firebase 프로젝트를 생성하고 Firebase 
 
 앱 등록을 위해 앱 닉네임을 설정하고 앱을 등록한다. 나는 적용할 호스트가 `https://blog.wonseok-han.dev`이므로 해당 호스트를 등록했다.
 
-![add-fcm-nickname](/images/blog-posts/202409241200-PWA에-웹-푸시(Web-Push)를-적용해보자/add-fcm-nickname.png)
+![add-fcm-nickname](/images/blog-posts/10-PWA에-웹-푸시(Web-Push)를-적용해보자/add-fcm-nickname.png)
 
 <br />
 
@@ -383,13 +382,13 @@ messaging.onBackgroundMessage(function (payload) {
 * firebase 콘솔에서 **프로젝트 > Cloud Messaging > 캠페인 만들기 > Firebase 알림 메시지** 를 통해 테스트로 푸시 알림을 보내면 백그라운드에서 푸시 알림을 수신할 수 있다.
 * 이 때 vapidKey를 통해 생성된 토큰을 가지고 푸시 알림을 보내야 한다.
 
-![background-fcm-test](/images/blog-posts/202409241200-PWA에-웹-푸시(Web-Push)를-적용해보자/background-fcm-test.png)
+![background-fcm-test](/images/blog-posts/10-PWA에-웹-푸시(Web-Push)를-적용해보자/background-fcm-test.png)
 
 <br />
 
 전송하면 다음과 같이 푸쉬 알림이 오는 것을 확인할 수 있다.
 
-![background-push-test](/images/blog-posts/202409241200-PWA에-웹-푸시(Web-Push)를-적용해보자/background-push-test.png)
+![background-push-test](/images/blog-posts/10-PWA에-웹-푸시(Web-Push)를-적용해보자/background-push-test.png)
 
 <br />
 
@@ -549,7 +548,7 @@ const sendNotification = async () => {
 };
 ```
 
-![foreground-fcm-test](/images/blog-posts/202409241200-PWA에-웹-푸시(Web-Push)를-적용해보자/foreground-fcm-test.png)
+![foreground-fcm-test](/images/blog-posts/10-PWA에-웹-푸시(Web-Push)를-적용해보자/foreground-fcm-test.png)
 
 <br />
 <br />
