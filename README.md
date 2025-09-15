@@ -92,6 +92,29 @@ created: "2024-01-01 10:00"
 `.env.local` 파일을 생성하고 다음 변수들을 설정하세요:
 
 ```env
+# Firebase 설정
+FIREBASE_SERVICE_ACCOUNT_UNIVERSE_DOMAIN=your_universe_domain
+FIREBASE_SERVICE_ACCOUNT_CLIENT_X509_CERT_URL=your_client_cert_url
+FIREBASE_SERVICE_ACCOUNT_AUTH_PROVIDER_X509_CERT_URL=your_auth_provider_cert_url
+FIREBASE_SERVICE_ACCOUNT_TOKEN_URI=your_token_uri
+FIREBASE_SERVICE_ACCOUNT_AUTH_URI=your_auth_uri
+FIREBASE_SERVICE_ACCOUNT_CLIENT_ID=your_client_id
+FIREBASE_SERVICE_ACCOUNT_CLIENT_EMAIL=your_client_email
+FIREBASE_SERVICE_ACCOUNT_PRIVATE_KEY=your_private_key
+FIREBASE_SERVICE_ACCOUNT_PRIVATE_KEY_ID=your_private_key_id
+FIREBASE_SERVICE_ACCOUNT_PROJECT_ID=your_project_id
+FIREBASE_SERVICE_ACCOUNT_TYPE=service_account
+
+# FCM 설정
+NEXT_PUBLIC_FIREBASE_VAPID_KEY=your_vapid_key
+NEXT_PUBLIC_MEASUREMENT_ID=your_measurement_id
+NEXT_PUBLIC_FIREBASE_APP_ID=your_app_id
+NEXT_PUBLIC_FIREBASE_MESSAGING_SENDER_ID=your_sender_id
+NEXT_PUBLIC_FIREBASE_STORAGE_BUCKET=your_storage_bucket
+NEXT_PUBLIC_FIREBASE_PROJECT_ID=your_project_id
+NEXT_PUBLIC_FIREBASE_AUTH_DOMAIN=your_auth_domain
+NEXT_PUBLIC_FIREBASE_API_KEY=your_api_key
+
 # Giscus 댓글 시스템 설정
 NEXT_PUBLIC_GISCUS_MY_REPO_NAME=wonseok-han/my-blog
 NEXT_PUBLIC_GISCUS_MY_REPO_ID=your_repo_id
@@ -106,6 +129,8 @@ NEXT_PUBLIC_FIREBASE_STORAGE_BUCKET=your_storage_bucket
 NEXT_PUBLIC_FIREBASE_MESSAGING_SENDER_ID=your_sender_id
 NEXT_PUBLIC_FIREBASE_APP_ID=your_app_id
 NEXT_PUBLIC_MEASUREMENT_ID=your_measurement_id
+
+GITHUB_TOKEN=your_github_token
 ```
 
 ## 📁 프로젝트 구조
