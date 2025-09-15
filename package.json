@@ -12,7 +12,6 @@
     "prepare": "husky",
     "predev": "node scripts/generate-git-metadata.cjs",
     "dev": "NODE_ENV=development next dev",
-    "prebuild": "node scripts/generate-git-metadata.cjs",
     "build": "next build",
     "start": "next start",
     "pwa": "next build && next start",
