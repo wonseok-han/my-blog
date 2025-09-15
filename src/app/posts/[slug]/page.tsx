@@ -4,14 +4,7 @@ import { Separator } from '@/components/ui/separator';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import {
-  Calendar,
-  Clock,
-  Heart,
-  MessageCircle,
-  ChevronLeft,
-  ChevronRight,
-} from 'lucide-react';
+import { Calendar, ChevronLeft, ChevronRight } from 'lucide-react';
 import Link from 'next/link';
 import { apiGet, parseApiResponse } from '@/utils/client';
 import { PostType, PostsResponseType } from '@typings/post';
@@ -19,6 +12,7 @@ import ActionButtons from '@components/action-buttons';
 import MDXRenderer from '@components/mdx-renderer';
 import TOC from '@components/toc';
 import Comments from '@components/comments';
+import PostStats from '@components/post-stats';
 import { Metadata } from 'next';
 
 interface PostDetailResponse {
@@ -166,20 +160,7 @@ export default async function BlogPostPage({
               </time>
             </div>
 
-            <div className="flex items-center gap-2">
-              <Clock className="h-4 w-4" />
-              <span>5분 읽기</span>
-            </div>
-
-            <div className="flex items-center gap-2">
-              <Heart className="h-4 w-4" />
-              <span>24</span>
-            </div>
-
-            <div className="flex items-center gap-2">
-              <MessageCircle className="h-4 w-4" />
-              <span>8개 댓글</span>
-            </div>
+            <PostStats slug={slug} />
           </div>
 
           {/* Tags */}

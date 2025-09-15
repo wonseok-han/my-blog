@@ -22,5 +22,10 @@ declare namespace NodeJS {
     readonly NEXT_PUBLIC_API_BASE_URL: string;
     readonly NEXT_PUBLIC_BASE_URL: string;
     readonly NEXT_PUBLIC_ABOUT_EMAIL: string;
+    readonly NEXT_PUBLIC_GISCUS_MY_REPO_NAME: string;
+    readonly NEXT_PUBLIC_GISCUS_MY_REPO_ID: string;
+    readonly NEXT_PUBLIC_GISCUS_MY_CATEGORY_ID: string;
+    readonly NEXT_PUBLIC_GISCUS_MY_CATEGORY: string;
+    readonly GITHUB_TOKEN: string;
   }
 }

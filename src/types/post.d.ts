@@ -7,6 +7,9 @@ export type PostMetadataType = {
   source: 'git' | 'filesystem' | 'fallback';
 };
 
+/**
+ * 포스트 타입 정의
+ */
 export type PostType = {
   title: string;
   description?: string;
@@ -23,6 +26,9 @@ export type PostType = {
   };
 };
 
+/**
+ * 포스트 목록 응답 타입 정의
+ */
 export type PostsResponseType = {
   posts: PostType[];
   pagination: {
@@ -40,7 +46,29 @@ export type PostsResponseType = {
   };
 };
 
+/**
+ * 포스트 상세 응답 타입 정의
+ */
 export type PostDetailResponseType = {
   post: PostType;
   content: string;
+};
+
+/**
+ * 포스트 통계 응답 타입 정의
+ */
+export type PostStatsResponseType = {
+  readingTime: { minutes: number; label: string };
+  reactions: {
+    heart: number;
+    plusOne: number;
+    minusOne: number;
+    laugh: number;
+    hooray: number;
+    confused: number;
+    rocket: number;
+    eyes: number;
+    total: number;
+  } | null;
+  comments: number;
 };
