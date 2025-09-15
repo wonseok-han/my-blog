@@ -8,6 +8,7 @@ import WorkerComponent from '@components/worker-component';
 
 import './globals.css';
 import { CustomQueryClientProvider } from '@components/providers/custom-query-client-provider';
+import { PageSkeleton } from '@components/skeleton/page-skeleton';
 
 const Header = dynamic(() => import('@components/layout/header'));
 const Main = dynamic(() => import('@components/layout/main'));
@@ -47,13 +48,7 @@ export default function RootLayout({
         <CustomQueryClientProvider>
           <ThemeProvider attribute="class" defaultTheme="system" enableSystem>
             <WorkerComponent />
-            <Suspense
-              fallback={
-                <div className="container mx-auto px-4 py-8 text-sm text-muted-foreground">
-                  로딩 중...
-                </div>
-              }
-            >
+            <Suspense fallback={<PageSkeleton />}>
               <div className="relative flex min-h-screen flex-col">
                 <Header />
                 <Main>{children}</Main>
