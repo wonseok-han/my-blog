@@ -3,7 +3,7 @@
 import { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { usePathname, useSearchParams } from 'next/navigation';
-import { Search, Sun, Moon, Menu, User, Home, BookOpen } from 'lucide-react';
+import { Search, Sun, Moon, Menu, Home, BookOpen } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import {
   Sheet,
@@ -14,6 +14,7 @@ import {
 } from '@/components/ui/sheet';
 import { useTheme } from 'next-themes';
 import SearchModal from '@/components/search-modal';
+import Image from 'next/image';
 
 /**
  * 블로그 헤더 컴포넌트
@@ -97,7 +98,16 @@ const Header = () => {
                 <div className="mb-8 p-4 bg-accent/50 rounded-lg">
                   <div className="flex items-center space-x-3">
                     <div className="w-12 h-12 bg-primary rounded-full flex items-center justify-center">
-                      <User className="h-6 w-6 text-primary-foreground" />
+                      <Image
+                        src="/images/profile.png"
+                        alt="Profile"
+                        width={500}
+                        height={500}
+                        sizes="500px"
+                        quality={100}
+                        loading="lazy"
+                        className="rounded-full w-full h-full object-cover"
+                      />
                     </div>
                     <div>
                       <p className="text-sm font-medium leading-tight">

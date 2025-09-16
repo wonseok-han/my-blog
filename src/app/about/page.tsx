@@ -1,4 +1,5 @@
 import { Metadata } from 'next';
+import Image from 'next/image';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import {
@@ -35,6 +36,24 @@ export default function AboutPage() {
         <p className="text-xl text-muted-foreground max-w-2xl mx-auto">
           개발자로서의 여정과 학습 과정을 기록하고 공유하는 공간입니다.
         </p>
+        {/* 프로필 섹션 */}
+        <div className="mt-8 flex flex-col items-center gap-3">
+          <div className="w-24 h-24 rounded-full overflow-hidden">
+            <Image
+              src="/images/profile.png"
+              alt="Profile"
+              width={96}
+              height={96}
+              sizes="96px"
+              priority
+              className="w-full h-full object-cover rounded-full"
+            />
+          </div>
+          <div className="leading-tight">
+            <p className="text-base font-semibold">wonseok-han</p>
+            <p className="text-sm text-muted-foreground">Frontend Developer</p>
+          </div>
+        </div>
       </div>
 
       <div className="grid gap-8 md:grid-cols-2">
