@@ -3,6 +3,7 @@ import Image from 'next/image';
 import { Card, CardContent } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Calendar } from 'lucide-react';
+import LocalTime from '@components/local-time';
 
 interface PostCardProps extends PostType {}
 
@@ -75,17 +76,7 @@ const PostCard = ({
           <div className="space-y-2 mt-auto">
             <div className="flex items-center gap-1 text-xs text-muted-foreground">
               <Calendar className="h-3 w-3" />
-              <time dateTime={created}>
-                {new Date(created).toLocaleDateString('ko-KR', {
-                  year: 'numeric',
-                  month: '2-digit',
-                  day: '2-digit',
-                  hour: '2-digit',
-                  minute: '2-digit',
-                  hour12: false,
-                  timeZone: Intl.DateTimeFormat().resolvedOptions().timeZone,
-                })}
-              </time>
+              <LocalTime dateTime={created} />
             </div>
 
             {tags && tags.length > 0 && (

@@ -18,6 +18,7 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Search, Filter, Calendar, Tag, TrendingUp, X } from 'lucide-react';
 import Link from 'next/link';
 import { PostsResponseType } from '@typings/post';
+import LocalTime from '@components/local-time';
 
 interface PostsPageClientProps {
   categories: string[];
@@ -207,18 +208,7 @@ const PostsPageClient = ({
                 </h4>
                 <div className="flex items-center gap-2 text-xs text-muted-foreground">
                   <Calendar className="h-3 w-3" />
-                  <time dateTime={post.created}>
-                    {new Date(post.created).toLocaleDateString('ko-KR', {
-                      year: 'numeric',
-                      month: '2-digit',
-                      day: '2-digit',
-                      hour: '2-digit',
-                      minute: '2-digit',
-                      hour12: false,
-                      timeZone:
-                        Intl.DateTimeFormat().resolvedOptions().timeZone,
-                    })}
-                  </time>
+                  <LocalTime dateTime={post.created} />
                 </div>
               </Link>
             ))}

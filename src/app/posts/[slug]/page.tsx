@@ -13,6 +13,7 @@ import MDXRenderer from '@components/mdx-renderer';
 import TOC from '@components/toc';
 import Comments from '@components/comments';
 import PostStats from '@components/post-stats';
+import LocalTime from '@components/local-time';
 import { Metadata } from 'next';
 
 interface PostDetailResponse {
@@ -147,17 +148,7 @@ export default async function BlogPostPage({
           <div className="flex flex-wrap items-center gap-6 text-sm text-muted-foreground">
             <div className="flex items-center gap-2">
               <Calendar className="h-4 w-4" />
-              <time dateTime={post.created}>
-                {new Date(post.created).toLocaleDateString('ko-KR', {
-                  year: 'numeric',
-                  month: '2-digit',
-                  day: '2-digit',
-                  hour: '2-digit',
-                  minute: '2-digit',
-                  hour12: false,
-                  timeZone: Intl.DateTimeFormat().resolvedOptions().timeZone,
-                })}
-              </time>
+              <LocalTime dateTime={post.created} />
             </div>
 
             <PostStats slug={slug} />
@@ -206,15 +197,7 @@ export default async function BlogPostPage({
                     </h4>
                     <div className="flex items-center gap-2 text-xs text-muted-foreground">
                       <Calendar className="h-3 w-3" />
-                      <time dateTime={relatedPost.created}>
-                        {new Date(relatedPost.created).toLocaleDateString(
-                          'ko-KR',
-                          {
-                            month: 'short',
-                            day: 'numeric',
-                          }
-                        )}
-                      </time>
+                      <LocalTime dateTime={relatedPost.created} />
                     </div>
                   </Link>
                 ))}
