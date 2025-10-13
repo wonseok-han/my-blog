@@ -1,0 +1,256 @@
+---
+title: 'Figma Make vs Vercel v0: AI 기반 디자인-개발 도구 비교'
+description: 'Figma Make와 Vercel v0의 기능, 장단점, 사용 사례를 비교하고 프로젝트에 맞는 도구를 선택하는 방법 알아보기'
+thumbnail: '/thumbnail/blog-posts/13-figma-make-vs-vercel-v0.webp'
+category: 'Development'
+tags: ['Figma', 'Vercel', 'v0', 'AI', 'Design', 'Frontend', 'UI', 'No-Code']
+---
+
+# Overview
+
+최근 AI 기술의 발전으로 디자인과 개발 프로세스를 혁신적으로 변화시키는 도구들이 등장하고 있다. 그 중에서도 **Figma Make**와 **Vercel v0**는 AI를 활용해 디자인에서 코드로의 전환을 자동화하는 대표적인 도구다.
+
+이 글은 두 도구의 특징을 비교해보는 글이다.
+
+<br />
+<br />
+
+# Figma Make와 Vercel v0란?
+
+## Figma Make
+
+**Figma Make**는 Figma에서 제공하는 AI 기반 디자인-코드 생성 도구다. 텍스트 프롬프트를 입력하면 AI가 즉시 React 컴포넌트를 생성해준다.
+
+### 주요 특징
+- 프롬프트 기반 UI 생성
+- 실시간 프리뷰 및 수정
+- React, Tailwind CSS 기반 반응형 코드
+- 인터페이스를 통한 수정 기능 지원 X
+
+## Vercel v0
+
+**Vercel v0**는 Vercel에서 개발한 AI 기반 UI 생성 도구다. 텍스트 프롬프트나 이미지를 입력하면 AI가 즉시 React 컴포넌트를 생성해준다.
+
+### 주요 특징
+- 프롬프트 기반 UI 생성
+- 실시간 프리뷰 및 수정
+- React, Tailwind CSS 기반 반응형 코드
+- 인터페이스를 통한 수정 기능 지원 O
+
+<br />
+<br />
+
+# 주요 기능 비교
+
+## 입력 방식
+
+- **프롬프트 기반**: 자연어로 원하는 UI 설명
+- **이미지 업로드**: 스케치나 스크린샷에서 UI 생성
+- **대화형 개선**: AI와 대화하며 반복적으로 개선
+
+## 출력 코드 품질
+
+Figma Make와 Vercel v0 모두 동일한 프롬프트를 제공했을 때 출력된 코드는 다음과 같다.
+
+### 입력 프롬프트
+
+```plaintext
+TO LIST 앱을 생성하고싶어
+```
+
+### Figma Make
+
+- tailwindcss 기반
+- lucide-react 사용
+- radix-ui 사용
+- interaction 구현
+- 반응형 디자인 자동 적용
+
+```jsx
+// Figma Make의 출력 예시
+import { Checkbox } from './ui/checkbox';
+import { Button } from './ui/button';
+import { Trash2 } from 'lucide-react';
+import { Card } from './ui/card';
+import type { Todo } from '../App';
+
+interface TodoItemProps {
+  todo: Todo;
+  onToggle: (id: string) => void;
+  onDelete: (id: string) => void;
+}
+
+export function TodoItem({ todo, onToggle, onDelete }: TodoItemProps) {
+  return (
+    <Card className="p-4 bg-white/80 backdrop-blur-sm shadow-md hover:shadow-lg transition-shadow border-purple-100">
+      <div className="flex items-center gap-3">
+        <Checkbox
+          id={todo.id}
+          checked={todo.completed}
+          onCheckedChange={() => onToggle(todo.id)}
+          className="border-purple-300 data-[state=checked]:bg-purple-600 data-[state=checked]:border-purple-600"
+        />
+        <label
+          htmlFor={todo.id}
+          className={`flex-1 cursor-pointer select-none ${
+            todo.completed
+              ? 'line-through text-gray-400'
+              : 'text-gray-900'
+          }`}
+        >
+          {todo.text}
+        </label>
+        <Button
+          variant="ghost"
+          size="icon"
+          onClick={() => onDelete(todo.id)}
+          className="text-gray-400 hover:text-red-600 hover:bg-red-50"
+        >
+          <Trash2 className="w-4 h-4" />
+        </Button>
+      </div>
+    </Card>
+  );
+}
+```
+
+### Vercel v0
+
+- tailwindcss 기반
+- lucide-react 사용
+- interaction 구현
+- 반응형 디자인 자동 적용
+
+```jsx
+// Vercel v0의 출력 예시
+"use client"
+
+import { Card } from "@/components/ui/card"
+import { Button } from "@/components/ui/button"
+import { Checkbox } from "@/components/ui/checkbox"
+import { Trash2 } from "lucide-react"
+import type { Todo } from "@/app/page"
+import { cn } from "@/lib/utils"
+
+interface TodoItemProps {
+  todo: Todo
+  onToggle: (id: string) => void
+  onDelete: (id: string) => void
+}
+
+export function TodoItem({ todo, onToggle, onDelete }: TodoItemProps) {
+  return (
+    <Card className={cn("p-4 transition-all hover:shadow-md", todo.completed && "bg-muted/50")}>
+      <div className="flex items-center gap-3">
+        <Checkbox checked={todo.completed} onCheckedChange={() => onToggle(todo.id)} className="h-5 w-5" />
+        <span
+          className={cn("flex-1 text-base leading-relaxed", todo.completed && "line-through text-muted-foreground")}
+        >
+          {todo.text}
+        </span>
+        <Button
+          variant="ghost"
+          size="icon"
+          onClick={() => onDelete(todo.id)}
+          className="h-9 w-9 text-muted-foreground hover:text-destructive"
+        >
+          <Trash2 className="h-4 w-4" />
+          <span className="sr-only">삭제</span>
+        </Button>
+      </div>
+    </Card>
+  )
+}
+```
+
+<br />
+<br />
+
+# 비교
+
+### 동일한 점
+
+1. 대화형 프롬프트로 컴팩트한 디자인 생성 가능
+2. 반응형 디자인 자동 적용
+3. 퍼블리시 기능을 제공하기 때문에 데모 사이트를 빠르게 생성 가능
+
+### 차이점
+
+#### Figma Make
+
+1. 반드시 프롬프트를 통해서만 디자인을 수정해야하며, 수정 내용이 제대로 반영되지 않는 경우가 많음
+2. 인터페이스를 통한 수정이 불가능하기때문에 개발자가 아니면 진입 장벽이 있음
+3. Figma Make-Figma Design 간의 직접적인 연동이 불가능해 협업에 도움이 되지 않음
+4. 사용 라이브러리에 대한 import를 이렇게 작성해주기 때문에 코드가 제대로 동작하지 않을 수 있음 (**import * as AccordionPrimitive from "@radix-ui/react-accordion@1.2.3";**)
+5. 실제 생성된 앱에서 사용하지 않는 수많은 불필요한 컴포넌트들이 구현됨
+
+#### Vercel v0
+
+1. 인터페이스를 통한 수정 가능
+2. 수정시 Reset/Save 기능을 제공하기 때문에 롤백이 자유로움
+3. 퍼블리시 기능을 제공하기 때문에 데모 사이트를 빠르게 생성 가능
+4. 생성된 앱에서 사용하는 필요한 컴포넌트들만 구현됨
+
+<br />
+<br />
+
+# TODO List 앱을 두 도구로 생성했을 때 결과
+
+## Figma Make
+
+다음과 같이 불필요한 컴포넌트들이 생성되고, import 문에 잘못된 문법이 있을 수 있음
+
+![figma-garbage-components](/images/blog-posts/13-figma-make-vs-vercel-v0/figma-garbage-components.png)
+
+![figma-todo](/images/blog-posts/13-figma-make-vs-vercel-v0/figma-todo.png)
+
+## Vercel v0
+
+다음과 같이 컴팩트하게 필요한 컴포넌트들만 구현되고, import 문에 잘못된 문법이 없음
+
+![vo-components-and-code](/images/blog-posts/13-figma-make-vs-vercel-v0/vo-components-and-code.png)
+
+![v0-todo](/images/blog-posts/13-figma-make-vs-vercel-v0/v0-todo.png)
+
+<br />
+<br />
+
+# 마무리
+
+Figma Make와 Vercel v0를 비교해보았다.
+
+비교한 결과물만 놓고 봤을 때 내가 사용을 잘못한 것일지는 모르겠으나 개발자 관점에서 내가 원하는 결과물을 얻기 위해서는 Vercel v0를 사용하는 것이 더 좋다고 평가했다.
+
+<br />
+
+**Figma Make**의 경우:
+    
+    디자인은 깔끔하게 생성되었으나 단순 TODO List앱인데도 불구하고 제대로 원하는 곳을 수정해주지 못했고, Figma Design과의 연동이 되지않아 굳이 이걸 써야하나?라는 의문이 먼저 들었다.
+    
+    Figma의 꽃은 디자인을 팀과 함께 공유하며 의견을 취합해 빠르게 결과물을 내는 것이다. 하지만 Figma Design과의 연동이 안되기때문에 이런 장점을 살리기가 어렵다.
+
+    무엇보다 코드가 너무 더럽다...
+
+<br />
+
+**Vercel v0**의 경우:
+    
+    디자인도 깔끔하게 생성되었고, 코드를 가져가서 즉각 실행 가능할 정도로 깔끔하게 작성되었다.
+    
+    무엇보다 가장 큰 장점이라고 생각되는 것은 인터페이스를 통한 직접적인 수정이 가능하다는 점이다. 인터페이스로 비개발자도 쉽게 디자인을 수정할 수 있어 진입장벽을 훨씬 낮춰준다고 느껴졌다.
+
+<br />
+
+비개발자라면 **Vercel v0**를 사용해보자.
+
+개발자도.. **Vercel v0**를 사용해보자. Figma Make를 사용할 이유가 전혀 보이지 않는다.
+
+<br />
+<br />
+
+---
+
+**참고 자료**
+- [Figma Make](https://www.figma.com/make)
+- [Vercel v0](https://v0.app)
+
