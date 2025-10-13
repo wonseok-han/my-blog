@@ -1,7 +1,7 @@
 'use client';
 
 import { MDXRemote, MDXRemoteSerializeResult } from 'next-mdx-remote';
-import { MDXComponent } from '@components/mdx-component';
+import { MDXComponent, resetIdCounter } from '@components/mdx-component';
 import { serialize } from 'next-mdx-remote/serialize';
 import { useEffect, useState } from 'react';
 import { Skeleton } from '@components/skeleton/skeleton';
@@ -19,6 +19,8 @@ export default function MDXRenderer({ content }: MDXRendererProps) {
   );
 
   useEffect(() => {
+    // MDX 렌더링 전에 ID 카운터 초기화
+    resetIdCounter();
     serialize(content).then(setMdxSource);
   }, [content]);
 

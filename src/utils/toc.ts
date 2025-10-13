@@ -15,7 +15,7 @@ export interface TOCItem {
  * @param text 제목 텍스트
  * @returns URL-safe ID
  */
-function generateId(text: string): string {
+export function generateId(text: string): string {
   // 한글, 영문, 숫자, 공백, 하이픈만 유지
   const cleaned = text
     .toLowerCase()
@@ -46,12 +46,22 @@ export function generateTOC(content: string): TOCItem[] {
 
   const headingRegex = /^(#{1,6})\s+(.+)$/gm;
   const headings: TOCItem[] = [];
+  const idCounts = new Map<string, number>(); // ID 중복 카운터
   let match;
 
   while ((match = headingRegex.exec(cleanContent)) !== null) {
     const level = match[1].length; // #의 개수
     const text = match[2].trim();
-    const id = generateId(text);
+    let id = generateId(text);
+
+    // 중복된 ID가 있는지 확인하고 카운터 추가
+    if (idCounts.has(id)) {
+      const count = idCounts.get(id)! + 1;
+      idCounts.set(id, count);
+      id = `${id}-${count}`;
+    } else {
+      idCounts.set(id, 0);
+    }
 
     headings.push({
       id,

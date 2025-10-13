@@ -2,6 +2,38 @@ import React from 'react';
 import { Prism as SyntaxHighlighter } from 'react-syntax-highlighter';
 import { MDXComponents as MDXRemoteComponents } from 'mdx/types';
 import { dracula } from 'react-syntax-highlighter/dist/esm/styles/prism';
+import { generateId } from '@/utils/toc';
+
+/**
+ * 중복 ID를 추적하기 위한 전역 카운터 맵
+ * 각 렌더링 세션마다 초기화됩니다.
+ */
+const idCounterMap = new Map<string, number>();
+
+/**
+ * 중복을 고려한 고유한 ID 생성
+ * @param text 제목 텍스트
+ * @returns 고유한 ID
+ */
+function generateUniqueId(text: string): string {
+  const baseId = generateId(text);
+
+  if (idCounterMap.has(baseId)) {
+    const count = idCounterMap.get(baseId)! + 1;
+    idCounterMap.set(baseId, count);
+    return `${baseId}-${count}`;
+  }
+
+  idCounterMap.set(baseId, 0);
+  return baseId;
+}
+
+/**
+ * MDX 렌더링이 시작될 때 ID 카운터를 초기화하는 함수
+ */
+export function resetIdCounter() {
+  idCounterMap.clear();
+}
 
 /**
  * MDX 컴포넌트 설정
@@ -10,13 +42,7 @@ import { dracula } from 'react-syntax-highlighter/dist/esm/styles/prism';
 export const MDXComponent: MDXRemoteComponents = {
   h1: (props: React.HTMLAttributes<HTMLHeadingElement>) => {
     const id = props.children
-      ? String(props.children)
-          .toLowerCase()
-          .replace(/[^\u3131-\u3163\uac00-\ud7a3\w\s-]/g, '')
-          .replace(/\s+/g, '-')
-          .replace(/-+/g, '-')
-          .replace(/^-+|-+$/g, '')
-          .trim() || 'heading'
+      ? generateUniqueId(String(props.children))
       : 'heading';
     return (
       <h1
@@ -28,13 +54,7 @@ export const MDXComponent: MDXRemoteComponents = {
   },
   h2: (props: React.HTMLAttributes<HTMLHeadingElement>) => {
     const id = props.children
-      ? String(props.children)
-          .toLowerCase()
-          .replace(/[^\u3131-\u3163\uac00-\ud7a3\w\s-]/g, '')
-          .replace(/\s+/g, '-')
-          .replace(/-+/g, '-')
-          .replace(/^-+|-+$/g, '')
-          .trim() || 'heading'
+      ? generateUniqueId(String(props.children))
       : 'heading';
     return (
       <h2
@@ -46,13 +66,7 @@ export const MDXComponent: MDXRemoteComponents = {
   },
   h3: (props: React.HTMLAttributes<HTMLHeadingElement>) => {
     const id = props.children
-      ? String(props.children)
-          .toLowerCase()
-          .replace(/[^\u3131-\u3163\uac00-\ud7a3\w\s-]/g, '')
-          .replace(/\s+/g, '-')
-          .replace(/-+/g, '-')
-          .replace(/^-+|-+$/g, '')
-          .trim() || 'heading'
+      ? generateUniqueId(String(props.children))
       : 'heading';
     return (
       <h3
@@ -64,13 +78,7 @@ export const MDXComponent: MDXRemoteComponents = {
   },
   h4: (props: React.HTMLAttributes<HTMLHeadingElement>) => {
     const id = props.children
-      ? String(props.children)
-          .toLowerCase()
-          .replace(/[^\u3131-\u3163\uac00-\ud7a3\w\s-]/g, '')
-          .replace(/\s+/g, '-')
-          .replace(/-+/g, '-')
-          .replace(/^-+|-+$/g, '')
-          .trim() || 'heading'
+      ? generateUniqueId(String(props.children))
       : 'heading';
     return (
       <h4
@@ -82,13 +90,7 @@ export const MDXComponent: MDXRemoteComponents = {
   },
   h5: (props: React.HTMLAttributes<HTMLHeadingElement>) => {
     const id = props.children
-      ? String(props.children)
-          .toLowerCase()
-          .replace(/[^\u3131-\u3163\uac00-\ud7a3\w\s-]/g, '')
-          .replace(/\s+/g, '-')
-          .replace(/-+/g, '-')
-          .replace(/^-+|-+$/g, '')
-          .trim() || 'heading'
+      ? generateUniqueId(String(props.children))
       : 'heading';
     return (
       <h5
@@ -100,13 +102,7 @@ export const MDXComponent: MDXRemoteComponents = {
   },
   h6: (props: React.HTMLAttributes<HTMLHeadingElement>) => {
     const id = props.children
-      ? String(props.children)
-          .toLowerCase()
-          .replace(/[^\u3131-\u3163\uac00-\ud7a3\w\s-]/g, '')
-          .replace(/\s+/g, '-')
-          .replace(/-+/g, '-')
-          .replace(/^-+|-+$/g, '')
-          .trim() || 'heading'
+      ? generateUniqueId(String(props.children))
       : 'heading';
     return (
       <h6
