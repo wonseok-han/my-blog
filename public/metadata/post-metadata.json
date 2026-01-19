@@ -59,6 +59,12 @@
     "commitCount": 1,
     "source": "git"
   },
+  "contents/blog-posts/14-npm-패키지-배포하기-의존성-없는-가벼운-CLI-도구-만들기-(feat-indexgen-cli).mdx": {
+    "created": "2026-01-19",
+    "modified": "2026-01-19",
+    "commitCount": 0,
+    "source": "git"
+  },
   "contents/blog-posts/8-jest를-적용해서-테스트-코드를-작성해보자.mdx": {
     "created": "2024-09-12 11:35:46 +0900",
     "modified": "2025-09-15 11:58:12 +0900",
@@ -81,12 +87,6 @@
     "created": "2024-09-09 13:47:19 +0900",
     "modified": "2025-09-15 11:58:12 +0900",
     "commitCount": 1,
-    "source": "git"
-  },
-  "contents/blog-posts/14-npm-package-배포하기.mdx": {
-    "created": "2026-01-19",
-    "modified": "2026-01-19",
-    "commitCount": 0,
     "source": "git"
   }
 }
