@@ -1,0 +1,232 @@
+---
+title: 'npm 패키지 배포하기: 의존성 없는 가벼운 CLI 도구 만들기 (feat. indexgen-cli)'
+description: '외부 라이브러리 없이 Node.js 내장 기능만으로 나만의 CLI 도구를 만들고, npm에 배포하여 누구나 사용할 수 있게 만드는 과정을 공유합니다.'
+thumbnail: '/thumbnail/blog-posts/14-npm-package-배포하기.png'
+category: 'Development'
+tags: ['npm', 'CLI', 'TypeScript', 'Node.js', 'Deploy']
+---
+
+# Overview
+
+개발을 하다 보면 매번 반복되는 작업들이 있다. 내 경우에는 폴더 내의 파일들을 스캔해서 `index.ts` 파일을 생성하고 export 문을 작성하는 작업이 그랬다. 이 귀찮음을 해결하기 위해 **[indexgen-cli](https://github.com/wonseok-han/indexgen-cli)** 라는 CLI 도구를 만들었다.
+
+이 글에서는 불필요한 라이브러리 없이, **TypeScript와 Node.js 내장 모듈만으로** 가벼운 CLI 패키지를 만들고 배포하는 과정을 공유한다.
+
+<br />
+<br />
+
+# 사전 준비
+
+## npm 계정 및 로그인
+
+배포를 위해서는 npm 계정이 필요하다. 계정이 없다면 [npmjs.com](https://www.npmjs.com/)에서 생성 후 터미널에서 로그인한다.
+
+```bash
+npm login
+npm whoami # 로그인 확인
+```
+
+<br />
+<br />
+
+# 프로젝트 설정
+
+## 프로젝트 생성
+
+```bash
+mkdir indexgen-cli
+cd indexgen-cli
+npm init -y
+```
+
+## TypeScript 설치
+
+외부 런타임 라이브러리(`dependencies`) 없이, 개발에 필요한 도구(`devDependencies`)만 설치한다.
+
+```bash
+npm install -D typescript @types/node
+```
+
+## tsconfig.json 설정
+
+CLI 도구 실행 환경에 맞춰 설정을 진행한다.
+
+```bash
+npx tsc --init
+```
+
+`dist` 폴더로 빌드 결과물이 모이도록 설정하는 것이 중요하다.
+
+```json
+{
+  "compilerOptions": {
+    "target": "es2016",
+    "module": "commonjs",
+    "outDir": "./dist",
+    "rootDir": "./src",
+    "strict": true,
+    "esModuleInterop": true,
+    "skipLibCheck": true,
+    "forceConsistentCasingInFileNames": true
+  },
+  "include": ["src/**/*"],
+  "exclude": ["node_modules", "dist"]
+}
+```
+
+<br />
+<br />
+
+# CLI 코드 작성
+
+라이브러리를 쓰지 않으므로 `process.argv`를 통해 직접 사용자의 입력을 받아 처리한다.
+
+## 진입점 파일 생성 (src/index.ts)
+
+파일 최상단의 **Shebang(`#!/usr/bin/env node`)** 은 이 파일이 Node.js로 실행되어야 함을 운영체제에 알려주는 필수 요소다.
+
+```typescript
+#!/usr/bin/env node
+
+import fs from 'fs';
+import path from 'path';
+
+// 사용자 입력 받기 (node 명령어와 파일 경로 제외)
+const args = process.argv.slice(2);
+const currentDir = process.cwd();
+
+async function main() {
+  console.log('🚀 Index generator started...');
+
+  // 예: 특정 디렉토리 스캔 로직
+  const targetPath = args[0] ? path.resolve(currentDir, args[0]) : currentDir;
+
+  try {
+    if (!fs.existsSync(targetPath)) {
+      console.error(`❌ Error: Directory not found: ${targetPath}`);
+      process.exit(1);
+    }
+    
+    // ... 실제 index.ts 생성 로직 구현 ...
+    
+    console.log(`✅ Successfully generated index.ts in ${targetPath}`);
+  } catch (error) {
+    console.error('❌ An error occurred:', error);
+    process.exit(1);
+  }
+}
+
+main();
+```
+
+<br />
+<br />
+
+# package.json 설정 (핵심)
+
+CLI 도구 배포에서 가장 중요한 **`bin`** 필드 설정이다.
+
+```json
+{
+  "name": "indexgen-cli",
+  "version": "1.0.0",
+  "description": "A lightweight CLI tool to generate index.ts files",
+  "main": "dist/index.js",
+  "bin": {
+    "indexgen-cli": "./dist/index.js"
+  },
+  "files": [
+    "dist"
+  ],
+  "scripts": {
+    "build": "tsc",
+    "prepublishOnly": "npm run build"
+  },
+  "keywords": [
+    "cli",
+    "generator",
+    "typescript",
+    "automation"
+  ],
+  "author": "Wonseok Han",
+  "license": "MIT",
+  "devDependencies": {
+    "@types/node": "^20.0.0",
+    "typescript": "^5.0.0"
+  }
+}
+```
+
+### 주요 포인트
+- **bin**: `indexgen-cli` 명령어가 실행될 때 `dist/index.js`를 호출하도록 연결한다.
+- **prepublishOnly**: 배포 직전에 자동으로 빌드를 실행하여 최신 코드가 반영되도록 한다.
+
+<br />
+<br />
+
+# 로컬 테스트 및 배포
+
+## 로컬 링크 (`npm link`)
+
+배포 전에 내 컴퓨터에서 마치 전역 패키지처럼 실행해볼 수 있다.
+
+```bash
+# 1. 빌드
+npm run build
+
+# 2. 로컬 전역 연결
+npm link
+
+# 3. 실행 테스트
+indexgen-cli
+# 또는 특정 폴더 지정: indexgen-cli ./src
+
+# 4. 연결 해제
+npm unlink -g indexgen-cli
+```
+
+## npm 배포하기
+
+```bash
+npm publish
+```
+
+배포가 완료되면 전 세계 어디서든 설치 없이 바로 실행 가능하다.
+
+```bash
+npx indexgen-cli
+```
+
+<br />
+<br />
+
+# 버전 관리
+
+기능 수정 후에는 버전을 올리고 재배포해야 한다.
+
+```bash
+# Patch 버전 업 (1.0.0 -> 1.0.1)
+npm version patch
+
+# 재배포
+npm publish
+```
+
+<br />
+<br />
+
+# 마무리
+
+거창한 라이브러리 없이도 Node.js의 기본 기능만으로 충분히 강력한 CLI 도구를 만들 수 있다. 오히려 의존성이 없어 관리가 쉽고 가볍다는 장점이 있다.
+
+나만의 작은 불편함을 해결하는 도구를 만들어 npm에 공유해보자. 그 코드가 누군가의 시간을 절약해 줄지도 모른다.
+
+<br />
+<br />
+
+---
+
+**참고 자료**
+- [indexgen-cli GitHub Repository](https://github.com/wonseok-han/indexgen-cli)
+- [Node.js Docs: process.argv](https://nodejs.org/docs/latest/api/process.html#processargv)
+- [npm Docs: package.json](https://docs.npmjs.com/cli/v10/configuring-npm/package-json)
