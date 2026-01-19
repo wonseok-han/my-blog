@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from 'next/server';
 import { calculateReadingTime, formatReadingTime } from '@/utils/reading-time';
 import { getPost } from '@/utils/server';
 
+export const dynamic = 'force-dynamic'; // 동적 라우트로 명시
 export const revalidate = 300; // 5분 캐시
 
 type ReactionsSummary = {
