@@ -11,6 +11,12 @@
     "commitCount": 1,
     "source": "git"
   },
+  "contents/blog-posts/15-가상환경에-open-claw-설치해보기.mdx": {
+    "created": "2026-04-01",
+    "modified": "2026-04-01",
+    "commitCount": 0,
+    "source": "git"
+  },
   "contents/blog-posts/5-터미널-zsh-환경-구축하기.mdx": {
     "created": "2024-09-10 17:18:18 +0900",
     "modified": "2025-09-15 11:58:12 +0900",
@@ -60,9 +66,9 @@
     "source": "git"
   },
   "contents/blog-posts/14-npm-패키지-배포하기-의존성-없는-가벼운-CLI-도구-만들기-(feat-indexgen-cli).mdx": {
-    "created": "2026-01-19",
-    "modified": "2026-01-19",
-    "commitCount": 0,
+    "created": "2026-01-19 17:42:26 +0900",
+    "modified": "2026-01-19 17:55:01 +0900",
+    "commitCount": 1,
     "source": "git"
   },
   "contents/blog-posts/8-jest를-적용해서-테스트-코드를-작성해보자.mdx": {
