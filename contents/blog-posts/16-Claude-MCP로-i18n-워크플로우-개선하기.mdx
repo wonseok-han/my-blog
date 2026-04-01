@@ -1,0 +1,196 @@
+---
+title: 'Claude MCP로 i18n 워크플로우 개선하기'
+description: '하드코딩 텍스트를 자동으로 i18n 키로 변환하고, CI/CD로 번역 파일 배포를 자동화한 경험을 공유합니다.'
+thumbnail: '/thumbnail/blog-posts/16-Claude-MCP로-i18n-워크플로우-개선하기.svg'
+category: 'Development'
+tags: ['i18n', 'AI', 'MCP', 'Claude', 'Google Sheets', 'S3', 'GitLab CI', 'Automation']
+---
+
+![thumbnail](/thumbnail/blog-posts/16-Claude-MCP로-i18n-워크플로우-개선하기.svg)
+
+## i18n, 왜 이렇게 귀찮을까
+
+우리 팀은 다국어 지원이 필요한 서비스를 개발하고 있는데, i18n 작업이 생각보다 손이 많이 갔다.
+
+개발할 때는 속도를 위해 텍스트를 일단 하드코딩으로 넣고, 나중에 i18n 작업을 따로 진행하는 방식으로 운영했는데 그 흐름이 이랬다.
+
+1. 하드코딩된 텍스트를 찾아서
+2. 번역 시트에 키와 번역을 등록하고
+3. 소스코드에서 해당 텍스트를 `t('key')` 형태로 교체하고
+4. 시트 내용을 JSON으로 만들어서 S3에 업로드하고
+5. 앱에서 잘 불러오는지 확인하고
+
+이걸 텍스트 하나하나마다 반복. 기능 개발 속도에 비해 i18n 작업이 항상 병목이 됐다.
+
+---
+
+## 번역 소스로 Google Sheets를 선택한 이유
+
+번역 파일을 코드베이스에서 바로 관리하는 방법도 있지만, 번역가나 기획자와 함께 작업하다 보면 비개발자도 쉽게 수정할 수 있는 도구가 필요했다.
+
+Google Sheets를 선택한 이유는 단순한데,
+
+- 누구나 쉽게 접근하고 편집할 수 있고
+- Google Sheets API가 잘 갖춰져 있어서 코드로 읽고 쓰기가 편하고
+- 팀 전체가 하나의 시트를 공유하면서 실시간으로 번역을 관리할 수 있다
+
+그래서 번역 원본은 Google Sheets에, 앱에서 실제로 읽는 파일은 S3에 올려두는 구조로 가져갔다.
+
+---
+
+## MCP를 만든 이유 — "이 반복 작업, 자동화할 수 없을까?"
+
+번역 작업 흐름을 다시 보면, 결국 사람이 직접 해야 하는 구간이 있다.
+
+- 소스코드에서 하드코딩된 텍스트를 찾아서
+- 시트에 키를 등록하고
+- 코드에서 `t('key')`로 교체하는 것
+
+이걸 Claude에게 시킬 수 없을까 생각했다.
+
+Claude Code는 코드베이스를 읽고 수정할 수 있고, **MCP(Model Context Protocol)** 를 통해 외부 서비스와도 연동할 수 있다. Google Sheets를 MCP로 연결하면 Claude가 직접 시트를 읽고 쓸 수 있게 된다.
+
+만든 MCP는 크게 두 가지다.
+
+**google-spread MCP**: Google Sheets를 읽고 쓰는 기본 도구 모음
+
+**i18n-manager MCP**: i18n 작업에 특화된 도구들
+- 소스코드를 스캔해서 사용 중인 키 목록 파악
+- 하드코딩 텍스트를 찾아 시트에 키 등록 + 코드에서 `t('key')`로 교체
+- 더 이상 사용하지 않는 키를 시트에서 표시하거나 삭제
+
+덕분에 Claude에게 자연어로 명령하면 된다.
+
+```plain
+"이 파일에서 하드코딩된 텍스트를 찾아서 i18n 키로 등록해줘"
+"Space 시트에서 미사용 키 표시해줘"
+"shift 진행해줘" (미사용 키 삭제 + 키 번호 재정렬)
+```
+
+직접 시트를 열고 하나씩 편집하는 대신, 대화 한 번으로 끝난다.
+
+---
+
+## MCP는 어떻게 만들었나
+
+MCP는 `@modelcontextprotocol/sdk`를 사용해서 만들었다. 구조 자체는 단순한데, 서버를 띄우고 도구 목록과 실행 핸들러를 등록하면 된다.
+
+```javascript
+import { Server } from '@modelcontextprotocol/sdk/server/index.js';
+import { StdioServerTransport } from '@modelcontextprotocol/sdk/server/stdio.js';
+
+const server = new Server(
+  { name: 'i18n-manager', version: '1.0.0' },
+  { capabilities: { tools: {} } },
+);
+
+// Claude가 "어떤 도구를 쓸 수 있어?"라고 물으면 목록 반환
+server.setRequestHandler(ListToolsRequestSchema, async () => ({
+  tools: allTools.map((t) => t.definition),
+}));
+
+// 도구 실행 요청이 들어오면 핸들러에 위임
+server.setRequestHandler(CallToolRequestSchema, async (request) => {
+  const { name, arguments: args } = request.params;
+  const handler = toolHandlers.get(name);
+  return await handler(args);
+});
+
+const transport = new StdioServerTransport();
+await server.connect(transport);
+```
+
+각 도구는 `definition`(Claude에게 보여줄 설명과 입력 스키마)과 `handler`(실제 로직)로 구성했다.
+
+```javascript
+export const tools = [
+  {
+    definition: {
+      name: 'i18n_add',
+      description: '스프레드시트에 새로운 번역 항목을 추가합니다.',
+      inputSchema: {
+        type: 'object',
+        properties: {
+          key: { type: 'string', description: '번역 키 (예: KEY0001)' },
+          ko: { type: 'string', description: '한국어 번역' },
+          en: { type: 'string', description: '영어 번역' },
+          // ...
+        },
+        required: ['key', 'ko'],
+      },
+    },
+    handler: async (args) => {
+      // Google Sheets API로 행 추가
+    },
+  },
+];
+```
+
+`description`을 잘 써두는 게 중요하다. Claude가 이 설명을 보고 언제 어떤 도구를 호출할지 판단하기 때문에, 도구의 목적과 주의사항을 구체적으로 적어두면 엉뚱하게 호출하는 경우가 줄어든다.
+
+Claude Code 설정 파일(`claude_desktop_config.json` 또는 `.claude/mcp_servers.json`)에 서버 실행 경로만 등록해두면 Claude Code가 자동으로 연결해서 사용한다.
+
+```json
+{
+  "mcpServers": {
+    "i18n-manager": {
+      "command": "node",
+      "args": ["/path/to/i18n-mcp/index.js"]
+    }
+  }
+}
+```
+
+---
+
+## 배포 자동화 — 또 다른 반복 작업
+
+MCP로 로컬 개발 중 i18n 작업은 편해졌는데, 배포할 때마다 또 수동으로 해야 하는 일이 있었다.
+
+1. `devel` 브랜치에 merge
+2. MCP로 로컬 시트 → 배포 환경 시트에 데이터 복사
+3. 배포 환경 시트 내용을 S3에 업로드
+
+배포할 때마다 이걸 직접 실행해야 했고, 까먹으면 번역이 반영 안 된 채로 배포된다.
+
+이걸 GitLab CI에 포함시켰다.
+
+```plain
+devel 브랜치 merge
+  → 앱 빌드 → 배포
+  → (배포 완료 후) 로컬 시트 → dev 시트 복사
+                → dev 시트 내용을 S3에 업로드
+```
+
+한 가지 문제가 있었는데, CI 환경에서는 MCP를 쓸 수 없기 때문에 스프레드시트 복사 기능을 별도 Node.js 스크립트로 따로 만들어야 했다.
+`googleapis` 라이브러리와 Service Account 인증을 이용해서 시트를 환경별로 복사하는 스크립트를 작성하고, `package.json` 명령으로 등록해 CI에서 호출하도록 했다.
+
+```bash
+pnpm --filter @repo/upload-locales copy-sheet:dev   # 로컬 → dev 시트 복사
+pnpm --filter @repo/upload-locales sheet:dev        # dev 시트 → S3 업로드
+```
+
+이제 merge 하면 번역 파일 배포까지 자동으로 된다.
+
+---
+
+## 삽질 기록
+
+### GitLab CI 변수 설정 실수
+
+`GOOGLE_SERVICE_ACCOUNT_KEY_JSON`을 CI 변수로 등록했는데 계속 JSON 파싱 오류가 났다.
+
+원인은 변수 타입을 **"File"** 로 설정한 것. File 타입은 내용을 임시 파일로 저장하고 경로를 환경변수에 넣어주는데, 코드에서는 환경변수 값을 직접 `JSON.parse()`하고 있었던 거다.
+
+Variable 타입으로 바꾸니 바로 해결. GitLab CI에서 JSON 문자열을 변수로 쓸 때는 타입 꼭 확인하자.
+
+---
+
+## 정리
+
+처음엔 단순히 "시트를 Claude로 수정할 수 있으면 편하겠다"는 생각에서 시작했는데, MCP 연동 → CI 자동화까지 이어지면서 i18n 관련 수동 작업이 대부분 사라졌다.
+
+- 개발 중: 하드코딩 텍스트 → Claude에게 i18n 등록 맡기기
+- 배포 후: 시트 복사, S3 업로드 → CI가 자동으로 처리
+
+Claude Code와 MCP 조합이 생각보다 실용적이었다. 아직 생태계가 초기 단계지만, 팀 내부 툴과 연결하면 반복 작업을 많이 줄일 수 있을 것 같다.
