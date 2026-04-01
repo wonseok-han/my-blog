@@ -7,6 +7,8 @@ import { PostsResponseType } from '@typings/post';
 import HomePosts from '@/app/components/home-posts';
 import { Metadata } from 'next';
 
+export const dynamic = 'force-dynamic';
+
 export const metadata: Metadata = {
   title: '까먹을게 분명하기 때문에 기록하는 블로그',
   description:

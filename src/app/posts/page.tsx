@@ -3,6 +3,8 @@ import { Metadata } from 'next';
 import PostsPageClient from './components/posts-page-client';
 import { PostsResponseType } from '@typings/post';
 
+export const dynamic = 'force-dynamic';
+
 export const metadata: Metadata = {
   title: 'All Posts | 까먹을게 분명하기 때문에 기록하는 블로그',
   description:
