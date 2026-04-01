@@ -147,7 +147,7 @@ Claude Code 설정 파일(`claude_desktop_config.json` 또는 `.claude/mcp_serve
 
 MCP로 로컬 개발 중 i18n 작업은 편해졌는데, 배포할 때마다 또 수동으로 해야 하는 일이 있었다.
 
-1. `devel` 브랜치에 merge
+1. `dev` 브랜치에 merge
 2. MCP로 로컬 시트 → 배포 환경 시트에 데이터 복사
 3. 배포 환경 시트 내용을 S3에 업로드
 
@@ -156,7 +156,7 @@ MCP로 로컬 개발 중 i18n 작업은 편해졌는데, 배포할 때마다 또
 이걸 GitLab CI에 포함시켰다.
 
 ```plain
-devel 브랜치 merge
+dev 브랜치 merge
   → 앱 빌드 → 배포
   → (배포 완료 후) 로컬 시트 → dev 시트 복사
                 → dev 시트 내용을 S3에 업로드
