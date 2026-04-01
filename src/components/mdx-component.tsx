@@ -119,7 +119,7 @@ export const MDXComponent: MDXRemoteComponents = {
   },
   p: (props: React.HTMLAttributes<HTMLParagraphElement>) => (
     <p
-      className="text-base leading-7 my-0 text-foreground font-light"
+      className="text-base leading-7 my-0 text-foreground font-light text-pretty"
       {...props}
     />
   ),
@@ -138,7 +138,7 @@ export const MDXComponent: MDXRemoteComponents = {
     <ol className="list-decimal list-inside ml-5" {...props} />
   ),
   li: (props: React.HTMLAttributes<HTMLLIElement>) => (
-    <li className="my-1 font-light break-all" {...props} />
+    <li className="my-1 font-light break-all [&>p]:inline" {...props} />
   ),
   blockquote: (props: React.BlockquoteHTMLAttributes<HTMLQuoteElement>) => (
     <blockquote
@@ -152,7 +152,7 @@ export const MDXComponent: MDXRemoteComponents = {
 
     if (isInline) {
       return (
-        <code className="relative font-mono text-sm font-medium">
+        <code className="rounded bg-muted px-1.5 py-0.5 font-mono text-sm font-medium text-foreground before:content-none after:content-none">
           {children}
         </code>
       );
