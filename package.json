@@ -58,6 +58,7 @@
     "react": "^18",
     "react-dom": "^18",
     "react-syntax-highlighter": "^15.5.0",
+    "remark-gfm": "^4.0.1",
     "tailwindcss": "^4.1.13",
     "zustand": "^4.5.5"
   },

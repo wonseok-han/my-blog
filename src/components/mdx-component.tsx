@@ -142,7 +142,7 @@ export const MDXComponent: MDXRemoteComponents = {
   ),
   blockquote: (props: React.BlockquoteHTMLAttributes<HTMLQuoteElement>) => (
     <blockquote
-      className="border-l-4 border-primary/20 pl-6 py-2 my-6 bg-muted/50 italic text-muted-foreground"
+      className="border-l-4 border-yellow-400 dark:border-yellow-500 pl-6 py-3 my-6 bg-yellow-50 dark:bg-yellow-900/20 text-foreground not-italic rounded-r-md"
       {...props}
     />
   ),
@@ -151,6 +151,30 @@ export const MDXComponent: MDXRemoteComponents = {
     const isInline = !className?.startsWith('language-');
 
     if (isInline) {
+      const text = String(children).trim();
+      const isHexColor = /^#[0-9a-fA-F]{3,8}$/.test(text);
+
+      if (isHexColor) {
+        const hex =
+          text.length === 4
+            ? `#${text[1]}${text[1]}${text[2]}${text[2]}${text[3]}${text[3]}`
+            : text;
+        const r = parseInt(hex.slice(1, 3), 16);
+        const g = parseInt(hex.slice(3, 5), 16);
+        const b = parseInt(hex.slice(5, 7), 16);
+        const luminance = (0.299 * r + 0.587 * g + 0.114 * b) / 255;
+        const textColor = luminance > 0.5 ? '#000000' : '#ffffff';
+
+        return (
+          <code
+            style={{ backgroundColor: text, color: textColor }}
+            className="rounded px-1.5 py-0.5 font-mono text-sm font-medium before:content-none after:content-none"
+          >
+            {children}
+          </code>
+        );
+      }
+
       return (
         <code className="rounded bg-muted px-1.5 py-0.5 font-mono text-sm font-medium text-foreground before:content-none after:content-none">
           {children}
