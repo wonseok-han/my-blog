@@ -25,7 +25,13 @@
   },
   "contents/blog-posts/16-Claude-MCP로-i18n-워크플로우-개선하기.mdx": {
     "created": "2026-04-01 18:07:15 +0900",
-    "modified": "2026-04-01 18:07:15 +0900",
+    "modified": "2026-04-02 10:01:45 +0900",
+    "commitCount": 3,
+    "source": "git"
+  },
+  "contents/blog-posts/17-Claude-Code-statusline-커스터마이징하기.mdx": {
+    "created": "2026-04-02 15:30:12 +0900",
+    "modified": "2026-04-02 15:30:12 +0900",
     "commitCount": 1,
     "source": "git"
   },
