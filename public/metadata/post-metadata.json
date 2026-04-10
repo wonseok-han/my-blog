@@ -11,6 +11,12 @@
     "commitCount": 1,
     "source": "git"
   },
+  "contents/blog-posts/18-Self-managed-GitLab-Jira-Cloud-연동하기.mdx": {
+    "created": "2026-04-10 10:37:27 +0900",
+    "modified": "2026-04-10 10:37:27 +0900",
+    "commitCount": 0,
+    "source": "git"
+  },
   "contents/blog-posts/15-가상환경에-open-claw-설치해보기.mdx": {
     "created": "2026-04-01 16:34:51 +0900",
     "modified": "2026-04-01 16:34:51 +0900",
@@ -31,8 +37,8 @@
   },
   "contents/blog-posts/17-Claude-Code-statusline-커스터마이징하기.mdx": {
     "created": "2026-04-02 15:30:12 +0900",
-    "modified": "2026-04-02 15:30:12 +0900",
-    "commitCount": 1,
+    "modified": "2026-04-02 17:43:51 +0900",
+    "commitCount": 2,
     "source": "git"
   },
   "contents/blog-posts/10-PWA에-웹-푸시(Web-Push)를-적용해보자.mdx": {

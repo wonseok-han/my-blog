@@ -1,0 +1,64 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 600 400" fill="none">
+  <defs>
+    <linearGradient id="bg" x1="0" y1="0" x2="600" y2="400" gradientUnits="userSpaceOnUse">
+      <stop offset="0%" stop-color="#09090b"/>
+      <stop offset="100%" stop-color="#18181b"/>
+    </linearGradient>
+    <linearGradient id="blob1" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0%" stop-color="#f97316" stop-opacity="0.2"/>
+      <stop offset="100%" stop-color="#f97316" stop-opacity="0"/>
+    </linearGradient>
+    <linearGradient id="blob2" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0%" stop-color="#3b82f6" stop-opacity="0.15"/>
+      <stop offset="100%" stop-color="#3b82f6" stop-opacity="0"/>
+    </linearGradient>
+    <filter id="blur1"><feGaussianBlur stdDeviation="45"/></filter>
+    <filter id="blur2"><feGaussianBlur stdDeviation="50"/></filter>
+    <filter id="logoGlow1"><feGaussianBlur stdDeviation="8"/></filter>
+    <filter id="logoGlow2"><feGaussianBlur stdDeviation="8"/></filter>
+  </defs>
+
+  <rect width="600" height="400" fill="url(#bg)"/>
+
+  <!-- Ambient glow -->
+  <circle cx="200" cy="200" r="180" fill="url(#blob1)" filter="url(#blur1)"/>
+  <circle cx="420" cy="200" r="180" fill="url(#blob2)" filter="url(#blur2)"/>
+
+  <!-- Logo area: centered, side by side -->
+  <!-- GitLab logo glow -->
+  <circle cx="230" cy="130" r="30" fill="#e24329" opacity="0.15" filter="url(#logoGlow1)"/>
+  <!-- GitLab logo -->
+  <g transform="translate(212, 108) scale(2.5)">
+    <path d="m15.734 6.1-.022-.058L13.534.358a.57.57 0 0 0-.563-.356.6.6 0 0 0-.328.122.6.6 0 0 0-.193.294l-1.47 4.499H5.025l-1.47-4.5A.572.572 0 0 0 2.47.358L.289 6.04l-.022.057A4.044 4.044 0 0 0 1.61 10.77l.007.006.02.014 3.318 2.485 1.64 1.242 1 .755a.67.67 0 0 0 .814 0l1-.755 1.64-1.242 3.338-2.5.009-.007a4.05 4.05 0 0 0 1.34-4.668Z" fill="#e24329"/>
+  </g>
+
+  <!-- Connector dots -->
+  <circle cx="273" cy="130" r="1.5" fill="#3f3f46"/>
+  <circle cx="288" cy="130" r="1.5" fill="#3f3f46"/>
+  <circle cx="303" cy="130" r="1.5" fill="#3f3f46"/>
+  <circle cx="318" cy="130" r="1.5" fill="#3f3f46"/>
+  <circle cx="333" cy="130" r="1.5" fill="#3f3f46"/>
+
+  <!-- Jira logo glow -->
+  <circle cx="385" cy="130" r="30" fill="#1868db" opacity="0.15" filter="url(#logoGlow2)"/>
+  <!-- Jira logo -->
+  <g transform="translate(355, 100) scale(0.115)">
+    <rect rx="80" width="512" height="512" fill="#1868db"/>
+    <path d="M189.544 324.041H160.69c-43.51 0-74.72-24.483-74.72-60.321h155.115c8.043 0 13.248 5.241 13.248 12.677V419.77c-38.784 0-64.79-28.853-64.79-69.07V324.04zm76.608-71.245h-28.843c-43.51 0-74.73-24.043-74.73-59.89h155.125c8.043 0 13.718 4.81 13.718 12.236v143.373c-38.785 0-65.27-28.843-65.27-69.061v-26.658zm77.088-70.815h-28.842c-43.51 0-74.731-24.483-74.731-60.321h155.125c8.043 0 13.248 5.241 13.248 12.237v143.372c-38.784 0-64.8-28.853-64.8-69.06V181.98z" fill="#fff"/>
+  </g>
+
+  <!-- Main title: centered under logos -->
+  <text x="300" y="210" fill="#fafafa" font-size="42" font-weight="800"
+    text-anchor="middle" font-family="system-ui, -apple-system, sans-serif" letter-spacing="-1.5">GitLab × Jira</text>
+
+  <!-- Subtitle -->
+  <text x="300" y="248" fill="#a1a1aa" font-size="18" font-weight="400"
+    text-anchor="middle" font-family="system-ui, -apple-system, sans-serif">Self-managed CE 연동기</text>
+
+  <!-- Divider -->
+  <line x1="200" y1="270" x2="400" y2="270" stroke="#27272a" stroke-width="1"/>
+
+  <!-- Tags -->
+  <text x="300" y="296" fill="#52525b" font-size="13"
+    text-anchor="middle" font-family="system-ui, -apple-system, sans-serif">OAuth · DVCS · Jira Issues Integration</text>
+</svg>
