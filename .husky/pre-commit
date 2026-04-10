@@ -1,1 +1,6 @@
 npx lint-staged
+
+# staged된 MDX 파일이 있을 때만 메타데이터 갱신
+if git diff --cached --name-only -- 'contents/blog-posts/*.mdx' | grep -q .; then
+  node scripts/generate-git-metadata.cjs --pre-commit
+fi

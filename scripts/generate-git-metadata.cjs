@@ -7,17 +7,19 @@ const path = require('path');
 /**
  * 빌드 시점에 Git 메타데이터를 생성하는 스크립트
  * Vercel 배포 시 사용
+ *
+ * --pre-commit 플래그: pre-commit hook에서 호출 시 사용
+ *   - staged된 MDX 파일은 git log 대신 현재 시각을 사용
+ *   - 생성된 post-metadata.json을 자동으로 staging
  */
 
-console.log('🔍 Git 메타데이터 생성 중...');
+const isPreCommit = process.argv.includes('--pre-commit');
+
+console.log(
+  `🔍 Git 메타데이터 생성 중...${isPreCommit ? ' (pre-commit 모드)' : ''}`
+);
 
 const metadata = {};
-
-// 추적할 파일들 목록
-const filesToTrack = [
-  // MDX 파일들
-  ...getMdxFiles(),
-];
 
 function getMdxFiles() {
   try {
@@ -30,33 +32,87 @@ function getMdxFiles() {
   }
 }
 
-function getFileGitInfo(filePath) {
+function getStagedMdxFiles() {
   try {
-    // 파일이 존재하는지 확인
+    const result = execSync(
+      'git diff --cached --name-only --diff-filter=ACMR -- "contents/blog-posts/*.mdx"',
+      { encoding: 'utf8' }
+    );
+    return result.trim().split('\n').filter(Boolean);
+  } catch {
+    return [];
+  }
+}
+
+function getNewStagedFiles() {
+  try {
+    const result = execSync(
+      'git diff --cached --name-only --diff-filter=A -- "contents/blog-posts/*.mdx"',
+      { encoding: 'utf8' }
+    );
+    return new Set(result.trim().split('\n').filter(Boolean));
+  } catch {
+    return new Set();
+  }
+}
+
+function formatDateIso(date) {
+  const offset = -date.getTimezoneOffset();
+  const sign = offset >= 0 ? '+' : '-';
+  const pad = (n) => String(n).padStart(2, '0');
+  const hh = pad(Math.floor(Math.abs(offset) / 60));
+  const mm = pad(Math.abs(offset) % 60);
+  return (
+    `${date.getFullYear()}-${pad(date.getMonth() + 1)}-${pad(date.getDate())} ` +
+    `${pad(date.getHours())}:${pad(date.getMinutes())}:${pad(date.getSeconds())} ` +
+    `${sign}${hh}${mm}`
+  );
+}
+
+function getFileGitInfo(filePath, { isStaged, isNew }) {
+  const now = formatDateIso(new Date());
+
+  if (isNew) {
+    return {
+      created: now,
+      modified: now,
+      commitCount: 1,
+      source: 'git',
+    };
+  }
+
+  try {
     if (!fs.existsSync(filePath)) {
       return null;
     }
 
-    // Git에서 파일 생성일자 가져오기 (시간 포함)
     const created = execSync(
       `git log --follow --format=%ad --date=iso -- "${filePath}" | tail -1`,
       { encoding: 'utf8' }
     ).trim();
 
-    // 마지막 수정일자 가져오기 (시간 포함)
+    const commitCount = execSync(
+      `git rev-list --count HEAD -- "${filePath}"`,
+      { encoding: 'utf8' }
+    ).trim();
+
+    if (isStaged) {
+      return {
+        created: created || now,
+        modified: now,
+        commitCount: (parseInt(commitCount) || 0) + 1,
+        source: 'git',
+      };
+    }
+
     const modified = execSync(
       `git log -1 --format=%ad --date=iso -- "${filePath}"`,
       { encoding: 'utf8' }
     ).trim();
 
-    // 커밋 수 가져오기
-    const commitCount = execSync(`git rev-list --count HEAD -- "${filePath}"`, {
-      encoding: 'utf8',
-    }).trim();
-
     return {
-      created: created || new Date().toISOString().split('T')[0],
-      modified: modified || new Date().toISOString().split('T')[0],
+      created: created || now,
+      modified: modified || now,
       commitCount: parseInt(commitCount) || 0,
       source: 'git',
     };
@@ -66,7 +122,6 @@ function getFileGitInfo(filePath) {
       error.message
     );
 
-    // 파일 시스템 정보 사용
     try {
       const stats = fs.statSync(filePath);
       return {
@@ -86,25 +141,35 @@ function getFileGitInfo(filePath) {
   }
 }
 
-// 각 파일의 Git 정보 수집
-filesToTrack.forEach((filePath) => {
-  const info = getFileGitInfo(filePath);
+const allMdxFiles = getMdxFiles();
+const stagedMdxFiles = isPreCommit ? new Set(getStagedMdxFiles()) : new Set();
+const newStagedFiles = isPreCommit ? getNewStagedFiles() : new Set();
+
+allMdxFiles.forEach((filePath) => {
+  const isStaged = stagedMdxFiles.has(filePath);
+  const isNew = newStagedFiles.has(filePath);
+
+  const info = getFileGitInfo(filePath, {
+    isStaged: isPreCommit && isStaged,
+    isNew: isPreCommit && isNew,
+  });
+
   if (info) {
     metadata[filePath] = info;
+    const tag = isPreCommit && isNew ? '🆕' : isPreCommit && isStaged ? '📝' : '✅';
     console.log(
-      `✅ ${filePath}: ${info.created} ~ ${info.modified} (${info.commitCount} commits)`
+      `${tag} ${filePath}: ${info.created} ~ ${info.modified} (${info.commitCount} commits)`
     );
   }
 });
 
-// 메타데이터 파일 저징
+// 메타데이터 파일 저장
 const outputPath = path.join(
   process.cwd(),
   'public/metadata/post-metadata.json'
 );
 const outputDir = path.dirname(outputPath);
 
-// 디렉토리 생성
 if (!fs.existsSync(outputDir)) {
   fs.mkdirSync(outputDir, { recursive: true });
 }
@@ -113,3 +178,8 @@ fs.writeFileSync(outputPath, JSON.stringify(metadata, null, 2));
 
 console.log(`📁 메타데이터 저장 완료: ${outputPath}`);
 console.log(`📊 총 ${Object.keys(metadata).length}개 파일 처리됨`);
+
+if (isPreCommit) {
+  execSync(`git add "${outputPath}"`);
+  console.log('📦 post-metadata.json staging 완료');
+}
