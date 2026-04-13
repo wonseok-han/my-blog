@@ -12,9 +12,9 @@
     "source": "git"
   },
   "contents/blog-posts/18-Self-managed-GitLab-Jira-Cloud-연동하기.mdx": {
-    "created": "2026-04-10 10:37:27 +0900",
-    "modified": "2026-04-10 10:37:27 +0900",
-    "commitCount": 0,
+    "created": "2026-04-10 10:37:26 +0900",
+    "modified": "2026-04-10 10:37:26 +0900",
+    "commitCount": 1,
     "source": "git"
   },
   "contents/blog-posts/15-가상환경에-open-claw-설치해보기.mdx": {
@@ -33,6 +33,12 @@
     "created": "2026-04-01 18:07:15 +0900",
     "modified": "2026-04-02 10:01:45 +0900",
     "commitCount": 3,
+    "source": "git"
+  },
+  "contents/blog-posts/19-Figma-MCP로-디자인을-코드로-가져오기.mdx": {
+    "created": "2026-04-13 17:34:45 +0900",
+    "modified": "2026-04-13 17:34:45 +0900",
+    "commitCount": 0,
     "source": "git"
   },
   "contents/blog-posts/17-Claude-Code-statusline-커스터마이징하기.mdx": {

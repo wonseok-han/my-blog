@@ -1,0 +1,77 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 600 400" fill="none">
+  <defs>
+    <linearGradient id="bg" x1="0" y1="0" x2="600" y2="400" gradientUnits="userSpaceOnUse">
+      <stop offset="0%" stop-color="#09090b"/>
+      <stop offset="100%" stop-color="#18181b"/>
+    </linearGradient>
+    <linearGradient id="blob1" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0%" stop-color="#a259ff" stop-opacity="0.22"/>
+      <stop offset="100%" stop-color="#a259ff" stop-opacity="0"/>
+    </linearGradient>
+    <linearGradient id="blob2" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0%" stop-color="#cc785c" stop-opacity="0.2"/>
+      <stop offset="100%" stop-color="#cc785c" stop-opacity="0"/>
+    </linearGradient>
+    <filter id="blur1"><feGaussianBlur stdDeviation="45"/></filter>
+    <filter id="blur2"><feGaussianBlur stdDeviation="50"/></filter>
+    <filter id="logoGlow1"><feGaussianBlur stdDeviation="8"/></filter>
+    <filter id="logoGlow2"><feGaussianBlur stdDeviation="8"/></filter>
+  </defs>
+
+  <rect width="600" height="400" fill="url(#bg)"/>
+
+  <!-- Ambient glow -->
+  <circle cx="200" cy="200" r="180" fill="url(#blob1)" filter="url(#blur1)"/>
+  <circle cx="420" cy="200" r="180" fill="url(#blob2)" filter="url(#blur2)"/>
+
+  <!-- Figma logo glow -->
+  <circle cx="235" cy="130" r="32" fill="#a259ff" opacity="0.18" filter="url(#logoGlow1)"/>
+
+  <!-- Figma logo (5 shapes) -->
+  <g transform="translate(216, 100) scale(1.0)">
+    <path fill="#1abcfe" d="M19 19a9.5 9.5 0 1 1 19 0 9.5 9.5 0 0 1-19 0z"/>
+    <path fill="#0acf83" d="M0 38a9.5 9.5 0 0 1 9.5-9.5H19V38a9.5 9.5 0 1 1-19 0z"/>
+    <path fill="#ff7262" d="M19 0v19h9.5a9.5 9.5 0 1 0 0-19H19z"/>
+    <path fill="#f24e1e" d="M0 9.5A9.5 9.5 0 0 0 9.5 19H19V0H9.5A9.5 9.5 0 0 0 0 9.5z"/>
+    <path fill="#a259ff" d="M0 19a9.5 9.5 0 0 0 9.5 9.5H19V9.5H9.5A9.5 9.5 0 0 0 0 19z"/>
+  </g>
+
+  <!-- Connector dots -->
+  <circle cx="278" cy="130" r="1.8" fill="#3f3f46"/>
+  <circle cx="295" cy="130" r="1.8" fill="#52525b"/>
+  <circle cx="312" cy="130" r="1.8" fill="#71717a"/>
+  <circle cx="329" cy="130" r="1.8" fill="#52525b"/>
+  <circle cx="346" cy="130" r="1.8" fill="#3f3f46"/>
+
+  <!-- Claude logo glow -->
+  <circle cx="385" cy="130" r="32" fill="#cc785c" opacity="0.2" filter="url(#logoGlow2)"/>
+
+  <!-- Claude logo (asterisk / spark) -->
+  <g transform="translate(385, 130)">
+    <g fill="#cc785c">
+      <path d="M0 -24 L3.5 -6 L0 0 L-3.5 -6 Z"/>
+      <path d="M0 24 L3.5 6 L0 0 L-3.5 6 Z"/>
+      <path d="M-24 0 L-6 -3.5 L0 0 L-6 3.5 Z"/>
+      <path d="M24 0 L6 -3.5 L0 0 L6 3.5 Z"/>
+      <path d="M-17 -17 L-2 -8 L0 0 L-8 -2 Z"/>
+      <path d="M17 17 L2 8 L0 0 L8 2 Z"/>
+      <path d="M17 -17 L8 -2 L0 0 L2 -8 Z"/>
+      <path d="M-17 17 L-8 2 L0 0 L-2 8 Z"/>
+    </g>
+  </g>
+
+  <!-- Main title -->
+  <text x="300" y="218" fill="#fafafa" font-size="42" font-weight="800"
+    text-anchor="middle" font-family="system-ui, -apple-system, sans-serif" letter-spacing="-1.5">Figma × Claude Code</text>
+
+  <!-- Subtitle -->
+  <text x="300" y="254" fill="#a1a1aa" font-size="18" font-weight="400"
+    text-anchor="middle" font-family="system-ui, -apple-system, sans-serif">MCP로 디자인을 코드로</text>
+
+  <!-- Divider -->
+  <line x1="180" y1="278" x2="420" y2="278" stroke="#27272a" stroke-width="1"/>
+
+  <!-- Tags -->
+  <text x="300" y="304" fill="#52525b" font-size="13"
+    text-anchor="middle" font-family="system-ui, -apple-system, sans-serif">MCP · Slash Command · Design Tokens</text>
+</svg>

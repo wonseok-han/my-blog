@@ -1,0 +1,356 @@
+---
+title: 'Figma MCP로 디자인을 코드로 가져오기'
+description: 'Figma MCP 서버를 Claude Code에 연결해서 디자인을 코드로 변환하는 방법과, 에셋 자동 추출의 한계를 Custom Slash Command로 해결한 경험을 공유합니다.'
+thumbnail: '/thumbnail/blog-posts/19-Figma-MCP로-디자인을-코드로-가져오기.svg'
+category: 'Development'
+tags: ['Figma', 'MCP', 'Claude Code', 'AI', 'Slash Command', 'Automation', 'Design System']
+---
+
+# Figma MCP로 디자인을 코드로 가져오기
+
+디자인 툴에서 화면을 보고, 개발 IDE로 넘어와서, 색상 hex를 하나씩 옮기고, 간격을 재보고, 아이콘을 export해서 저장하고, 다시 컴포넌트를 짜고... 디자인 → 코드 변환은 개발자가 하기에도 피로도가 꽤 큰 작업이다.
+
+Figma가 공식으로 MCP(Model Context Protocol) 서버를 제공하기 시작하면서 이 과정을 AI 에이전트에게 위임할 수 있게 됐다. Claude Code에 연결하면 Figma URL만 던져줘도 디자인 토큰과 레이아웃을 읽어다가 프로젝트 스택에 맞는 코드를 뽑아준다 — **적어도 마케팅 문구는 그렇다**.
+
+이 글에서는 **Figma MCP를 Claude Code에 붙여서 실제 프로젝트에 적용해본 경험**을 공유한다. 결론부터 말하면 **생각보다 깔끔하지 않고, 빠르지도 않고, 토큰은 엄청 잡아먹는다**. 그럼에도 쓸 구석은 있어서, **Custom Slash Command로 한계를 조금이나마 우회한 과정**까지 정리한다.
+
+---
+
+## Figma MCP가 뭘 해주나
+
+Figma MCP 서버는 AI 에이전트가 Figma 파일의 디자인 정보와 컨텍스트에 접근할 수 있게 해주는 원격 서버다. 공식 카탈로그는 [여기](https://www.figma.com/mcp-catalog/)에서 확인할 수 있다.
+
+설치하고 인증하면 다음 작업이 가능하다.
+
+| 기능 | 설명 |
+|------|------|
+| **Generate Code** | Figma 프레임을 프로젝트 스택(React/Vue 등)에 맞는 코드로 변환 |
+| **Extract Design Context** | 색상, 타이포, 간격 같은 디자인 토큰과 컴포넌트 구조 추출 |
+| **Write to Canvas** | 네이티브 Figma 콘텐츠를 직접 생성/수정 (베타) |
+| **Live UI → Figma** | 실제 웹앱 UI를 캡처해서 Figma 파일로 전송 |
+| **Code Connect** | 디자인 시스템 컴포넌트와 코드베이스 컴포넌트 간 매핑 관리 |
+
+공식으로 지원하는 클라이언트는 Claude Code, Codex, Cursor, VS Code 네 가지다. (Figma MCP Catalog에 등록되지 않은 클라이언트는 연결 자체가 안 된다)
+
+> **플랜 주의** — Figma MCP는 사실상 **유료 플랜(Pro 이상) + Dev/Full seat**이 있어야 실사용이 가능하다. 무료(Starter) 플랜에서도 접근은 되지만 호출 한도가 매우 낮아 테스트 수준이다. 자세한 한도는 [공식 문서](https://developers.figma.com/docs/figma-mcp-server/plans-access-and-permissions/) 참고.
+
+---
+
+## Claude Code에 설치하기
+
+### 방법 1: Figma 플러그인 설치 (권장)
+
+MCP 서버 설정과 일반적인 워크플로우용 에이전트 스킬이 함께 포함되어 있어서 이쪽을 추천한다.
+
+```bash
+claude plugin install figma@claude-plugins-official
+```
+
+설치 후 MCP 서버 이름은 `plugin:figma:figma`으로 표시된다.
+
+### 방법 2: 수동 설치
+
+현재 프로젝트에만 적용.
+
+```bash
+claude mcp add --transport http figma https://mcp.figma.com/mcp
+```
+
+모든 프로젝트에 전역 적용 (`--scope user`).
+
+```bash
+claude mcp add --scope user --transport http figma https://mcp.figma.com/mcp
+```
+
+### 삭제 / 확인
+
+```bash
+# 수동 설치한 MCP 서버 삭제
+claude mcp remove figma
+
+# 플러그인 삭제
+claude plugin remove figma
+
+# 등록된 MCP 서버 목록 확인
+claude mcp list
+```
+
+---
+
+## OAuth 인증
+
+MCP 서버를 설치했다고 끝이 아니다. Figma 계정 인증을 한 번 거쳐야 한다.
+
+1. Claude Code 내에서 `/mcp` 명령어 실행
+2. **figma** 서버 선택
+3. **Authenticate** 클릭
+4. 브라우저에서 Figma 로그인 후 **Allow Access** 승인
+5. `"Authentication successful. Connected to figma"` 확인
+6. 다시 `/mcp`로 연결 상태 재확인
+
+> OAuth 기반이라 별도의 API 토큰 발급은 없다. 토큰 관리 안 해도 되는 건 편하다.
+
+참고로 Figma **데스크톱 앱**에서 **Dev Mode**(Shift+D)를 켜면 우측 inspect 패널에 **MCP 섹션**이 노출된다. 디자인을 선택하면 **예상 토큰 수**가 표시되고, 바로 붙여 쓸 수 있는 **예제 프롬프트 복사** 버튼도 제공된다.
+
+![Figma 우측 패널의 MCP 섹션 — 선택 디자인의 예상 토큰 수와 예제 프롬프트 복사 버튼](/images/blog-posts/19-Figma-MCP로-디자인을-코드로-가져오기/figma-right-pannel-mcp.png)
+
+---
+
+## URL 구조 이해
+
+MCP 호출할 때 Figma URL에서 `fileKey`와 `nodeId`를 뽑아 써야 한다. 이걸 알고 있어야 커맨드를 직접 짤 때 파싱 로직을 맞출 수 있다.
+
+| URL 형식 | 추출 방법 |
+|----------|----------|
+| `figma.com/design/:fileKey/:fileName?node-id=1-2` | `fileKey`, `nodeId`: `1:2` (하이픈을 콜론으로) |
+| `figma.com/design/:fileKey/branch/:branchKey/:fileName` | `branchKey`를 `fileKey`로 사용 |
+| `figma.com/make/:makeFileKey/:makeFileName` | `makeFileKey` 사용 |
+| `figma.com/board/:fileKey/:fileName` | FigJam 파일, `get_figjam` 사용 |
+
+URL의 `node-id=9248-29156`은 내부적으로 `9248:29156`으로 변환해서 MCP에 전달해야 한다. 이거 하나만 기억하면 된다.
+
+---
+
+## 써보니 건질 만했던 부분
+
+기대 반, 실망 반이었다. 몇 개 화면을 실제로 변환해보고 나서 "이건 확실히 사람 손보다 낫다" 싶은 건 아래 정도였다.
+
+- **디자인 토큰 추출** — 색상 변수, 간격, 타이포 값을 한 번에 뽑아주는 건 편하다. 사람이 하나씩 Inspect 창 열어서 복붙하는 것보다는 빠르다
+- **레이아웃 구조 힌트** — Flexbox/Grid 구조를 Auto Layout 기반으로 어느 정도 추론해준다. 완벽하진 않지만 초안으로는 쓸만하다
+- **Code Connect 매핑** — 디자인 시스템이 미리 세팅돼 있다면 실제 컴포넌트로 매핑된다 (이건 사전 작업이 많이 필요하다)
+
+딱 거기까지다. "디자인 넣으면 완성된 코드가 나온다"는 기대는 버리는 게 맞다.
+
+---
+
+## 실제로 써보면 애매한 부분이 더 많다
+
+### 1. 에셋 추출이 깔끔하지 않다
+
+공식 문서만 보면 "자동으로 다 가져온다"처럼 읽히지만, 실제로 해보면 **아이콘 하나를 구성하는 내부 Rectangle/Vector 조각까지 전부 찢어서 가져온다**.
+
+예를 들어 Figma에서 아이콘 하나가 여러 개의 Rectangle + Vector로 조립돼 있는 경우, 그 하나하나를 개별 에셋으로 추출해서 내려준다. 정작 필요한 건 **합쳐진 SVG 하나**인데, 내부 부품이 수십 개 쏟아지는 식이다.
+
+대표적으로 이런 것들이 뒤섞여 들어온다.
+
+- 하나의 벡터 아이콘을 구성하는 내부 Rectangle/Vector 조각들 (부품 단위)
+- 배경으로 깔린 단색 Rectangle을 이미지로 잘라낸 것
+- 테두리/구분선용 얇은 사각형
+- `Rectangle 1`, `Vector 23`, `Group 15` 같이 자동 생성 이름만 있는 에셋
+- 실제로는 CSS `border`로 처리하면 되는 1px 선
+
+이걸 그대로 받으면 `public/assets` 폴더가 **정체불명 부품들로 넘쳐난다**. 정작 "이 파일이 어떤 아이콘의 어느 조각인지" 추적이 안 되고, 실제 UI에 붙여도 조각 몇 개만 나오거나 위치가 안 맞는다.
+
+### 2. 생각보다 느리다
+
+"한 줄 던지면 알아서 해준다"를 기대했는데 현실은 그렇지 않다.
+
+- `get_design_context` 호출 자체가 수 초~십 수 초
+- 큰 프레임은 400 에러로 재시도 필요
+- 재시도 후 다시 하위 노드 단위로 분할 호출
+- 받아온 에셋 메타데이터 파싱
+- 실제 소스 코드 적용
+
+한 화면 제대로 뽑는 데 체감상 10~20분은 걸린다. 간단한 컴포넌트 하나는 수동으로 짜는 게 더 빠르다.
+
+### 3. 토큰을 엄청 잡아먹는다
+
+이게 가장 뼈아프다. `get_design_context`가 돌려주는 페이로드가 **어마어마하게 크다**.
+
+- 디자인 구조(JSX 변수명, hierarchy), 토큰, 스크린샷 이미지, 에셋 URL 리스트까지 전부 들어옴
+- 큰 프레임 한 번 호출하면 응답만 수만~수십만 토큰
+- 400 에러 뜨면 `excludeScreenshot: true`로 재시도 → 여기서도 수만 토큰
+- 분할 호출하면 노드 개수만큼 곱연산
+
+결과적으로 화면 하나 변환하는 데 Sonnet 기준 **수십만 토큰**이 쉽게 나간다. Rate limit을 금방 깎아먹고, 결제 플랜에 따라서는 한 화면 변환하다가 세션이 끝나버리는 경우도 있다.
+
+> 체감상 "에디터에서 직접 Figma Dev Mode 열고 Inspect로 값 복붙하는 것"과 비교했을 때 **속도는 비슷하거나 더 느리고, 비용은 훨씬 크다**.
+
+### 4. 400 에러는 일상다반사
+
+`get_design_context`가 큰 프레임을 대상으로 호출되면 400 에러(이미지 처리 초과)가 자주 난다. 스크린샷을 포함해서 응답하다가 토큰 한도를 초과하는 케이스다.
+
+> 큰 프레임은 `excludeScreenshot: true` 옵션으로 재시도하거나, 하위 노드 단위로 쪼개서 호출해야 한다. 이걸 매번 수동으로 지시하는 것도 일이다.
+
+---
+
+## 그래서 Custom Slash Command로 만들었다
+
+물론 Custom Slash Command를 쓴다고 **속도나 토큰 소모가 근본적으로 줄어들진 않는다**. MCP가 내려주는 페이로드 자체가 크고, 호출 횟수 자체가 많기 때문이다.
+
+그럼에도 커맨드로 묶어두면 건질 수 있는 게 있다.
+
+- 매번 장문의 프롬프트를 타이핑하지 않아도 된다
+- 필터링/재시도/네이밍 규칙이 고정돼서 결과물의 **편차**가 줄어든다
+- 팀원이 모두 같은 방식으로 호출한다
+
+매번 Claude에게 "이 URL에서 에셋 가져오되 아이콘 내부 부품(Rectangle/Vector) 조각은 제외하고, 자동 생성 이름인 건 제외하고, 크기가 너무 작은 단색 점도 빼고, 스크린샷 에러 나면 `excludeScreenshot: true`로 재시도해..."라고 장문의 프롬프트를 던지는 게 귀찮아서 만들었다.
+
+Claude Code의 [Slash Command](https://docs.anthropic.com/en/docs/claude-code/slash-commands) 기능을 쓰면 이런 반복 프롬프트를 파일로 만들어두고 `/figma-apply` 한 줄로 호출할 수 있다.
+
+참고로 커맨드 파일 자체도 직접 한 땀 한 땀 쓴 게 아니라, **요구사항을 에이전트에게 줄글로 던져서 초안을 받고 내가 검토/수정하는 방식**으로 만들었다.
+
+### 파일 위치와 규칙
+
+```
+.claude/commands/figma-apply.md
+```
+
+파일명이 곧 커맨드명이다. `.claude/commands/figma-apply.md`에 작성하면 `/figma-apply`로 호출된다. 팀 공유용 커맨드는 `.claude/commands/`에, 개인 전역 커맨드는 `~/.claude/commands/`에 둔다.
+
+### 사용 형식
+
+```
+/figma-apply <figma-url> [<figma-url> ...] — <자연어 지시사항>
+```
+
+**예시:**
+
+```
+/figma-apply https://figma.com/design/abc/File?node-id=1-2 — 대시보드 온보딩 카드를 widget으로 추가해줘
+/figma-apply https://figma.com/design/abc/File?node-id=1-2 https://figma.com/design/abc/File?node-id=3-4 — 두 화면을 features/view-campaign/ui에 적용해줘
+```
+
+URL과 지시사항 구분자는 em dash(`—`), `--`, 또는 마지막 URL 뒤 공백으로 구분한다. URL 여러 개는 공백/콤마로 구분할 수 있다.
+
+### 핵심 실행 순서
+
+커맨드 안에 6단계 실행 순서를 박아놨다.
+
+**1단계: 인자 파싱** — URL에서 `fileKey`, `nodeId` 추출 (하이픈 → 콜론 변환 포함)
+
+**2단계: 메타데이터 + 토큰 수집 (병렬)**
+- `mcp__figma__get_metadata` — 구조/이름/크기 (경량)
+- `mcp__figma__get_variable_defs` — 디자인 토큰(색상/간격/타이포)
+- 프로젝트 토큰(`packages/tailwind-config/shared-styles.css`)과 매칭
+
+**3단계: 코드 컨텍스트 수집**
+- `mcp__figma__get_design_context` 호출
+- 1차 시도: 기본 호출 (스크린샷 포함)
+- 400 에러 시: `excludeScreenshot: true`로 **즉시 재시도**
+- 에러 지속 시: 하위 노드 단위로 분할 호출
+
+**4단계: 의미있는 에셋 필터링** ← **이게 핵심**
+
+포함 조건 (하나 이상 만족):
+- 노드명에 의미 단어 포함 — `Logo`, `Banner`, `Illustration`, `Hero`, `Avatar`, `Thumbnail`, `icon-*`, 한글명
+- SVG이면서 크기 ≥ 24px이고 부모가 Icon/IconSet 계열
+- PNG이면서 최소 변 ≥ 128px
+- 명시적으로 export 마크된 노드
+
+제외 조건 (하나라도 해당하면 스킵):
+- 자동 생성 이름만 있음 — `^(Rectangle|Vector|Group|Frame)\s?\d*$`
+- 동일 부모 아래 동일/유사 크기 형제 다수 (아이콘 내부 부품/리스트 아이템으로 추정)
+- PNG 파일 크기 < 2KB에 1:1 비율 (단색 점 추정)
+- 배경/보더로만 쓰이는 사각형
+
+**5단계: 에셋 저장 (의미있는 이름)**
+
+UUID나 Figma 내부 이름(`Rectangle 1`)을 파일명으로 쓰지 않는다. 의미 있는 snake_case를 도출한다.
+
+```
+아이콘: apps/space/public/assets/icons/icons_{meaningful_name}.svg
+이미지: apps/space/public/assets/images/images_{meaningful_name}.{ext}
+```
+
+`meaningful_name`은 위에서부터 탐색해서 최초 매칭을 채택한다.
+
+1. Figma 노드명이 의미 있으면 그대로 snake_case화 (`온보딩 배너` → `onboarding_banner`)
+2. 자동 생성 이름이면 가장 가까운 의미있는 조상 노드명 + 역할 추정어 (`OnboardingBanner` 자식 `Rectangle` → `onboarding_banner`)
+3. 컴포넌트 인스턴스명 활용 (`Component 253`처럼 숫자명은 스킵)
+4. 사용자 지시사항 키워드 활용 ("대시보드 온보딩 카드" → `dashboard_onboarding_*`)
+5. 그래도 모호하면 미니 스크린샷 호출 후 시각 판단
+6. 최종 폴백: 사용자에게 질문
+
+**타입 감지는 매직 바이트로** — 헤더가 아닌 실제 바이너리 시작 바이트로 판정한다.
+
+- `<svg`/`<?xml` → SVG
+- `\x89PNG` → PNG
+- `\xff\xd8\xff` → JPG
+- `RIFF...WEBP` → WEBP
+
+**6단계: 소스 적용** — 프로젝트 코드 규칙에 맞게 변환
+- 절대 좌표(`left: 123px`)는 flex/grid 레이아웃으로 변환 (인라인 스타일 지양)
+- 배경/보더/구분선 Rectangle은 이미지로 박지 말고 CSS/디자인 시스템 컴포넌트로 대체
+- 파일 배치는 프로젝트의 디렉터리 규약(FSD, Atomic 등)에 맞춰 결정
+
+---
+
+## 커맨드로 만들고 나서 조금이나마 나아진 점
+
+속도와 토큰 문제는 MCP 자체의 한계라서 커맨드로 해결되지 않는다. 다만 아래는 확실히 나아졌다.
+
+**1. 입력이 짧아졌다.**
+
+이전:
+```plain
+이 Figma 디자인을 대시보드 온보딩 카드 widget으로 추가해줘. 에셋 가져올 때 아이콘 내부 Rectangle/Vector 부품이나 자동 생성 이름은 제외하고, 의미있는 이름으로 저장하고, 색상은 shared-styles.css 변수랑 매칭해주고, 하드코딩 텍스트 금지하고 t()로 감싸주고, 절대 좌표는 flex로 바꿔주고... (계속)
+```
+
+이후:
+```plain
+/figma-apply https://figma.com/design/abc/File?node-id=1-2 — 대시보드 온보딩 카드를 widget으로 추가해줘
+```
+
+**2. 에셋이 깔끔해졌다.**
+
+필터링 규칙이 커맨드 안에 박혀 있어서 아이콘 내부 부품, 1px 선, 단색 점 같은 잡 에셋이 걸러진다. `public/assets/` 폴더가 실제 필요한 이미지만 남는다.
+
+**3. 400 에러 처리가 자동이다.**
+
+`get_design_context`에서 400 나면 알아서 `excludeScreenshot: true`로 재시도한다. 중간에 멈추지 않는다.
+
+**4. 팀 공유가 된다.**
+
+`.claude/commands/` 하위에 두고 git으로 커밋하면 팀원 모두가 동일한 커맨드를 쓴다. "디자인 가져올 때 이렇게 하자"를 문서가 아니라 **실행 가능한 규약**으로 공유할 수 있다.
+
+---
+
+## 써보면서 느낀 주의사항
+
+- **대용량 프레임 주의**: 너무 큰 프레임을 통째로 요청하면 응답이 느려지거나 400 에러가 뜬다. 개별 컴포넌트 단위로 쪼개는 게 정확도도 높다
+- **Code Connect 미리 설정**: 디자인 시스템이 있는 프로젝트라면 Code Connect 매핑을 먼저 걸어두면 훨씬 정확한 코드가 나온다
+- **배경/구분선은 이미지로 받지 말 것**: Figma의 단색 Rectangle을 그대로 이미지로 박으면 유지보수가 힘들다. `bg-*`, `border-*`, `<Divider />` 같은 CSS/컴포넌트로 대체하는 게 맞다
+
+---
+
+## 정리 — 솔직한 결론
+
+한창 홍보되는 것만큼 Figma MCP가 **깔끔하지도, 빠르지도 않다**. 토큰 소모는 특히 뼈아프다. "디자인 넣으면 끝"이라는 세일즈 토크는 걸러 듣는 게 맞다.
+
+그래도 도구 자체는 **여전히 쓸 구석은 있다**. 내가 정리한 판단 기준은 이렇다.
+
+| 상황 | MCP 추천도 |
+|------|------------|
+| 단순한 컴포넌트 1~2개 변환 | ❌ 수동이 더 빠름 |
+| 디자인 토큰(색상/간격/타이포) 대량 추출 | ⭕ 쓸만함 |
+| 낯선 디자인의 레이아웃 구조 파악 | ⭕ 초안용으로 괜찮음 |
+| 전체 화면을 한 번에 자동 변환 | ❌ 기대하지 말 것 |
+| Code Connect 세팅된 디자인 시스템 활용 | ⭕ 사전 작업이 충분하면 유효 |
+
+그리고 **프로젝트마다 에셋 필터링/네이밍/레이어 배치/코드 스타일이 다르기 때문에**, MCP를 그대로 쓰기보단 **Custom Slash Command로 프로젝트 규약에 맞춰 박제**해두는 쪽을 추천한다. 속도/토큰 문제를 해결해주진 않지만, 적어도 결과물의 편차는 줄일 수 있다.
+
+> Claude Code의 Slash Command는 프롬프트 단축키가 아니라, **프로젝트 규약을 AI가 실행 가능한 형태로 문서화하는 수단**에 가깝다.
+
+### 그리고 제일 중요한 건 — **디자이너**
+
+여기까지 와서 가장 강조하고 싶은 건 이거다. **Figma MCP의 결과물 품질은 디자이너의 작업 품질에 거의 비례한다.** Custom Slash Command로 아무리 필터링/네이밍 규칙을 박아둬도, **원본 Figma 파일이 엉망이면 결과물도 엉망**이다.
+
+MCP가 제대로 동작하려면 디자이너 쪽에서 이 정도는 **사전에 세팅돼 있어야** 한다.
+
+- **레이어 네이밍** — `Rectangle 1`, `Group 23` 같은 자동 이름이 아니라 `OnboardingBanner`, `icon-arrow-right`처럼 **의미 있는 이름**. 이게 그대로 변수명/파일명이 된다
+- **Auto Layout 적용** — 절대 좌표로 배치된 화면은 MCP가 flex/grid로 못 바꾼다. 결국 코드에 `position: absolute` 범벅으로 나온다
+- **컴포넌트 체계화** — 인스턴스로 묶지 않고 모든 요소를 raw shape로 풀어놓으면, 아이콘 하나가 Rectangle+Vector 수십 개로 찢어져서 내려온다
+- **Design Token 정의** — 색상/간격/타이포가 **변수(Variable)** 로 정의돼 있어야 `get_variable_defs`에서 쓸만한 값이 나온다. 하드코딩된 hex가 흩뿌려져 있으면 매칭 자체가 안 된다
+- **Code Connect 매핑** — 디자인 시스템이 있다면 미리 코드 컴포넌트와 매핑해둬야 한다. 이건 디자이너 + 개발자 공동 작업이다
+
+**Figma MCP는 "잘 정리된 디자인 파일"이라는 전제 조건 위에서만 동작한다.** 이 전제가 깨지면 개발자가 Custom Slash Command로 필터링 규칙을 아무리 정교하게 짜도 한계가 명확하다. 결국 MCP 도입의 성패는 **디자이너와 개발자 간의 협업 규약** — 레이어 네이밍, Auto Layout, 토큰 관리, 컴포넌트 체계 — 을 미리 맞춰두는 데 달려 있다.
+
+---
+
+## 참고 링크
+
+- [Figma MCP Catalog](https://www.figma.com/mcp-catalog/)
+- [Figma MCP Server - Remote Installation Guide](https://developers.figma.com/docs/figma-mcp-server/remote-server-installation/)
+- [Figma MCP Server - Overview](https://developers.figma.com/docs/figma-mcp-server/)
+- [Claude Code Slash Commands](https://docs.anthropic.com/en/docs/claude-code/slash-commands)
