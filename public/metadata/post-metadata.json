@@ -37,8 +37,8 @@
   },
   "contents/blog-posts/19-Figma-MCP로-디자인을-코드로-가져오기.mdx": {
     "created": "2026-04-13 17:34:44 +0900",
-    "modified": "2026-04-13 17:34:44 +0900",
-    "commitCount": 1,
+    "modified": "2026-04-13 18:43:19 +0900",
+    "commitCount": 2,
     "source": "git"
   },
   "contents/blog-posts/17-Claude-Code-statusline-커스터마이징하기.mdx": {
@@ -87,6 +87,12 @@
     "created": "2024-09-10 15:13:55 +0900",
     "modified": "2025-09-15 11:58:12 +0900",
     "commitCount": 1,
+    "source": "git"
+  },
+  "contents/blog-posts/20-GitLab-MR-merge시-Jira-코멘트-자동화하기.mdx": {
+    "created": "2026-04-15 15:43:56 +0900",
+    "modified": "2026-04-15 15:43:56 +0900",
+    "commitCount": 0,
     "source": "git"
   },
   "contents/blog-posts/14-npm-패키지-배포하기-의존성-없는-가벼운-CLI-도구-만들기-(feat-indexgen-cli).mdx": {

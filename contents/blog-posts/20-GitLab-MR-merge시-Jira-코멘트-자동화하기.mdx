@@ -1,0 +1,339 @@
+---
+title: 'GitLab MR merge 시 Jira 코멘트 자동화하기'
+description: 'GitLab CI와 Jira REST API를 조합해서, MR이 merge될 때마다 포함된 커밋 메시지를 Jira 이슈 코멘트로 자동 등록하는 파이프라인을 만들어본 과정'
+thumbnail: '/thumbnail/blog-posts/20-GitLab-MR-merge시-Jira-코멘트-자동화하기.svg'
+category: 'Development'
+tags: ['GitLab', 'Jira', 'GitLab CI', 'Automation', 'Node.js', 'REST API']
+---
+
+# GitLab MR merge 시 Jira 코멘트 자동화하기
+
+## 발단
+
+MR을 merge하고 나면, 보통 해당 Jira 이슈에 돌아가서 코멘트 하나를 남긴다.
+
+> "원인: ~~~ 때문에 발생  
+> 조치: ~~~ 수정하여 해결"
+
+별거 아닌 것 같지만 merge가 많아질수록 귀찮다. 그리고 깜빡하고 안 남기면 QA가 올라갈 때 "이게 무슨 변경이 포함된 거지?"를 Jira 이슈만 봐서는 알 수 없다.
+
+커밋 메시지에 원인/조치가 녹아 있는 경우가 많으니, 이걸 그대로 Jira에 밀어주기만 해도 코멘트 작성 부담이 확 줄어든다.
+
+GitLab과 Jira를 [이전 글](/blog-posts/18-Self-managed-GitLab-Jira-Cloud-연동하기)에서 Jira Issues Integration으로 연결해두긴 했는데, 그건 커밋/MR 웹링크만 자동으로 붙여주는 기능이라, **"이번 MR로 어떤 변경이 들어갔는지"** 는 여전히 사람이 따로 정리해야 했다.
+
+그래서 이걸 자동화하기로 했다.
+
+- MR이 merge되면 GitLab CI가 실행되고
+- 해당 MR의 제목에서 Jira 이슈 키를 뽑아내고
+- MR에 포함된 커밋 메시지를 정제해서
+- Jira REST API로 이슈에 코멘트를 자동 등록한다
+
+개발자는 **아무것도 추가로 작성할 필요가 없다.** 평소처럼 커밋하고 MR을 올리고 merge하면 끝이다.
+
+---
+
+## 결과부터 보기
+
+MR이 merge되면 Jira 이슈에 이런 코멘트가 자동으로 달린다.
+
+```plain
+🔀 MR: PROJECT-123: app: fix: 로그인 시 토큰 갱신 오류 수정   ← MR 링크
+👤 작업자: 홍길동
+
+변경 내용
+• fix: 로그인 시 토큰 갱신 오류 수정
+• fix: 관련 단위 테스트 추가
+• refactor: 토큰 갱신 로직 별도 함수로 분리
+```
+
+MR 링크, 작업자, 변경 내용까지 한 번에 보인다. Jira 이슈만 열어도 이번 merge로 뭐가 바뀌었는지 바로 파악할 수 있다.
+
+---
+
+## 동작 흐름
+
+```plain
+MR merge → 대상 브랜치 push → GitLab CI 실행
+  → GitLab API로 해당 커밋에 연결된 MR 조회
+  → fix/ 또는 hotfix/ 브랜치에서 온 MR만 처리
+  → MR 제목에서 Jira 이슈 키 추출 (예: PROJECT-123)
+  → GitLab API로 MR 내 커밋 목록 조회
+  → 커밋 메시지 정제 (Jira 키·앱명 접두어 제거, merge commit 제외)
+  → Jira REST API v3 (ADF 포맷)로 코멘트 등록
+```
+
+브랜치 필터는 팀 컨벤션에 맞게 조정하면 된다. 우리 팀은 버그/핫픽스는 `fix/`, `hotfix/` 브랜치를 쓰고 이 때만 코멘트가 필요해서 필터를 걸었다.
+
+---
+
+## 필요한 토큰 2개
+
+### 1. GitLab Personal Access Token
+
+GitLab API를 호출해서 MR 정보와 커밋 목록을 가져와야 한다.
+
+1. GitLab **Edit profile** → **Personal Access Tokens**
+2. Scopes: `read_api` 하나만 체크
+3. 만료일은 팀 정책대로
+
+토큰 발급자 계정은 해당 프로젝트의 **Maintainer 이상** 권한이 있어야 한다.
+
+### 2. Jira API Token
+
+Jira에 코멘트를 작성할 때 Basic Auth로 사용한다.
+
+1. [https://id.atlassian.com/manage-api-tokens](https://id.atlassian.com/manage-api-tokens) 접속
+2. **API 토큰 만들기** → 이름만 입력하고 발급
+
+**중요한 포인트가 하나 있다.** 스코프(권한 범위) 선택 화면이 나오지 않는 게 정상이다.
+
+나는 여기서 처음에 삽질을 크게 했는데, Atlassian Developer Console에서 제공하는 **OAuth 2.0 앱**을 만들면 스코프 선택 UI가 나오고 "이게 맞는 것 같은데?" 싶어서 그걸 발급받아 썼더니 계속 401이 떨어졌다.
+
+결론은 `id.atlassian.com/manage-api-tokens`에서 **스코프 선택 없이 바로 발급**되는 개인 API 토큰을 써야 한다. OAuth 2.0 앱 토큰은 Basic Auth와 호환되지 않는다.
+
+---
+
+## GitLab CI 설정
+
+### CI/CD Variables 등록
+
+GitLab 프로젝트 → **Settings** → **CI/CD** → **Variables** 에 4개를 등록한다.
+
+| 변수명            | 값                               | Masked |
+| ----------------- | -------------------------------- | ------ |
+| `GITLAB_TOKEN`    | 위에서 발급한 GitLab 토큰         | ✅     |
+| `JIRA_BASE_URL`   | `https://your-org.atlassian.net` | ❌     |
+| `JIRA_USER_EMAIL` | Jira 계정 이메일                 | ❌     |
+| `JIRA_API_TOKEN`  | 위에서 발급한 Jira 토큰           | ✅     |
+
+> 토큰류는 **Masked**를 체크해서 파이프라인 로그에 값이 그대로 찍히지 않게 해두는 편이 안전하다.
+
+### 파이프라인 정의
+
+`.gitlab-ci.yml`에 child pipeline으로 jira-comment 잡을 추가한다.
+
+```yaml
+# .gitlab-ci.yml
+stages:
+  - notify
+
+trigger_jira_comment:
+  stage: notify
+  trigger:
+    include:
+      - local: ci/.gitlab-ci.jira-comment.yml
+    strategy: depend
+  rules:
+    - if: '$CI_COMMIT_BRANCH == "develop"'
+      when: always
+    - when: never
+```
+
+```yaml
+# ci/.gitlab-ci.jira-comment.yml
+stages:
+  - notify
+
+post_jira_comment:
+  stage: notify
+  image: node:22-alpine
+  script:
+    - node scripts/post-jira-comment.mjs
+  rules:
+    - if: '$CI_COMMIT_BRANCH == "develop"'
+      when: always
+    - when: never
+  variables:
+    GITLAB_TOKEN: $GITLAB_TOKEN
+    JIRA_API_TOKEN: $JIRA_API_TOKEN
+    JIRA_BASE_URL: $JIRA_BASE_URL
+    JIRA_USER_EMAIL: $JIRA_USER_EMAIL
+```
+
+`CI_SERVER_URL`, `CI_PROJECT_ID`, `CI_COMMIT_SHA`는 GitLab CI가 자동으로 제공해 준다.
+
+대상 브랜치는 팀 상황에 맞게 `main`, `master`, `develop` 등으로 바꾸면 된다.
+
+---
+
+## 스크립트 구현
+
+핵심은 `scripts/post-jira-comment.mjs` 하나다. Node.js 22 내장 `fetch`만 쓰기 때문에 외부 의존성이 전혀 없다.
+
+### MR 조회
+
+커밋 SHA에 연결된 MR 목록을 가져온다. GitLab이 **"이 커밋이 어떤 MR에 포함되어 merge되었는지"** 를 알려주는 API를 제공한다.
+
+```js
+async function fetchMergeRequests() {
+  const url = `${CI_SERVER_URL}/api/v4/projects/${CI_PROJECT_ID}/repository/commits/${CI_COMMIT_SHA}/merge_requests`;
+  const response = await fetch(url, {
+    headers: { 'PRIVATE-TOKEN': GITLAB_TOKEN },
+  });
+  return response.json();
+}
+```
+
+### Jira 이슈 키 추출
+
+MR 제목에서 Jira 키를 뽑아내는 정규식. 우리 팀은 두 형태를 섞어 쓰고 있어서 둘 다 지원했다.
+
+```js
+export function extractJiraKey(title) {
+  // 대괄호 형태: [PROJECT-123]
+  const bracketMatch = title.match(/^\[([A-Z][A-Z0-9]*-\d+)\]/);
+  if (bracketMatch) {
+    return bracketMatch[1];
+  }
+  // 콜론 형태: PROJECT-123:
+  const colonMatch = title.match(/^([A-Z][A-Z0-9]*-\d+):/);
+  return colonMatch ? colonMatch[1] : null;
+}
+```
+
+### 커밋 메시지 정제
+
+커밋 메시지 형식이 `PROJECT-123: fix: 내용` 이니까, 앞 접두어는 Jira 이슈에서는 불필요하다. `fix: 내용`만 남기자.
+
+```js
+export function extractCommitDescription(message) {
+  const title = message.split('\n')[0].trim();
+  const match = title.match(/^[A-Z][A-Z0-9]*-\d+:\s+\w+:\s+(.+)$/);
+  return match ? match[1] : title;
+}
+```
+
+형식에 안 맞는 merge commit 같은 건 그대로 반환하고, 나중에 `Merge ` 시작 필터로 걸러낸다.
+
+### Jira 코멘트 등록 (ADF 포맷)
+
+Jira REST API v3는 코멘트 본문을 **ADF(Atlassian Document Format)** 로 받는다. 그냥 텍스트가 아니라 구조화된 JSON이다.
+
+```js
+async function postJiraComment(issueKey, body) {
+  const baseUrl = JIRA_BASE_URL.replace(/\/$/, '');
+  const url = `${baseUrl}/rest/api/3/issue/${issueKey}/comment`;
+  const credentials = Buffer.from(`${JIRA_USER_EMAIL}:${JIRA_API_TOKEN}`).toString('base64');
+
+  const response = await fetch(url, {
+    body: JSON.stringify({ body }),
+    headers: {
+      Accept: 'application/json',
+      Authorization: `Basic ${credentials}`,
+      'Content-Type': 'application/json',
+    },
+    method: 'POST',
+  });
+
+  if (!response.ok) {
+    throw new Error(`Jira API 오류: ${response.status}`);
+  }
+  return response.json();
+}
+```
+
+`body` 구조는 대충 이런 식이다.
+
+```js
+{
+  type: 'doc',
+  version: 1,
+  content: [
+    { type: 'paragraph', content: [/* MR 링크 */] },
+    { type: 'paragraph', content: [/* 작업자 */] },
+    { type: 'paragraph', content: [{ type: 'text', marks: [{ type: 'strong' }], text: '변경 내용' }] },
+    { type: 'bulletList', content: [/* 커밋 메시지 listItem들 */] },
+  ],
+}
+```
+
+어차피 링크/볼드/리스트 정도만 쓰니까 한 번 만들어두면 재사용하기 편하다.
+
+---
+
+## 단위 테스트
+
+처음에는 스크립트를 짜고 바로 push해서 CI에서 돌려보는 식(~~내가 너무 멍청했다~~)으로 테스트했는데, 정규식 하나 고칠 때마다 commit → push → 파이프라인 대기 → 로그 확인을 반복하니 시간이 너무 아까웠다. 정규식 버그 하나 고치려고 push를 5번 했다.
+
+그래서 순수 함수만 분리해서 Node.js 내장 `node:test`로 테스트를 짰다.
+
+```js
+// scripts/post-jira-comment.test.mjs
+import assert from 'node:assert/strict';
+import { describe, it } from 'node:test';
+
+import { extractCommitDescription, extractJiraKey } from './post-jira-comment.mjs';
+
+describe('extractJiraKey', () => {
+  it('콜론 형태: 숫자 포함 프로젝트 키를 추출한다', () => {
+    assert.equal(extractJiraKey('VM2026-74: app: fix: 로그인 오류'), 'VM2026-74');
+  });
+
+  it('대괄호 형태를 추출한다', () => {
+    assert.equal(extractJiraKey('[PROJECT-123] 버그 수정'), 'PROJECT-123');
+  });
+
+  it('Jira 키가 없으면 null을 반환한다', () => {
+    assert.equal(extractJiraKey('Merge branch fix/some-branch into devel'), null);
+  });
+});
+```
+
+실행은 외부 러너 필요 없이 그냥 노드.
+
+```bash
+node --test scripts/post-jira-comment.test.mjs
+```
+
+그리고 실제 API 연동까지 같이 돌려보고 싶을 때는 `.env` 파일에 토큰 넣고 `--env-file` 옵션으로 실행하면 된다.
+
+```bash
+node --env-file=scripts/.env scripts/post-jira-comment.mjs
+```
+
+`CI_COMMIT_SHA`는 실제 merge된 커밋 SHA를 아무거나 넣으면 된다.
+
+이 방식으로 바꾸고 나서부터는 CI에 올리기 전에 로컬에서 다 검증하고 올리니까 훨씬 빨랐다.
+
+---
+
+## 삽질한 것들
+
+### 1. Jira API 401 (위에서도 언급한 거)
+
+OAuth 2.0 앱에서 발급한 토큰은 Basic Auth와 호환되지 않는다. 꼭 `id.atlassian.com/manage-api-tokens`에서 스코프 없이 발급되는 개인 API 토큰을 써야 한다.
+
+### 2. Runner 없음
+
+```shell
+This job is stuck because the project doesn't have any runners online.
+```
+
+CI 잡에 `tags`를 달았는데 해당 태그의 러너가 프로젝트에 없으면 잡이 멈춰버린다. 프로젝트에 등록된 실제 러너 태그로 맞춰주거나, `tags`를 빼고 공용 러너를 쓰면 된다.
+
+---
+
+## 마치며
+
+원래는 "귀찮은 일을 자동화했다" 정도의 얘기인데, 막상 만들고 보니 장점이 더 크다.
+
+- **작성 누락이 없다.** 사람이 개입하지 않으니 "아 깜빡했네"가 없다.
+- **포맷이 일정하다.** 누가 어떤 스타일로 쓰든 Jira 이슈 코멘트 포맷이 똑같다.
+- **변경 이력이 Jira 이슈에 그대로 남는다.** QA가 나중에 올라올 때도 이슈만 보면 된다.
+
+외부 의존성이 전혀 없는 Node.js 단일 스크립트라 도입 부담도 거의 없다. GitLab CI를 쓰고 있다면 30분이면 붙일 수 있고, 혹시 GitHub Actions 환경이어도 API 호출 로직은 그대로 쓰고 `CI_*` 변수만 GitHub 환경에 맞게 갈아끼우면 된다.
+
+GitLab ↔ Jira를 오가면서 수동으로 코멘트를 남기고 있다면 한 번 도입해볼 만하다.
+
+요즘 AI(~~"해줘"~~)덕에 자동화에 대한걸 많이 고민해보고, 실제로도 많이 시도해볼 수 있어서 세상 참 좋아진 것 같다.
+
+---
+
+## 참고 문서
+
+* [GitLab Commits API — 커밋에 연결된 MR 조회](https://docs.gitlab.com/ee/api/commits.html)
+* [GitLab Merge Requests API](https://docs.gitlab.com/ee/api/merge_requests.html)
+* [GitLab CI/CD Variables](https://docs.gitlab.com/ee/ci/variables/)
+* [Jira REST API v3 — Issue Comments](https://developer.atlassian.com/cloud/jira/platform/rest/v3/api-group-issue-comments/)
+* [Atlassian Document Format (ADF)](https://developer.atlassian.com/cloud/jira/platform/apis/document/structure/)
+* [Jira API Token 발급 페이지](https://id.atlassian.com/manage-api-tokens)
