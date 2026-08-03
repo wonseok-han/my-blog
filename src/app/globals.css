@@ -27,9 +27,9 @@
   --input: transparent;
   --input-background: oklch(0.95 0.0058 264.53);
   --switch-background: oklch(0.8 0 0);
-  --font-weight-medium: 500;
-  --font-weight-normal: 400;
-  --font-weight-light: 300;
+  --font-weight-medium: 600;
+  --font-weight-normal: 500;
+  --font-weight-light: 400;
   --highlight: 60 100% 85%;
   --highlight-foreground: 0 0% 0%;
   --highlight-border: 60 100% 70%;
@@ -156,7 +156,7 @@
 
   body {
     @apply bg-background text-foreground;
-    font-family: 'Aggro', sans-serif;
+    font-family: 'SUIT Variable', sans-serif;
     font-weight: var(--font-weight-light);
     font-size: var(--font-size);
   }
@@ -975,4 +975,28 @@
     background: color-mix(in oklch, var(--foreground) 6%, transparent);
     border-radius: 0.25rem;
   }
+}
+
+/* 각주 목록 번호를 "1." 대신 "[1]" 형태로 표시
+   (Tailwind utilities 레이어의 list-decimal을 이겨야 하므로 레이어 밖에 둠) */
+section[data-footnotes] ol {
+  list-style: none;
+  margin-left: 0;
+  counter-reset: footnote-counter;
+}
+
+section[data-footnotes] ol > li {
+  counter-increment: footnote-counter;
+  position: relative;
+  padding-left: 2.5rem;
+}
+
+section[data-footnotes] ol > li::before {
+  content: '[' counter(footnote-counter) ']';
+  position: absolute;
+  left: 0;
+  top: 0.25rem;
+  color: var(--muted-foreground);
+  font-weight: var(--font-weight-normal);
+  font-variant-numeric: tabular-nums;
 }

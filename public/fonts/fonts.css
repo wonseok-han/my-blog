@@ -1,4 +1,12 @@
 @font-face {
+  font-family: 'SUIT Variable';
+  src: url('./suit/SUIT-Variable.woff2') format('woff2-variations');
+  font-weight: 100 900;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
   font-family: 'Aggro';
   src: url('./aggro/SB 어그로 B.ttf') format('truetype'), url('./aggro/SB 어그로OTF B.otf') format('otf');
   font-weight: 700;

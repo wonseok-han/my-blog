@@ -42,7 +42,8 @@ const config: Config = {
       },
       fontFamily: {
         aggro: ['Aggro', 'sans-serif'],
-        sans: ['Aggro', 'sans-serif'],
+        suit: ['SUIT Variable', 'sans-serif'],
+        sans: ['SUIT Variable', 'sans-serif'],
       },
       fontSize: {
         '2xl': 'var(--text-2xl)',
