@@ -29,6 +29,12 @@
     "commitCount": 1,
     "source": "git"
   },
+  "contents/blog-posts/21-에이전트-워크플로우와-개발자의-중심-잡기.mdx": {
+    "created": "2026-08-03 17:01:09 +0900",
+    "modified": "2026-08-03 17:01:09 +0900",
+    "commitCount": 0,
+    "source": "git"
+  },
   "contents/blog-posts/16-Claude-MCP로-i18n-워크플로우-개선하기.mdx": {
     "created": "2026-04-01 18:07:15 +0900",
     "modified": "2026-04-02 10:01:45 +0900",
@@ -90,9 +96,9 @@
     "source": "git"
   },
   "contents/blog-posts/20-GitLab-MR-merge시-Jira-코멘트-자동화하기.mdx": {
-    "created": "2026-04-15 15:43:56 +0900",
-    "modified": "2026-04-15 15:43:56 +0900",
-    "commitCount": 0,
+    "created": "2026-04-15 15:43:54 +0900",
+    "modified": "2026-04-15 15:43:54 +0900",
+    "commitCount": 1,
     "source": "git"
   },
   "contents/blog-posts/14-npm-패키지-배포하기-의존성-없는-가벼운-CLI-도구-만들기-(feat-indexgen-cli).mdx": {
