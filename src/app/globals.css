@@ -931,4 +931,48 @@
         rgba(255, 255, 255, 0.2),
         transparent);
   }
+
+  /* 각주(footnote) 스타일 - remark-gfm이 생성하는 마크업 대상 */
+  section[data-footnotes] {
+    margin-top: 3rem;
+    padding-top: 1.5rem;
+    border-top: 1px solid var(--border);
+    font-size: 0.875rem;
+    color: var(--muted-foreground);
+  }
+
+  section[data-footnotes] .footnotes-label {
+    margin-bottom: 1rem;
+    font-size: 1rem;
+    font-weight: 600;
+    color: var(--foreground);
+  }
+
+  section[data-footnotes] p {
+    margin: 0.25rem 0;
+    font-size: 0.875rem;
+    line-height: 1.6;
+  }
+
+  section[data-footnotes] li {
+    margin: 0.5rem 0;
+    word-break: break-word;
+  }
+
+  /* 되돌아가기(↩) 링크 */
+  section[data-footnotes] a[data-footnote-backref] {
+    text-decoration: none;
+    margin-left: 0.25rem;
+  }
+
+  /* 각주 점프 시 상단 여백 확보 및 대상 하이라이트 */
+  a[data-footnote-ref],
+  section[data-footnotes] li {
+    scroll-margin-top: 5rem;
+  }
+
+  section[data-footnotes] li:target {
+    background: color-mix(in oklch, var(--foreground) 6%, transparent);
+    border-radius: 0.25rem;
+  }
 }

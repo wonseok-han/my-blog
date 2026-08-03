@@ -23,7 +23,16 @@ export default function MDXRenderer({ content }: MDXRendererProps) {
     // MDX 렌더링 전에 ID 카운터 초기화
     resetIdCounter();
     serialize(content, {
-      mdxOptions: { remarkPlugins: [remarkGfm] },
+      mdxOptions: {
+        remarkPlugins: [remarkGfm],
+        // 각주(footnote) 섹션의 라벨을 한글로 표시
+        remarkRehypeOptions: {
+          footnoteLabel: '각주',
+          footnoteLabelProperties: { className: ['footnotes-label'] },
+          footnoteBackLabel: (referenceIndex) =>
+            `본문의 각주 ${referenceIndex + 1} 위치로 돌아가기`,
+        },
+      },
     }).then(setMdxSource);
   }, [content]);
 

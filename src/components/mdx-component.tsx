@@ -3,6 +3,7 @@ import { Prism as SyntaxHighlighter } from 'react-syntax-highlighter';
 import { MDXComponents as MDXRemoteComponents } from 'mdx/types';
 import { dracula } from 'react-syntax-highlighter/dist/esm/styles/prism';
 import { generateId } from '@/utils/toc';
+import Mermaid from '@components/mermaid';
 
 /**
  * 중복 ID를 추적하기 위한 전역 카운터 맵
@@ -123,11 +124,28 @@ export const MDXComponent: MDXRemoteComponents = {
       {...props}
     />
   ),
-  a: (props: React.AnchorHTMLAttributes<HTMLAnchorElement>) => (
-    <a
-      className="underline underline-offset-4 transition-colors break-words font-medium text-blue-600"
-      target="_blank"
-      rel="noopener noreferrer"
+  a: (props: React.AnchorHTMLAttributes<HTMLAnchorElement>) => {
+    // 페이지 내 앵커(각주 점프 등)는 새 탭으로 열지 않음
+    if (props.href?.startsWith('#')) {
+      return (
+        <a
+          className="underline underline-offset-4 transition-colors break-words font-medium text-blue-600"
+          {...props}
+        />
+      );
+    }
+    return (
+      <a
+        className="underline underline-offset-4 transition-colors break-words font-medium text-blue-600"
+        target="_blank"
+        rel="noopener noreferrer"
+        {...props}
+      />
+    );
+  },
+  sup: (props: React.HTMLAttributes<HTMLElement>) => (
+    <sup
+      className="[&>a]:no-underline [&>a]:rounded [&>a]:px-0.5 [&>a]:text-xs [&>a]:font-medium [&>a]:text-blue-600 [&>a]:before:content-['['] [&>a]:after:content-[']'] hover:[&>a]:bg-blue-600/10"
       {...props}
     />
   ),
@@ -183,6 +201,8 @@ export const MDXComponent: MDXRemoteComponents = {
           {children}
         </code>
       );
+    } else if (language === 'mermaid') {
+      return <Mermaid code={String(children)} />;
     } else {
       return (
         <div className="rounded-lg overflow-hidden border">
@@ -207,9 +227,19 @@ export const MDXComponent: MDXRemoteComponents = {
       );
     }
   },
-  pre: (props: React.HTMLAttributes<HTMLPreElement>) => (
-    <pre className="overflow-x-auto rounded-lg bg-card p-1 my-2" {...props} />
-  ),
+  pre: (props: React.HTMLAttributes<HTMLPreElement>) => {
+    // mermaid 코드블록은 다이어그램으로 렌더링되므로 pre 래퍼를 씌우지 않음
+    const child = React.Children.toArray(props.children)[0];
+    if (
+      React.isValidElement<{ className?: string }>(child) &&
+      child.props.className?.includes('language-mermaid')
+    ) {
+      return <>{props.children}</>;
+    }
+    return (
+      <pre className="overflow-x-auto rounded-lg bg-card p-1 my-2" {...props} />
+    );
+  },
   table: (props: React.HTMLAttributes<HTMLTableElement>) => (
     <div className="my-6 overflow-x-auto">
       <table className="w-full border-collapse border rounded-lg" {...props} />
