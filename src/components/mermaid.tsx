@@ -3,6 +3,7 @@
 import { useEffect, useId, useState } from 'react';
 import { useTheme } from 'next-themes';
 import { Skeleton } from '@components/skeleton/skeleton';
+import Zoomable from '@components/zoomable';
 
 interface MermaidProps {
   code: string;
@@ -113,9 +114,20 @@ export default function Mermaid({ code }: MermaidProps) {
   }
 
   return (
-    <div
-      className="my-6 flex justify-center overflow-x-auto [&_svg]:max-w-full [&_svg]:h-auto"
-      dangerouslySetInnerHTML={{ __html: svg }}
-    />
+    <Zoomable
+      as="div"
+      label="다이어그램 확대해서 보기"
+      zoom={
+        <div
+          className="rounded-lg bg-background p-6 [&_svg]:h-auto [&_svg]:w-[88vw] [&_svg]:!max-w-none"
+          dangerouslySetInnerHTML={{ __html: svg }}
+        />
+      }
+    >
+      <div
+        className="my-6 flex justify-center overflow-x-auto [&_svg]:max-w-full [&_svg]:h-auto"
+        dangerouslySetInnerHTML={{ __html: svg }}
+      />
+    </Zoomable>
   );
 }

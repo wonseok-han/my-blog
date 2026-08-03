@@ -4,6 +4,7 @@ import { MDXComponents as MDXRemoteComponents } from 'mdx/types';
 import { dracula } from 'react-syntax-highlighter/dist/esm/styles/prism';
 import { generateId } from '@/utils/toc';
 import Mermaid from '@components/mermaid';
+import Zoomable from '@components/zoomable';
 
 /**
  * 중복 ID를 추적하기 위한 전역 카운터 맵
@@ -258,10 +259,22 @@ export const MDXComponent: MDXRemoteComponents = {
     <hr className="my-8" {...props} />
   ),
   img: (props: React.ImgHTMLAttributes<HTMLImageElement>) => (
-    <img
-      className="rounded-lg border my-6 max-w-full h-auto"
-      alt={props.alt || ''}
-      {...props}
-    />
+    <Zoomable
+      label={props.alt ? `${props.alt} 확대해서 보기` : '이미지 확대해서 보기'}
+      zoom={
+        // eslint-disable-next-line @next/next/no-img-element
+        <img
+          src={props.src}
+          alt={props.alt || ''}
+          className="max-h-[90vh] max-w-[92vw] rounded-lg object-contain"
+        />
+      }
+    >
+      <img
+        className="rounded-lg border my-6 max-w-full h-auto"
+        alt={props.alt || ''}
+        {...props}
+      />
+    </Zoomable>
   ),
 };
