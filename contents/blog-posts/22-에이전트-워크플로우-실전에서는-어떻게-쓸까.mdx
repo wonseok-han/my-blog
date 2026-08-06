@@ -1,0 +1,465 @@
+---
+title: '에이전트 워크플로우, 이론은 알겠고 실전에서는 어떻게 쓸까?'
+description: '규칙과 게이트, 정보와 판정을 Claude Code·Codex 설정 파일로 옮기는 법'
+thumbnail: '/thumbnail/blog-posts/22-에이전트-워크플로우-실전에서는-어떻게-쓸까.svg'
+category: 'Development'
+tags: ['AI', 'LLM', '에이전트', '컨텍스트 엔지니어링', '하네스 엔지니어링', 'Claude Code', 'Codex']
+---
+
+# 에이전트 워크플로우, 이론은 알겠고 실전에서는 어떻게 쓸까?
+
+> **이 글의 자리**
+> 이 글은 [에이전트 워크플로우와 개발자의 중심 잡기](/blog-posts/21-에이전트-워크플로우와-개발자의-중심-잡기)에서 이어진다. 그 글은 프롬프트부터 그래프까지의 계보를 정리하고, 결국 중요한 것은 두 가지 — **① 정보**(무엇을 보여줄까)와 **② 판정**(무엇을 완료로 볼까) — 라는 결론에 닿았다. 배경이 궁금하면 이론편을 먼저 읽어도 좋고, 바로 설정부터 손대도 좋다.
+
+답은 의외로 단순하다. 모델에게 필요한 정보만 보여주고, 완료 기준은 실행 가능한 형태로 만들면 된다. 이제 이 원칙을 **설정 파일 수준**으로 내려보자.
+
+**설정 예시는 Claude Code를 중심으로 들고, Codex를 나란히 놓는다.** 두 도구의 차이를 보면 정보와 판정이라는 두 축이 실제 제품에서 어떻게 구현되는지 더 선명하게 드러난다.
+
+## 1. 먼저, 정보와 판정을 나눈다
+
+| 층 | 도구 중립 원칙 | Claude Code | Codex |
+|---|---|---|---|
+| **컨텍스트** (항상 로드) | 코드를 읽어 알 수 없는 것만, 짧게 | `CLAUDE.md` (200줄 목표) | `AGENTS.md` (`project_doc_fallback_filenames`로 대체 파일명 지정 가능) |
+| **컨텍스트** (경로 스코프) | 필요할 때만 로드 | `.claude/rules/` + `paths:` | 하위 디렉터리에 `AGENTS.md`를 두는 계층 배치 |
+| **컨텍스트** (온디맨드) | 절차는 호출할 때만 | Skills, `.claude/commands/*.md` | — |
+| **가이드** (사전 차단) | 규칙이 아니라 게이트로 | `permissions.deny`, `PreToolUse` 훅 | `sandbox_mode` (`read-only` / `workspace-write` / `danger-full-access`), `writable_roots` — **OS 레벨 샌드박스** |
+| **가이드** (승인 정책) | 개입 지점을 옮긴다 | 퍼미션 모드 (`Shift+Tab`) | `approval_policy` (`untrusted` / `on-failure` / `on-request` / `never`) |
+| **센서** (사후 교정) | 피드백을 압축해 되먹임 | `PostToolUse` 훅 | — → **pre-commit, CI, 린터** |
+| **루프** | 완료를 종료 코드로 | `Stop` 훅, `maxTurns` | **`/goal` 모드** — 목표까지 자율 반복 (+ CI 게이트) |
+| **비대화형 실행** | 파이프라인에 넣기 | `claude -p` | `codex exec` |
+| **컨텍스트 격리** | 원문을 메인에 들이지 않기 | 서브에이전트 | — |
+| **도구 노출** | 필요한 것만 | MCP 선택, tool search | MCP |
+
+표를 세로로 읽으면 두 도구가 서로 다른 축에 무게를 두고 있다는 사실이 보인다.
+
+**Claude Code는 정보 축이 두껍다.** 경로 스코프 규칙, Skills, 서브에이전트, tool search — 전부 "무엇을 컨텍스트에 넣고 무엇을 뺄까"를 다루는 장치다. 반대로 **Codex는 판정·격리 축이 두껍다.** 샌드박스 모드가 OS 레벨(macOS Seatbelt, Linux Landlock)에서 작동하고, 승인 정책이 네 단계로 나뉘어 있다. 규칙 파일은 `AGENTS.md` 하나로 단순하다.
+
+**이 차이가 이론편의 [4.3절 정보와 판정으로 나눈다](/blog-posts/21-에이전트-워크플로우와-개발자의-중심-잡기#43-정보와-판정으로-나눈다)에서 말한 두 축의 실물 증거다.** 두 팀이 같은 문제를 풀면서 서로 다른 축을 먼저 두껍게 만들었을 뿐, **축 자체는 같다.** 따라서 "어느 도구가 더 좋은가"보다 유용한 질문은 **"내 팀이 지금 아픈 곳은 정보 축인가, 판정 축인가"**다. 컨텍스트가 지저분한 것이 문제라면 전자의 장치가, 에이전트의 위험한 행동이 문제라면 후자의 장치가 더 시급하다.
+
+표의 빈칸(`—`)도 기능의 부재로만 볼 필요는 없다. 예컨대 Codex의 센서 칸(`PostToolUse` 대응물)이 비어 있어도, 사후 검증은 pre-commit hook·CI·린터·타입체커가 대신한다. 이들은 20년 전부터 있었고 어떤 에이전트를 쓰든 작동한다. **판정 축에서 가장 이식성이 높은 부분이 바로 이 오래된 도구들이다.**
+
+끝으로 `AGENTS.md`에는 분명한 트레이드오프가 있다. 여러 에이전트가 읽는 열린 표준이라 한 번 쓰면 도구를 갈아타도 통하지만, frontmatter 기반 활성화 모드가 없어 **항상 전체가 로드된다.** 즉 **중립성과 지연 로딩 중 하나를 고르는 셈**이다. 실무에서는 두 방식을 섞을 수 있다. 도구를 가로질러 공유할 짧은 규칙은 `AGENTS.md`에 두고, 경로별 상세는 각 도구의 스코프 장치로 내린다. Claude Code에서는 `CLAUDE.md`에 `@AGENTS.md`로 임포트하거나 심링크를 걸어 두 도구가 같은 파일을 읽게 할 수 있다.[^ccmemory]
+
+> 아래 예시의 설정 형식은 2026년 7월 기준 공식 문서를 따랐다. 도구는 빠르게 바뀌므로 적용 전 문서 확인을 권한다.[^ccmemory][^cchooks][^ccsubagents][^codex]
+
+## 2. 규칙 파일에는 필요한 정보만 남긴다
+
+먼저 정보 축부터 보자. 이름이 `CLAUDE.md`든 `AGENTS.md`든, 규칙 파일은 **컨텍스트로 주입되는 텍스트**다. 강제 설정이라기보다 모델에게 건네는 부탁에 가깝다. 이 사실을 가장 명시적으로 문서화한 Claude Code의 표현을 빌려보자.
+
+> "CLAUDE.md content is delivered as a user message after the system prompt, not as part of the system prompt itself. Claude reads it and tries to follow it, but **there's no guarantee of strict compliance**."[^ccmemory]
+
+그리고 같은 문서가 처방까지 준다.
+
+> "To block an action **regardless of what Claude decides**, use a PreToolUse hook instead."[^ccmemory]
+
+**이 두 문장은 이론편의 [4.3절 정보와 판정으로 나눈다](/blog-posts/21-에이전트-워크플로우와-개발자의-중심-잡기#43-정보와-판정으로-나눈다)의 두 축을 그대로 보여준다.** `CLAUDE.md`는 정보 채널이므로 확률적으로 작동한다. 반면 훅은 판정 채널이므로 결정론적으로 작동한다. **결정론적으로 강제할 수 있는 내용을 확률적 채널에 적는 것이 가장 흔한 낭비다.**
+
+규칙 파일은 강제력뿐 아니라 크기도 중요하다. 공식 문서는 다음과 같은 기준을 제시한다.
+
+> "target under 200 lines per CLAUDE.md file. Longer files consume more context and reduce adherence."[^ccmemory]
+
+**⚠️ 그리고 가장 흔한 오해:**
+
+> "Splitting into `@path` imports helps organization but **doesn't reduce context**, since imported files load at launch."[^ccmemory]
+
+`@docs/conventions.md`로 쪼개는 것은 **정리에만 도움이 될 뿐 토큰은 줄지 않는다.** 임포트된 파일은 시작할 때 모두 펼쳐져 컨텍스트에 들어간다. (자가진단 4번이 이 오해를 묻는다.)
+
+**토큰을 실제로 아끼는 방법은 세 가지다.**
+
+**(a) 경로 스코프 규칙** — `.claude/rules/`에 `paths:` frontmatter를 쓰면 **매칭되는 파일을 읽을 때만** 로드된다. 이게 진짜 just-in-time이다.
+
+```markdown
+<!-- .claude/rules/api.md -->
+---
+paths:
+  - "src/api/**/*.{ts,tsx}"
+---
+
+# API 규칙
+
+- 모든 엔드포인트는 입력 검증을 포함한다
+- 에러 응답은 `src/api/errors.ts`의 표준 포맷을 쓴다
+```
+
+프론트엔드 작업 중일 때 이 규칙은 컨텍스트에 **없다.** `paths`가 없는 규칙은 매 세션 로드되므로, 전역 규칙만 `CLAUDE.md`에 남기고 나머지는 경로로 내려보내는 게 기본 전략이다.
+
+**(b) Skills** — 규칙(`rules/`)은 매 세션 또는 매칭 시 로드되지만, Skills는 **호출하거나 관련 판단될 때만** 로드된다. 다단계 절차는 Skills로.
+
+**(c) HTML 주석** — 블록 레벨 HTML 주석은 컨텍스트에 주입되기 전에 제거된다. 유지보수 노트를 **토큰 0**으로 남길 수 있다.
+
+```markdown
+<!-- 2026-05: 빌드 스크립트 변경 시 이 섹션 갱신 (담당: 인프라팀) -->
+## 빌드
+- `pnpm build` (npm 아님)
+```
+
+**적정 고도의 실제 예시.** 공식 문서의 구체성 기준은 이렇다.[^ccmemory]
+
+| ❌ | ✅ |
+|---|---|
+| "코드를 깔끔하게 포맷하세요" | "2-space 인덴트를 쓴다" |
+| "변경 사항을 테스트하세요" | "커밋 전에 `npm test`를 돌린다" |
+| "파일을 정리하세요" | "API 핸들러는 `src/api/handlers/`에 둔다" |
+
+그리고 **규칙이 서로 모순되면 Claude가 임의로 하나를 고른다.** 정기적으로 중복·충돌·낡은 규칙을 지우는 게 유지보수의 본체다.
+
+**확인 명령.** `/context`로 실제 로드된 메모리 파일과 점유율을 본다. `/memory`로 파일들을 열어 편집한다. `/doctor`는 체크인된 `CLAUDE.md`에서 **코드베이스로부터 유도 가능한 내용**(디렉터리 구조, 의존성 목록, 아키텍처 개요)을 잘라내고 **함정·근거·도구 기본값과 다른 관례**를 남기는 트림을 제안한다.
+
+> **한 줄 원칙**: `CLAUDE.md`에는 **코드를 읽어서 알 수 없는 것**만 남긴다. 읽으면 아는 건 지운다.
+
+## 3. 도구와 작업 원문은 필요할 때만 불러온다
+
+규칙 파일을 가볍게 만들었다면, 다음은 도구와 작업 원문이 차지하는 컨텍스트를 볼 차례다. **도구가 많아질수록 오히려 도구를 제대로 쓰지 못한다.** 도구를 49개에서 741개로 늘리면 모델에 따라 선택 정확도가 12~94% 떨어진다.[^longfunceval] MCP를 붙였을 때 평균 성능이 내려가고 입력 토큰이 수십 배로 뛴 측정도 있다.[^mcpgauge] 20개가 경고선이다.
+
+다행히 최근 도구들은 이 문제를 온디맨드 로딩으로 풀기 시작했다. 실제 세션에서 `/context`를 찍어보면 이렇게 나온다.
+
+```
+Context Usage                                  247.1k/1m tokens (25%)
+  System prompt          5.4k  (0.5%)
+  System tools            10k  (1.0%)
+  Memory files            351  (0.0%)
+  Skills                 2.5k  (0.3%)
+  Messages             228.9k  (22.9%)
+
+MCP tools · /mcp (loaded on-demand)
+└ 24 tools · 0 tokens          ← 24개인데 0 토큰
+
+Skills · /skills
+└ 23 skills · 2.5k tokens      ← 23개가 설명만 2.5k
+```
+
+**MCP 도구 24개가 0 토큰이다.** 온디맨드 로딩이 켜져 있으면 도구 정의가 선반에만 놓여 있고, 실제로 부를 때 스키마가 들어온다. Skills 23개도 마찬가지로 **"언제 쓰는지"만 2.5k를 차지하고 본문은 호출 시 로드**된다. 예전 방식이라면 이 둘만으로 수만 토큰이 먼저 깔렸을 자리다.
+
+이 출력은 **"모든 도구를 미리 로드하기"**가 더는 기본값일 필요가 없다는 것을 보여준다. 해법의 방향은 모두 빼기다. 검색으로 골라 넣고,[^ragmcp] 필요할 때 발견하며,[^toolsearch] 애초에 필요한 서버만 켠다. 온디맨드 기능이 없는 환경에서도 **켜두는 게 아니라 고르는 것**이라는 원칙은 그대로 적용된다.
+
+도구 정의뿐 아니라 작업 중 읽는 원문도 컨텍스트를 차지한다. 이때 **서브에이전트는 "격리"가 목적일 때만 쓴다.** 공식 문서의 기준은 명확하다.
+
+> "Use one when a side task would flood your main conversation with search results, logs, or file contents you won't reference again: the subagent does that work in its own context and returns only the summary."[^ccsubagents]
+
+서브에이전트는 자체 컨텍스트 윈도에서 일하고 **요약만** 돌려준다. 그래서 위임의 이득은 "일을 나눠서"가 아니라 **"원문을 메인에 들이지 않아서"** 생긴다.
+
+```markdown
+<!-- .claude/agents/log-digger.md -->
+---
+name: log-digger
+description: 실패한 CI 로그에서 원인 후보만 추려서 보고할 때 사용
+tools: Read, Grep, Glob, Bash
+model: haiku
+maxTurns: 12
+---
+
+CI 로그를 조사한다. 로그 원문을 그대로 옮기지 말고,
+실패한 테스트 이름과 근본 원인 후보를 최대 5줄로 요약해 보고한다.
+```
+
+**`tools`로 쓰기 권한을 제거**했고(정보 수집만), **`model: haiku`로 비용을 낮췄고**(단순 탐색), **`maxTurns`로 폭주를 막았다**. `disallowedTools: Write, Edit`로 반대 방향으로 쓸 수도 있고, `isolation: worktree`를 주면 저장소 사본에서 격리 실행된다.
+
+그렇다고 서브에이전트가 파일을 다시 읽는 것 자체가 문제는 아니다. 그 재읽기가 낭비인지 필요한 격리인지는 다음 세 질문으로 가릴 수 있다.
+
+| 질문 | 이득이 있는 경우 | 손실인 경우 |
+|---|---|---|
+| **① 압축비** — 읽을 양 ÷ 돌려줄 양 | 파일 20개를 읽고 발견 5줄을 반환 (크다) | 읽은 내용을 거의 그대로 요약 없이 반환 (1에 가깝다) |
+| **② 관점 분리** — 깨끗한 컨텍스트가 결과를 바꾸는가 | **리뷰·검증** — 메인의 "내가 왜 이렇게 썼는지"라는 정당화를 물려받지 않는 게 장점 | 단순 조회 — 누가 읽어도 같은 답 |
+| **③ 재참조** — 원문을 나중에 또 볼 필요가 있는가 | 없다 (발견만 필요) | 있다 — 요약만 남으면 메인이 결국 다시 읽는다 |
+
+공식 문서 기준의 핵심도 ③이다 — *"file contents **you won't reference again**"*. 나중에 이어서 작업할 파일이면 메인에서 읽는 게 맞고, 한 번 훑고 버릴 것이면 서브에이전트가 맞다.
+
+**✅ 코드 리뷰 서브에이전트가 이 세 기준을 모두 통과하는 대표 예다.** 읽을 건 많고 돌려줄 건 짧으며(①), 리뷰는 **관점 분리가 목적 그 자체**이고(②), 리뷰 대상 원문을 메인이 다시 볼 필요가 없다(③ — 고칠 때 해당 파일만 열면 된다).
+
+게다가 이건 이론편의 [4.2절 사람이 정해야 하는 것은 남긴다](/blog-posts/21-에이전트-워크플로우와-개발자의-중심-잡기#42-사람이-정해야-하는-것은-남긴다)에서 말한 **결과를 누가, 어떤 기준으로 검토할지**를 구현하는 방법이기도 하다. 같은 컨텍스트에서 만들고 채점하면 자기 편향을 벗어나기 어렵다. 서브에이전트는 자체 시스템 프롬프트와 깨끗한 컨텍스트를 갖고, 메인의 auto memory도 물려받지 않는다.
+
+```markdown
+<!-- .claude/agents/architecture-reviewer.md -->
+---
+name: architecture-reviewer
+description: 변경된 코드가 프로젝트의 계층 규칙과 에러 처리 관례를 지키는지 검토할 때 사용
+tools: Read, Grep, Glob, Bash
+model: sonnet
+---
+
+변경분을 `git diff` 로 확인하고 아래 기준으로만 검토한다.
+
+1. 도메인 레이어가 인프라 레이어를 직접 import하지 않는가
+2. 에러가 `src/api/errors.ts` 표준 포맷을 쓰는가
+3. 공개 API 변경에 마이그레이션 노트가 있는가
+
+각 발견을 `파일:줄 — 문제 — 근거` 한 줄로 보고한다.
+코드 원문을 옮겨 적지 말고, 발견이 없으면 "없음"만 답한다.
+```
+
+**시스템 프롬프트의 마지막 두 줄이 ①을 만든다.** "코드 원문을 옮겨 적지 말라"가 없으면 리뷰어는 친절하게 코드를 인용해서 돌려주고, 압축비가 1에 가까워진다. **위임의 이득은 위임 자체가 아니라 반환 형식을 좁히는 데서 나온다.**
+
+반대로 다음과 같은 위임은 격리의 이점을 살리지 못한다.
+
+- **압축 없는 위임** — "이 파일 읽고 알려줘" 수준. 메인이 직접 읽는 게 싸다.
+- **서브에이전트가 구현까지 하고 변경 내역을 길게 보고** — 메인이 그 코드를 이어받아 작업해야 하니 결국 다시 읽는다(③ 위반). 그래서 **탐색·검증은 위임, 구현은 메인**이라는 경험칙이 나온다.
+- **병렬 팬아웃 남발** — 서브에이전트 다섯 개가 각자 같은 코드베이스 이해를 처음부터 다시 구축한다. Cognition이 지적한 실패가 정확히 이것이다 — **컨텍스트가 에이전트 사이에서 충분히 공유되지 않는다**.[^cognition] Anthropic이 보고한 **채팅 대비 약 15배 토큰**은 이런 다중 병렬 리서치 시스템 기준이다.[^multiagent] 리뷰어 하나를 두는 것과는 다른 얘기이니, 이 수치는 **팬아웃을 늘릴 때** 떠올리면 된다.
+
+## 4. 막아야 할 것은 권한으로 막는다
+
+정보 축에서 무엇을 보여줄지 골랐다면, 이제 판정 축에서 무엇을 사전에 막을지 정해야 한다. 대표적인 도구는 두 가지다. **`permissions.deny`는 클라이언트가 강제**하고, 훅은 스크립트로 판단한다.
+
+> "Settings rules are enforced by the client regardless of what Claude decides to do. CLAUDE.md instructions shape Claude's behavior but are not a hard enforcement layer."[^ccmemory]
+
+```json
+// .claude/settings.json
+{
+  "permissions": {
+    "deny": [
+      "Read(./.env)",
+      "Read(./secrets/**)",
+      "Bash(git push:*)"
+    ]
+  }
+}
+```
+
+이걸 `CLAUDE.md`에 "`.env`는 읽지 마세요"라고 쓰면 확률적으로 지켜진다. 위처럼 쓰면 **결정론적으로** 지켜지고, **토큰은 0**이다.
+
+조건이 복잡하면 `PreToolUse` 훅을 쓴다. **exit code 2가 차단**이다.
+
+```json
+// .claude/settings.json
+{
+  "hooks": {
+    "PreToolUse": [
+      {
+        "matcher": "Bash",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "${CLAUDE_PROJECT_DIR}/.claude/hooks/guard-bash.sh",
+            "timeout": 10
+          }
+        ]
+      }
+    ]
+  }
+}
+```
+
+```bash
+#!/bin/bash
+# .claude/hooks/guard-bash.sh
+input=$(cat)
+cmd=$(jq -r '.tool_input.command' <<<"$input")
+
+if grep -qE 'rm -rf|:> *\.env' <<<"$cmd"; then
+  echo "파괴적 명령 차단: $cmd" >&2
+  exit 2          # 2 = 강제 차단, stderr가 이유로 전달된다
+fi
+exit 0
+```
+
+`matcher`는 `Bash`처럼 정확 매치, `Edit|Write`처럼 나열, 특수문자가 있으면 정규식으로 평가된다. `mcp__github__.*` 같은 MCP 패턴도 쓸 수 있다.
+
+**Codex라면 접근이 다르다.** 훅으로 명령을 걸러내는 대신 **샌드박스 자체를 좁힌다.** `sandbox_mode = "read-only"`는 쓰기를 아예 못 하게 하고, `"workspace-write"`는 `writable_roots`로 지정한 경로 밖의 쓰기를 OS 레벨에서 막는다. 훅이 "이 명령을 허용할까"를 판단하는 반면, 샌드박스는 **판단 자체를 없앤다** — 권한이 없으니 시도해도 실패한다. 더 강한 보장이고, 대신 세밀한 조건 분기는 안 된다.[^codex]
+
+**둘 다 없는 환경이어도** 이 층을 포기할 필요는 없다. 파일 권한, 타입 시스템, 린터 설정, `.gitignore`, pre-commit hook — 전부 같은 일을 한다. 되먹임이 커밋 단계로 한 박자 늦을 뿐, **"규칙이 아니라 게이트로"라는 원칙은 그대로다.**
+
+## 5. 완료 기준은 실행 가능한 검사로 만든다
+
+가이드가 잘못된 행동을 사전에 막는다면, 센서는 실행 결과를 사후에 교정한다. 예를 들어 **"파일을 고쳤으면 린트한다"를 프롬프트로 부탁하지 말고 `PostToolUse`로 건다.**
+
+```json
+{
+  "hooks": {
+    "PostToolUse": [
+      {
+        "matcher": "Edit|Write",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "${CLAUDE_PROJECT_DIR}/.claude/hooks/lint-changed.sh"
+          }
+        ]
+      }
+    ]
+  }
+}
+```
+
+여기에 이론편의 [4.2절 사람이 정해야 하는 것은 남긴다](/blog-posts/21-에이전트-워크플로우와-개발자의-중심-잡기#42-사람이-정해야-하는-것은-남긴다)에서 말한 **"무엇이 완료인가"**까지 `Stop` 훅으로 코드화할 수 있다.
+
+```json
+{
+  "hooks": {
+    "Stop": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "${CLAUDE_PROJECT_DIR}/.claude/hooks/definition-of-done.sh",
+            "timeout": 300
+          }
+        ]
+      }
+    ]
+  }
+}
+```
+
+```bash
+#!/bin/bash
+# .claude/hooks/definition-of-done.sh
+# 완료 기준: 타입체크 통과 + 테스트 통과. 실패하면 턴을 끝내지 못한다.
+
+fail=""
+pnpm typecheck >/tmp/tc.log 2>&1 || fail="타입체크 실패: $(tail -3 /tmp/tc.log)"
+pnpm test      >/tmp/t.log  2>&1 || fail="$fail / 테스트 실패: $(grep -E '✕|FAIL' /tmp/t.log | head -3)"
+
+if [ -n "$fail" ]; then
+  jq -n --arg r "$fail" '{decision: "block", reason: $r}'
+  exit 0
+fi
+exit 0
+```
+
+**여기서 두 가지가 동시에 일어난다.**
+
+1. **판정의 결정론화** — "완료"가 문장이 아니라 종료 코드가 됐다. `Stop` 훅에서 차단하면 턴이 끝나지 않고 에이전트가 계속 작업한다. 즉 **정지 조건이 곧 루프 엔지니어링**이다.
+2. **피드백의 압축** — 로그 전문을 붓지 않고 `tail -3`, `head -3`으로 **실패한 줄만** 돌려준다. Harness-Bench의 "실행 정합성" 문제는 피드백의 양이 아니라 질의 문제였다.[^harnessbench] 컨텍스트가 길어질수록 무관한 정보가 성능을 깎으니[^contextrot], 스택 트레이스 8,000줄보다 3줄이 낫다.
+
+**Codex는 이 루프를 `/goal` 모드로 내장한다.** 목표를 주면 계획→실행→테스트→수정을 스스로 돌며, 목표를 달성했다고 판정하거나 토큰 예산이 바닥날 때까지 계속한다.[^codex] 여기서도 요점은 같다 — 정지 조건이 **모델의 "목표 달성" 판정**이라, goal에 *"모든 테스트가 통과할 때까지*"처럼 실행 가능한 완료 조건을 박아야 정지가 주관적 판단이 아니라 검사가 된다. 그러지 않으면 "무엇이 끝인가"를 다시 모델이 알아서 정하게 되고, 그건 [2절 규칙 파일에는 필요한 정보만 남긴다](#2-규칙-파일에는-필요한-정보만-남긴다)에서 본 확률적 채널이다.
+
+**`Stop` 훅이든 `/goal`이든 없는 상황이라면** 같은 역할을 **CI 필수 통과 게이트**가 한다. 되먹임 시점만 다르다. `Stop` 훅과 `/goal`은 **턴·세션 안에서** 막아 에이전트가 스스로 고치게 하고, CI는 **PR 단계에서** 막아 사람이 다시 태우게 한다. **어느 쪽이든 완료 기준이 문장이 아니라 실행 가능한 검사라는 점이 핵심이다.**
+
+차선책도 있다. `AGENTS.md`에 *"작업을 끝내기 전 `pnpm typecheck && pnpm test`를 돌리고 실패하면 고친다*"를 적어두는 것 — 다만 이건 [2절 규칙 파일에는 필요한 정보만 남긴다](#2-규칙-파일에는-필요한-정보만-남긴다)에서 본 대로 **확률적 채널**이다. 실제로 돌렸는지는 CI가 확인해준다.
+
+**반복되는 리뷰 코멘트는 센서로 승격한다.** 사람이 매번 같은 지적을 하고 있다면 그건 아직 자동화되지 않은 센서다. 계산적으로 잡히면(포맷, 네이밍, 금지 API) 린트 규칙으로, 의미적 판단이 필요하면(아키텍처 적합성) 리뷰어 에이전트로 옮긴다.
+
+## 6. 사람은 중요한 순간에만 개입한다
+
+가이드와 센서를 마련하고 나면 마지막으로 정할 것은 인간의 개입 지점이다. Böckeler의 원칙, 즉 *"인간 입력을 없애는 게 아니라 가장 중요한 곳으로 유도한다*"가 설정으로 구현되는 자리다. Claude Code에서는 **퍼미션 모드**가 이 역할을 하며, CLI에서 `Shift+Tab`으로 도는 사이클이 이 값을 바꾼다.[^ccpermmodes]
+
+| 모드 (설정값) | CLI 라벨 | 묻지 않고 실행되는 것 | 성격 |
+|---|---|---|---|
+| `default` | Manual | 읽기만 | 계산적 |
+| `acceptEdits` | Accept edits | 읽기 + 작업 디렉터리 내 파일 편집 + `mkdir`·`mv`·`cp` 등 | 계산적 |
+| `plan` | Plan | 읽기 + 탐색 (소스 편집 차단) | 계산적 |
+| **`auto`** | **Auto** | **거의 전부 — 단, 별도 분류기 모델이 사전 심사** | **추론적** |
+| `dontAsk` | Don't ask | 미리 승인된 것만 (그 외 자동 거부) | 계산적 |
+| `bypassPermissions` | Bypass permissions | 전부 (안전장치 없음) | — |
+
+기본 사이클은 `default` → `acceptEdits` → `plan`이고, **`auto`는 계정·모델 요건을 충족할 때 `plan` 뒤에 끼어든다.**
+
+**auto mode가 다른 모드와 질적으로 다른 이유.** 나머지 모드는 "어떤 종류의 도구를 물어볼까"를 **규칙으로** 정한다. auto mode는 **별도 분류기 모델이 행동 하나하나를 사전 심사**한다.
+
+> "A separate classifier model reviews actions before they run, blocking anything that **escalates beyond your request**, targets unrecognized infrastructure, or appears driven by hostile content Claude read."[^ccpermmodes]
+
+즉 auto mode는 **이론편 [2.3절 각 용어가 실제로 무엇을 가리키는가](/blog-posts/21-에이전트-워크플로우와-개발자의-중심-잡기#23-각-용어가-실제로-무엇을-가리키는가)의 2×2 표에 나온 "추론적 가이드"를 제품화한 것**이다. 기본 차단 목록은 꽤 구체적이다 — `curl | bash`, 프로덕션 배포·마이그레이션, force push, IAM 권한 부여, 세션 전부터 있던 파일의 비가역 삭제, `terraform destroy`, 시크릿을 외부로 내보내는 커밋/푸시. 반대로 작업 디렉터리 내 파일 조작, 락파일에 선언된 의존성 설치, 읽기 전용 HTTP는 기본 허용이다.
+
+auto mode는 대화 중에 말한 경계도 차단 신호로 취급한다 — "푸시하지 마"라고 하면 기본 규칙이 허용하는 것도 막는다. 하지만:
+
+> "Boundaries are not stored as rules. The classifier re-reads them from the transcript on each check, so a boundary **can be lost if context compaction removes the message that stated it**. **For a hard guarantee, add a deny rule instead.**"[^ccpermmodes]
+
+**말로 한 경계는 컴팩션에 쓸려간다. 확실히 막고 싶으면 `deny` 규칙을 쓴다.** [4절 막아야 할 것은 권한으로 막는다](#4-막아야-할-것은-권한으로-막는다)에서 말한 것과 같은 이야기이고, 이번엔 확률적 채널이 `CLAUDE.md`가 아니라 분류기라는 점만 다르다.
+
+**auto mode를 쓸 때 오히려 규칙이 더 중요해진다.**
+
+1. **넓은 allow 규칙은 auto에서 폐기된다.** `Bash(*)`, `Bash(python*)`, 패키지 매니저 run 명령, `Agent` allow 규칙처럼 임의 코드 실행을 허용하는 규칙은 auto 진입 시 드롭되고 퇴장 시 복원된다. `Bash(npm test)`처럼 **좁은 규칙만 살아남는다.**
+2. **`deny`와 `ask` 규칙은 모든 모드에서 유효하다.** `bypassPermissions`에서도 그렇다. 그래서 사람의 체크포인트를 남기고 싶으면 `permissions.ask`에 명시하는 게 유일하게 확실한 방법이다.
+3. **서브에이전트의 `permissionMode`는 auto mode에서 무시된다.** 분류기가 부모 세션과 같은 규칙으로 서브에이전트의 모든 행동을 심사한다. 스폰 시점의 작업 설명, 실행 중 각 행동, 종료 시 전체 행동 이력 — 세 지점에서 검사한다. **서브에이전트별로 권한을 다르게 주는 설계는 auto mode에서 무력화되므로, 그런 격리는 `tools`/`disallowedTools`로 해야 한다.**
+
+**비용과 폴백.** 분류기는 기본적으로 Sonnet 5에서 돌고, **호출 토큰이 사용량에 포함된다.** 매 검사마다 트랜스크립트 일부와 대기 중인 액션을 보내므로 왕복이 한 번 늘어난다. 읽기와 작업 디렉터리 편집은 분류기를 건너뛰므로, 오버헤드는 주로 셸 명령과 네트워크 작업에서 발생한다. 그리고 **연속 3회 또는 누적 20회 차단되면 auto mode가 일시 정지하고 다시 묻기 시작한다.**
+
+> **판정을 추론으로 하면 편하지만 토큰이 든다. 계산적으로 표현할 수 있는 경계는 계산적으로 쓰는 게 싸고 확실하다.** auto mode는 그 위에 얹는 층이지, 그것을 대체하는 층이 아니다. 공식 문서의 경고도 같은 말이다 — *"Auto mode reduces permission prompts but does not guarantee safety. Use it for tasks where you trust the general direction, not as a replacement for review on sensitive operations."*
+
+**그 외 개입 지점 설계.**
+
+- **plan mode**: 되돌리기 어려운 변경, 익숙하지 않은 코드베이스에서 기본값으로 쓴다. 계획 승인 시 "Yes, and use auto mode"로 곧바로 auto로 넘어갈 수 있어서, **탐색은 사람이 검토하고 실행은 자율로** 가는 흐름이 만들어진다.
+- **`permissionMode` (서브에이전트)**: 탐색 에이전트는 `plan`, 정형화된 리팩터는 `acceptEdits`. 단 위 3번 조건에 유의.
+- **경로별 게이트**: `CLAUDE.md`에 *"`src/billing/` 아래 변경은 plan mode를 쓴다*"처럼 위험 구역만 지정한다. 전 구역에 걸면 개입이 습관적 승인으로 변질된다.
+
+핵심은 **개입 지점을 줄이지 말고 옮기는 것**이다. 개입 횟수가 많으면 사람이 자동으로 승인 버튼을 누르게 되고, 그러면 개입이 있으나 마나가 된다. auto mode는 그 횟수를 줄여주는 도구이고, **줄어든 만큼을 `deny`/`ask` 규칙으로 받쳐야** 안전망이 유지된다.
+
+## 7. 한눈에 비교하면
+
+| 하려던 것 | ❌ 흔한 방식 | ✅ 이렇게 |
+|---|---|---|
+| 커밋 전 린트 강제 | `CLAUDE.md`에 "커밋 전 린트하세요" | `PostToolUse`(Edit\|Write) 훅 또는 pre-commit hook |
+| 시크릿 보호 | `CLAUDE.md`에 "`.env`는 읽지 마세요" | `permissions.deny: ["Read(./.env)"]` |
+| 완료 기준 전달 | 프롬프트에 "테스트 통과하면 끝" | `Stop` 훅에서 테스트 실패 시 `decision: "block"` |
+| 규칙 파일 다이어트 | `@imports`로 파일 쪼개기 | `.claude/rules/` + `paths:`로 경로 스코프화 |
+| 대규모 코드 탐색 | 메인 세션에서 파일 20개 읽기 | 서브에이전트(`tools: Read, Grep, Glob`, `model: haiku`)가 요약만 반환 |
+| 코드 리뷰 | 같은 세션에서 만든 뒤 스스로 채점 | 리뷰어 서브에이전트 — 생성자·평가자 분리 + **"코드 원문을 옮겨 적지 말라"**로 반환 형식 좁히기 |
+| 도구 늘리기 | MCP 서버 5개 상시 활성화 | 작업에 필요한 것만, 나머지는 온디맨드 |
+| 아키텍처 규칙 | `CLAUDE.md`에 300줄 아키텍처 설명 | 검증 가능한 것은 린트 규칙으로, 나머지는 경로 스코프 규칙으로 |
+| 유지보수 메모 | 규칙 파일에 주석 문장으로 | 블록 HTML 주석(`<!-- -->`) — 토큰 0 |
+| 특정 작업 금지 | auto mode에서 대화로 "푸시하지 마" | `permissions.deny` / `ask` 규칙 — 대화 경계는 컴팩션에 쓸려간다 |
+| 서브에이전트 권한 축소 | `permissionMode`만 지정 | `tools` / `disallowedTools` — auto mode는 서브에이전트의 `permissionMode`를 무시한다 |
+
+## 8. 처음 시작한다면
+
+지금까지의 설정을 한꺼번에 적용하려 하면 오히려 복잡도만 늘어난다. 다음 순서로 하나씩 옮기는 편이 낫다.
+
+1. **측정한다.** 세션 시작 시점의 컨텍스트 점유율을 기록한다. 이 숫자가 앞으로의 기준선이다. *(Claude Code: `/context`)*
+2. **규칙 파일을 깎는다.** 200줄 아래를 목표로, 코드를 읽어서 알 수 있는 건 다 지운다. *(Claude Code: `/doctor`가 트림 후보를 제안한다)*
+3. **게이트로 옮길 수 있는 규칙을 옮긴다.** "~해야 한다"로 시작하는 문장을 훑어서, 결정론적으로 검증 가능한 것을 내려보낸다. *(권한 규칙·훅, 또는 pre-commit·린터·타입체커)*
+4. **완료 기준을 실행 가능한 검사로 만든다.** 타입체크·테스트를 걸고, 실패 메시지를 **3줄로 압축**한다. *(`Stop` 훅, 또는 CI 필수 통과 게이트)*
+5. **경로 스코프로 쪼갠다.** 특정 디렉터리에서만 필요한 규칙은 그 경로에 묶어 둔다. *(Claude Code: `.claude/rules/` + `paths:` / Codex: 하위 디렉터리 `AGENTS.md`)*
+6. **도구를 줄인다.** 이번 주에 안 쓴 MCP 서버를 끈다.
+7. **다시 측정하고, 각 층에 "왜 넣었는지" 한 줄을 남긴다.** 6개월 뒤 그 이유가 사라졌는지 점검할 수 있는 유일한 방법이다.
+
+Anthropic 자신의 원칙도 같은 방향이다 — *"가장 단순한 해법을 찾고, 필요할 때만 복잡도를 올려라"*, *"더 단순한 해법이 부족할 때만"*.[^simple]
+
+## 9. 그래프 엔지니어링은 새 개념이 아니다 — 도구는 LangGraph다
+
+솔직히 말하면, 나는 그래프 엔지니어링을 앞의 여섯과 나란한 **새 세대로 인정하지 않는다.** 루프가 한 에이전트의 반복이라면, 그래프는 그 루프를 여러 개 이어 붙인 것이다. **루프는 그래프의 한 노드다.** 여러 에이전트를 노드와 엣지로 잇는 오케스트레이션은 LangGraph·AutoGen이 그 이름이 붙기 한참 전부터 하던 일이고,[^graphframeworks] 등장 당일부터 *"그냥 루프 재포장 아니냐*"는 반발이 붙었다.
+
+그래서 새로 익힐 **개념**은 없다. 하지만 여러 단계를 조건에 따라 엮고 되돌리는 실제 작업이 생기면, 도구는 있다 — **LangGraph**다. 이름값이 아니라 도구로 쓴다. 노드(함수)와 엣지를 명시하고, 공유 상태를 노드 사이로 흘려보내고, 조건부 엣지로 순환을 만든다. 서브에이전트 위임으로는 안 되던 부분이 여기서 된다.
+
+```python
+from langgraph.graph import StateGraph, START, END
+
+class State(TypedDict):
+    draft: str
+    errors: list
+
+g = StateGraph(State)
+g.add_node("write",  write_fn)
+g.add_node("review", review_fn)
+g.add_edge(START, "write")
+g.add_edge("write", "review")
+g.add_conditional_edges("review",
+    lambda s: "write" if s["errors"] else END)   # 문제 있으면 되돌림(순환)
+app = g.compile()
+```
+
+그리고 여기까지 와도 이 글이 바뀌지는 않는다. 각 노드(`write_fn`·`review_fn`) 안에서 무엇을 보여주고 무엇을 완료로 볼지는 여전히 앞의 절들이 정한다. LangGraph는 그 위에 **배선만** 얹는다.
+
+**그러니 순서는 하나다.** 노드 하나를 앞의 절들로 탄탄하게 만드는 게 먼저고, 여러 노드를 엮는 건 정말 필요해지는 날 LangGraph로 간다. 하지만 대부분의 팀에게 그날은 오지 않는다 — 멀티에이전트는 채팅 대비 약 15배 토큰을 쓰고,[^multiagent] 노드 사이 컨텍스트 공유가 어렵다.[^cognition]
+
+---
+
+## 참고 문헌
+
+[^codex]: OpenAI Codex — 프로젝트 지시 파일 `AGENTS.md`(하위 디렉터리 배치로 스코프 근사, `project_doc_fallback_filenames`로 대체 파일명 지정), `~/.codex/config.toml`의 `sandbox_mode`(`read-only` / `workspace-write` / `danger-full-access`)와 `sandbox_workspace_write.writable_roots`, `approval_policy`, 비대화형 `codex exec`. 샌드박스는 macOS Seatbelt / Linux Landlock 기반의 OS 레벨 격리다. https://developers.openai.com/codex/concepts/sandboxing · 승인과 보안: https://developers.openai.com/codex/agent-approvals-security · 설정 키 정리: https://shipyard.build/blog/codex-cli-cheat-sheet/ · **`/goal` 모드**(Codex CLI 0.128.0, 2026-04-30): 목표를 주면 계획→실행→테스트→반복을 자율로 돌며 목표 달성 판정 또는 토큰 예산 소진까지 계속한다. `config.toml`의 `[features]`에 `goals = true`로 활성화. https://simonwillison.net/2026/Apr/30/codex-goals/
+
+[^ccmemory]: *How Claude remembers your project* — CLAUDE.md 계층·200줄 기준·`@import`가 컨텍스트를 줄이지 않는다는 서술·`.claude/rules/`의 `paths:` 스코프·HTML 주석 제거·"user message after the system prompt"·PreToolUse 훅 권고. https://code.claude.com/docs/en/memory
+
+[^cchooks]: *Hooks* — 이벤트 목록, `settings.json` 구조, `matcher` 문법, exit code 2의 차단 의미, `Stop` 훅의 `decision: "block"`. https://code.claude.com/docs/en/hooks
+
+[^ccsubagents]: *Create custom subagents* — 파일 위치와 frontmatter(`name`, `description`, `tools`, `disallowedTools`, `model`, `permissionMode`, `maxTurns`, `memory`, `isolation`), 컨텍스트 격리와 비용 절감. https://code.claude.com/docs/en/sub-agents
+
+[^ccpermmodes]: *Choose a permission mode* — `Shift+Tab` 사이클과 6개 모드(`default`/`acceptEdits`/`plan`/`auto`/`dontAsk`/`bypassPermissions`), auto mode 분류기의 기본 차단·허용 목록, 대화 경계가 컴팩션에 취약하다는 서술과 "For a hard guarantee, add a deny rule instead", auto 진입 시 광범위 allow 규칙 드롭, 서브에이전트 `permissionMode` 무시, 분류기 비용과 3회/20회 폴백. https://code.claude.com/docs/en/permission-modes · 권한 규칙 문법과 `disableAutoMode`: https://code.claude.com/docs/en/permissions · 분류기 설계 배경: https://www.anthropic.com/engineering/claude-code-auto-mode
+
+[^harnessbench]: *Harness-Bench: Measuring Harness Effects across Models in Realistic Agent Workflows*, arXiv:2605.27922 (2026-05). 106개 과제, 5,194 트레이스, execution-alignment failure. https://arxiv.org/abs/2605.27922
+
+[^contextrot]: Chroma Research, *Context Rot: How Increasing Input Tokens Impacts LLM Performance* (2025). 18개 모델. 디스트랙터 1개로도 성능 하락, 200K 윈도가 50K에서 이미 열화. https://www.trychroma.com/research/context-rot
+
+[^longfunceval]: Kiran Kate et al., *LongFuncEval*, arXiv:2505.10570 (2025). 도구 49→741개에서 정확도 12~94% 하락. https://arxiv.org/abs/2505.10570
+
+[^mcpgauge]: Wei Song et al., *Help or Hurdle? Rethinking Model Context Protocol-Augmented Large Language Models*, arXiv:2508.12566 (2025). MCP 도입 시 평균 −9.5%, 입력 토큰 3.25~236.5배. https://arxiv.org/abs/2508.12566
+
+[^ragmcp]: *RAG-MCP: Mitigating Prompt Bloat in LLM Tool Selection via Retrieval-Augmented Generation*, arXiv:2505.03275 (2025). 도구 선택 정확도 13.62% → 43.13%. https://arxiv.org/pdf/2505.03275
+
+[^toolsearch]: Anthropic, Advanced tool use — Tool Search Tool(77K → 8.7K 토큰, 85% 절감) / Programmatic Tool Calling / Tool Use Examples (2025-11). https://platform.claude.com/docs/en/agents-and-tools/tool-use/programmatic-tool-calling · https://www.anthropic.com/engineering/writing-tools-for-agents
+
+[^multiagent]: Anthropic, *How we built our multi-agent research system* — 멀티에이전트는 채팅 대비 약 15배 토큰. https://www.anthropic.com/engineering/built-multi-agent-research-system
+
+[^cognition]: Cognition, *Don't Build Multi-Agents* — 실패 원인은 하나로 수렴한다: 에이전트 사이에 컨텍스트가 충분히 공유되지 않는다. https://cognition.com/blog/dont-build-multi-agents · 이후 조정된 입장: *Multi-Agents: What's Actually Working* https://cognition.com/blog/multi-agents-working
+
+[^graphframeworks]: **LangGraph** — `StateGraph`에 노드·엣지·조건부 엣지, `TypedDict` 공유 상태, 순환(cycle) 지원. 그래프·상태머신 오케스트레이션을 코드로 명시하는 전용 런타임이다. https://reference.langchain.com/python/langgraph/graph/state/StateGraph · CrewAI·AutoGen 등 다른 멀티에이전트 프레임워크와의 비교: https://jacar.es/en/multi-agent-systems-langgraph-vs-crewai-vs-autogen-in-2026/ · "그래프 엔지니어링은 실재하나"라는 재포장 논쟁: Turing Post https://www.turingpost.com/p/is-graph-engineering-real-why-everyone-is-talking-about-it *(API는 버전에 따라 바뀌므로 위 코드는 개념 전달용, 적용 전 공식 문서 확인)*
+
+[^simple]: Anthropic, *Building effective agents* (2024-12) — "finding the simplest solution possible, and only increasing complexity when needed". https://www.anthropic.com/engineering/building-effective-agents
