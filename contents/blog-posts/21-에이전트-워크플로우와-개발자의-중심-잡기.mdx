@@ -120,7 +120,9 @@ Böckeler는 이렇게 말한다.
 - **inner loop** — 에이전트가 자동으로 도는 부분
 - **outer loop** — 인간의 감시, 피드백 신호, eval이 들어가는 부분
 
-**그래프 엔지니어링** — 여러 에이전트를 노드로, 그 사이의 의존성과 데이터 흐름을 엣지로 놓고 **조직 자체를 설계한다.** 정리하자면 *"루프는 에이전트의 행동을 프로그래밍 가능하게 만들었고, 그래프는 에이전트의 조직을 프로그래밍 가능하게 만든다."*[^graph] 단위는 **에이전트들 사이의 관계**다. 역할이 고정된 org graph(누가 존재하는가)와 작업마다 생겼다 사라지는 work graph(지금 무엇을 해야 하는가)를 나눠 본다. 루프가 한 에이전트의 시간축이라면, 그래프는 여러 에이전트의 공간축인 셈이다.
+**그래프 엔지니어링** — 여러 에이전트를 노드로, 그 사이의 의존성과 데이터 흐름을 엣지로 놓고 **조직 자체를 설계한다.** 정리하자면 *"루프는 에이전트의 행동을 프로그래밍 가능하게 만들었고, 그래프는 에이전트의 조직을 프로그래밍 가능하게 만든다."*[^graph] 단위는 **에이전트들 사이의 관계**다. 역할이 고정된 org graph(누가 존재하는가)와 작업마다 생겼다 사라지는 work graph(지금 무엇을 해야 하는가)를 나눠 본다.
+
+다만 그래프는 앞선 세대들보다 **"이름만 새롭다"는 반발이 유독 컸다.~~(솔직히 나도 이게 무슨 짓인가 싶다)~~** 그래프·상태머신 오케스트레이션은 LangGraph·AutoGen 같은 도구가 이미 하던 것이고, 등장 당일부터 "그냥 루프 아니냐"는 조롱이 붙었다.[^graph] 이 반발은 절반은 맞다. 정확히 정리하면 이렇다 — **루프는 그래프의 한 노드다.** 루프에서 그래프로 "졸업"하는 게 아니라, **루프 하나로 부족할 때 여러 루프를 그래프로 합성**하는 것이다. 정말 새로운 것은 개념이 아니라 여러 노드를 병렬로 두고 fan-out/fan-in하는 부분, 그리고 그걸 부르는 이름이다. 그래서 앞의 다른 세대들이 "이름만 바뀐 게 아니라 실제로 다른 문제를 연다"고 말할 수 있었던 것과 달리, 그래프는 **진짜이면서 동시에 과대포장인** 애매한 자리에 있다. [5.1절](#51-새-개념이-나오면-세-가지만-본다)에서 그래프를 굳이 "지금은 이름만 알아두라"고 미뤄둔 이유가 이것이다.
 
 논의는 여기까지 와 있다. AI Engineer World's Fair 2026(7월) 정리에서 **루프가 새로운 제어 계층**으로 꼽혔고, 그 위에 그래프가 얹히는 흐름이다. 함께 확인되는 방향은 두 가지다. ① 에이전트 중심에서 **시스템 중심**으로의 전환, ② 모든 플랫폼이 **Skills**(마크다운 선언 파일)로 수렴하며 오케스트레이션 코드 없이 능력을 확장하는 방향이다.[^aiewf]
 
@@ -291,7 +293,7 @@ few-shot 예제, "단계적으로 생각해봐" 같은 주문, 지나치게 잘�
 
 [^loop]: 루프 엔지니어링의 등장 — Peter Steinberger(OpenClaw)의 2026-06-07 포스트가 계기, 이후 확산. https://www.mindstudio.ai/blog/what-is-loop-engineering-ai-coding-agents · https://machinelearningmastery.com/an-introduction-to-loop-engineering/ · 회의적 시각: https://blackmatter.vc/lab/loop-engineering-an-honest-verdict-from-someone-who-actually-runs-agent-loops *(날짜는 2차 출처 기준)*
 
-[^graph]: 그래프 엔지니어링 — Peter Steinberger의 "Are we still talking loops or did we shift to graphs yet?"(2026-07-18, 575K뷰)가 촉발. org graph(안정적 역할 조직)와 work graph(작업마다 생멸하는 실행 구조)의 구분, "Loops made agent behavior programmable; graphs make agent organizations programmable"는 explainX 정리를 따랐다. https://www.explainx.ai/blog/graph-engineering-ai-agents-multi-agent-organizations-2026 *(막 부상한 용어로, 날짜·인용은 2차 출처 기준)*
+[^graph]: 그래프 엔지니어링 — Peter Steinberger의 "Are we still talking loops or did we shift to graphs yet?"(2026-07-18, 575K뷰)가 촉발. org graph(안정적 역할 조직)와 work graph(작업마다 생멸하는 실행 구조)의 구분, "Loops made agent behavior programmable; graphs make agent organizations programmable"는 explainX 정리를 따랐다. https://www.explainx.ai/blog/graph-engineering-ai-agents-multi-agent-organizations-2026 · **등장 당일부터 "루프 재포장" 논쟁**이 붙었다. 균형 잡힌 정리("real and over-marketed", "루프는 그래프의 한 노드이고 졸업이 아니라 합성"): Turing Post, *Is Graph Engineering Real?* https://www.turingpost.com/p/is-graph-engineering-real-why-everyone-is-talking-about-it · explainX, *Graphs vs. Loops* https://explainx.ai/blog/graphs-vs-loops-agentic-ai-debate-linear-andrew-ng-2026 *(막 부상한 용어로, 날짜·인용은 2차 출처 기준)*
 
 [^aiewf]: swyx et al., *5 Trends That Defined AI Engineering at World's Fair 2026*, Latent Space (2026-07-14). 루프가 새로운 제어 계층(inner/outer loop), 에이전트 중심에서 시스템 중심으로의 전환, Skills로의 수렴. https://www.latent.space/p/aiewf26trends
 
