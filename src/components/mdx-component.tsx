@@ -30,6 +30,19 @@ function generateUniqueId(text: string): string {
   return baseId;
 }
 
+function getTextContent(node: React.ReactNode): string {
+  if (typeof node === 'string' || typeof node === 'number') {
+    return String(node);
+  }
+  if (Array.isArray(node)) {
+    return node.map(getTextContent).join('');
+  }
+  if (React.isValidElement<{ children?: React.ReactNode }>(node)) {
+    return getTextContent(node.props.children);
+  }
+  return '';
+}
+
 /**
  * MDX 렌더링이 시작될 때 ID 카운터를 초기화하는 함수
  */
@@ -44,7 +57,7 @@ export function resetIdCounter() {
 export const MDXComponent: MDXRemoteComponents = {
   h1: (props: React.HTMLAttributes<HTMLHeadingElement>) => {
     const id = props.children
-      ? generateUniqueId(String(props.children))
+      ? generateUniqueId(getTextContent(props.children))
       : 'heading';
     return (
       <h1
@@ -56,7 +69,7 @@ export const MDXComponent: MDXRemoteComponents = {
   },
   h2: (props: React.HTMLAttributes<HTMLHeadingElement>) => {
     const id = props.children
-      ? generateUniqueId(String(props.children))
+      ? generateUniqueId(getTextContent(props.children))
       : 'heading';
     return (
       <h2
@@ -68,7 +81,7 @@ export const MDXComponent: MDXRemoteComponents = {
   },
   h3: (props: React.HTMLAttributes<HTMLHeadingElement>) => {
     const id = props.children
-      ? generateUniqueId(String(props.children))
+      ? generateUniqueId(getTextContent(props.children))
       : 'heading';
     return (
       <h3
@@ -80,7 +93,7 @@ export const MDXComponent: MDXRemoteComponents = {
   },
   h4: (props: React.HTMLAttributes<HTMLHeadingElement>) => {
     const id = props.children
-      ? generateUniqueId(String(props.children))
+      ? generateUniqueId(getTextContent(props.children))
       : 'heading';
     return (
       <h4
@@ -92,7 +105,7 @@ export const MDXComponent: MDXRemoteComponents = {
   },
   h5: (props: React.HTMLAttributes<HTMLHeadingElement>) => {
     const id = props.children
-      ? generateUniqueId(String(props.children))
+      ? generateUniqueId(getTextContent(props.children))
       : 'heading';
     return (
       <h5
@@ -104,7 +117,7 @@ export const MDXComponent: MDXRemoteComponents = {
   },
   h6: (props: React.HTMLAttributes<HTMLHeadingElement>) => {
     const id = props.children
-      ? generateUniqueId(String(props.children))
+      ? generateUniqueId(getTextContent(props.children))
       : 'heading';
     return (
       <h6

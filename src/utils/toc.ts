@@ -37,12 +37,12 @@ export function generateId(text: string): string {
 export function generateTOC(content: string): TOCItem[] {
   // 코드블럭을 제거한 후 제목 추출
   const codeBlockRegex = /```[\s\S]*?```/g;
-  const inlineCodeRegex = /`[^`]+`/g;
+  const inlineCodeRegex = /`([^`]+)`/g;
 
-  // 코드블럭과 인라인 코드 제거
+  // 코드블럭은 제거하고, 인라인 코드는 백틱만 제거해 제목 텍스트를 유지
   const cleanContent = content
     .replace(codeBlockRegex, '')
-    .replace(inlineCodeRegex, '');
+    .replace(inlineCodeRegex, '$1');
 
   const headingRegex = /^(#{1,6})\s+(.+)$/gm;
   const headings: TOCItem[] = [];
