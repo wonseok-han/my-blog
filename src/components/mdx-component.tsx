@@ -218,15 +218,20 @@ export const MDXComponent: MDXRemoteComponents = {
     } else if (language === 'mermaid') {
       return <Mermaid code={String(children)} />;
     } else {
+      const syntaxLanguage = language === 'jsonc' ? 'json5' : language;
+
       return (
         <div className="rounded-lg overflow-hidden border">
           <div className="bg-card px-4 py-2 text-sm font-medium text-card-foreground border-b">
             {language}
           </div>
           <SyntaxHighlighter
-            language={language}
+            language={syntaxLanguage}
             style={{
               ...dracula,
+              table: {
+                display: 'inline',
+              },
               'pre[class*="language-"]': {
                 ...dracula['pre[class*="language-"]'],
                 margin: 0,
@@ -242,11 +247,11 @@ export const MDXComponent: MDXRemoteComponents = {
     }
   },
   pre: (props: React.HTMLAttributes<HTMLPreElement>) => {
-    // mermaid 코드블록은 다이어그램으로 렌더링되므로 pre 래퍼를 씌우지 않음
+    // 언어가 지정된 코드블록은 code 컴포넌트가 자체 래퍼를 렌더링한다.
     const child = React.Children.toArray(props.children)[0];
     if (
       React.isValidElement<{ className?: string }>(child) &&
-      child.props.className?.includes('language-mermaid')
+      child.props.className?.startsWith('language-')
     ) {
       return <>{props.children}</>;
     }
