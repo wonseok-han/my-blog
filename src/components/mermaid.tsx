@@ -119,7 +119,7 @@ export default function Mermaid({ code }: MermaidProps) {
       label="다이어그램 확대해서 보기"
       zoom={
         <div
-          className="rounded-lg bg-background p-6 [&_svg]:h-auto [&_svg]:w-[88vw] [&_svg]:!max-w-none"
+          className="w-max rounded-lg bg-background p-6 [&_svg]:h-auto [&_svg]:w-[88vw] [&_svg]:!max-w-none"
           dangerouslySetInnerHTML={{ __html: svg }}
         />
       }
