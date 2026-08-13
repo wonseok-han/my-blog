@@ -31,14 +31,14 @@
   },
   "contents/blog-posts/22-에이전트-워크플로우-실전에서는-어떻게-쓸까.mdx": {
     "created": "2026-08-06 16:18:40 +0900",
-    "modified": "2026-08-06 17:01:46 +0900",
-    "commitCount": 2,
+    "modified": "2026-08-13 10:27:02 +0900",
+    "commitCount": 3,
     "source": "git"
   },
   "contents/blog-posts/21-에이전트-워크플로우와-개발자의-중심-잡기.mdx": {
     "created": "2026-08-03 17:01:07 +0900",
-    "modified": "2026-08-06 17:01:46 +0900",
-    "commitCount": 4,
+    "modified": "2026-08-13 10:27:02 +0900",
+    "commitCount": 5,
     "source": "git"
   },
   "contents/blog-posts/16-Claude-MCP로-i18n-워크플로우-개선하기.mdx": {
@@ -99,6 +99,12 @@
     "created": "2024-09-10 15:13:55 +0900",
     "modified": "2025-09-15 11:58:12 +0900",
     "commitCount": 1,
+    "source": "git"
+  },
+  "contents/blog-posts/23-작은-자동화는-실패-조건부터-정한다.mdx": {
+    "created": "2026-08-13 11:40:19 +0900",
+    "modified": "2026-08-13 11:40:19 +0900",
+    "commitCount": 0,
     "source": "git"
   },
   "contents/blog-posts/20-GitLab-MR-merge시-Jira-코멘트-자동화하기.mdx": {
