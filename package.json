@@ -17,6 +17,8 @@
     "pwa": "next build && next start",
     "lint": "next lint",
     "test": "jest",
+    "test:blog-review": "node --test scripts/validate-blog-posts.test.mjs .codex/hooks/blog_review.test.mjs",
+    "validate:posts": "node scripts/validate-blog-posts.mjs",
     "test:watch": "jest --watch"
   },
   "lint-staged": {
@@ -26,6 +28,8 @@
     ]
   },
   "dependencies": {
+    "@langchain/core": "^1.1.48",
+    "@langchain/langgraph": "^1.4.9",
     "@mdx-js/loader": "^3.0.1",
     "@mdx-js/react": "^3.0.1",
     "@next/mdx": "^14.2.8",
@@ -61,6 +65,7 @@
     "react-syntax-highlighter": "^15.5.0",
     "remark-gfm": "^4.0.1",
     "tailwindcss": "^4.1.13",
+    "zod": "^4.2.0",
     "zustand": "^4.5.5"
   },
   "devDependencies": {
