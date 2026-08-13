@@ -985,13 +985,13 @@ section[data-footnotes] ol {
   counter-reset: footnote-counter;
 }
 
-section[data-footnotes] ol > li {
+section[data-footnotes] ol>li {
   counter-increment: footnote-counter;
   position: relative;
   padding-left: 2.5rem;
 }
 
-section[data-footnotes] ol > li::before {
+section[data-footnotes] ol>li::before {
   content: '[' counter(footnote-counter) ']';
   position: absolute;
   left: 0;
