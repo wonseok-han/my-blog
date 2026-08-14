@@ -18,6 +18,7 @@
     "lint": "next lint",
     "test": "jest",
     "test:blog-review": "node --test scripts/validate-blog-posts.test.mjs .codex/hooks/blog_review.test.mjs",
+    "graph:blog-review": "node scripts/view-blog-review-graph.mjs",
     "validate:posts": "node scripts/validate-blog-posts.mjs",
     "test:watch": "jest --watch"
   },
