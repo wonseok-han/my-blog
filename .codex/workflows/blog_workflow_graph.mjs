@@ -64,24 +64,27 @@ const AGENTS = {
     networkAccessEnabled: true,
     webSearchMode: 'live',
     instructions: `블로그 포스트의 팩트체크만 수행한다.
-날짜, 제품 동작, 기술 사양, 인용처럼 외부에서 검증할 수 있는 주장을 공식 문서나 1차 출처로 확인한다.
-틀리거나 근거가 부족한 주장만 지적하고 문체나 주제를 확장하지 않는다. 파일을 수정하지 않는다.`,
+날짜, 제품 동작, 기술 사양, 인용처럼 외부에서 검증할 수 있는 핵심 주장을 공식 문서나 1차 출처로 확인한다.
+사실과 다르거나 근거 없이 단정한 내용만 지적한다. 출처를 더 달면 좋겠다는 선택적 제안은 지적하지 않는다.
+검증할 외부 주장이 없으면 통과시키고, 문체나 주제를 확장하지 않는다. 파일을 수정하지 않는다.`,
   },
   flow_reviewer: {
     model: 'gpt-5.6-luna',
     reasoning: 'medium',
     sandboxMode: 'read-only',
     instructions: `블로그 포스트의 문맥 흐름만 검토한다.
-문단 순서, 논리 연결, 중복, 어려운 표현과 불필요한 사족을 확인한다.
-팩트체크나 새로운 주제 제안은 하지 않고 파일을 수정하지 않는다.`,
+문단 순서, 논리 연결과 중복 때문에 독자가 내용을 오해하거나 이해하기 어려운 문제만 지적한다.
+문장 취향, 선택적인 축약, 줄바꿈이나 구분선 같은 편집 선호는 지적하지 않는다.
+글의 흐름을 이해하는 데 막힘이 없으면 통과시키고, 팩트체크나 새로운 주제 제안은 하지 않는다. 파일을 수정하지 않는다.`,
   },
   content_reviewer: {
     model: 'gpt-5.6-terra',
     reasoning: 'medium',
     sandboxMode: 'read-only',
     instructions: `블로그 포스트의 내용 완성도만 검토한다.
-핵심 질문에 충분히 답하는지, 필요한 전제가 빠지지 않았는지, 예시가 주장을 뒷받침하는지 확인한다.
-팩트체크와 단순 문체 교정은 하지 않고 파일을 수정하지 않는다.`,
+사용자 요청의 핵심에 답하지 못하거나, 필요한 전제와 예시가 빠져 독자가 내용을 실제로 사용할 수 없는 문제만 지적한다.
+더 자세히 쓰면 좋겠다는 선택적 보강이나 범위 확장은 지적하지 않는다.
+요청한 범위를 이해하고 활용하기에 충분하면 통과시키고, 팩트체크와 단순 문체 교정은 하지 않는다. 파일을 수정하지 않는다.`,
   },
   editor: {
     model: 'gpt-5.6-terra',
@@ -172,6 +175,13 @@ function shorten(value, limit = 100) {
   return singleLine.length > limit
     ? `${singleLine.slice(0, limit - 1)}…`
     : singleLine;
+}
+
+function formatFinding(finding) {
+  const location = shorten(finding.location || '위치 미상', 50);
+  const problem = shorten(finding.problem, 140);
+  const suggestion = shorten(finding.suggestion, 140);
+  return `[${location}] ${problem} → ${suggestion}`;
 }
 
 function formatDuration(milliseconds) {
@@ -339,17 +349,33 @@ export function createBlogWorkflowGraph({ runAgent, reportProgress } = {}) {
 
   function reviewNode(role) {
     return async (state) => {
+      const previousFindings = state.findings.filter(
+        (finding) => finding.role === role
+      );
+      const retryPolicy =
+        state.reviewRounds === 1
+          ? '첫 검토다. 게시를 막아야 할 명확한 문제만 지적한다.'
+          : previousFindings.length
+            ? `이전 검토에서 아래 문제가 지적됐다. 이 문제가 해결됐는지 확인하고, 편집으로 새로 생긴 중대한 문제만 추가한다. 이전과 무관한 새로운 개선점을 찾지 않는다.\n${previousFindings
+                .map((finding) => `- ${formatFinding(finding)}`)
+                .join('\n')}`
+            : '이전 검토에서 통과했다. 편집으로 새로 생긴 중대한 회귀만 확인하고, 이전에 없던 개선점을 새로 찾지 않는다.';
       const response = await executeAgent({
         role,
         cwd: state.cwd,
         progressLabel: `${AGENT_LABELS[role]} ${state.reviewRounds}차`,
-        prompt: `사용자 요청:\n${state.request}\n\n대상:\n${targetList(state.targets)}\n\n사용자 요청 범위와 직접 관련된 중요한 문제만 최대 5개까지 JSON으로 반환한다. 문제가 없으면 passed는 true이고 findings는 빈 배열이다. 각 finding의 source는 팩트 근거 URL이며 해당하지 않으면 null이다.`,
+        prompt: `사용자 요청:\n${state.request}\n\n대상:\n${targetList(state.targets)}\n\n${retryPolicy}\n\n반드시 수정하지 않으면 글이 부정확하거나 이해·활용하기 어려운 문제만 최대 5개까지 JSON으로 반환한다. 단순한 개선 가능성이나 취향 차이는 문제로 반환하지 않는다. 문제가 없으면 passed는 true이고 findings는 빈 배열이다. 각 finding의 source는 팩트 근거 URL이며 해당하지 않으면 null이다.`,
         outputSchema: REVIEW_SCHEMA,
       });
       const review = parseReview(response);
       progress(
         `${AGENT_LABELS[role]} ${state.reviewRounds}차 결과: 지적 ${review.findings.length}개`
       );
+      review.findings.forEach((finding, index) => {
+        progress(
+          `${AGENT_LABELS[role]} ${state.reviewRounds}차 지적 ${index + 1}/${review.findings.length}: ${formatFinding(finding)}`
+        );
+      });
       return { reviews: { [role]: review } };
     };
   }
@@ -483,4 +509,30 @@ export async function runBlogWorkflow({
     messages: result.messages,
     failureReason: result.failureReason,
   };
+}
+
+export function formatWorkflowSummary(result) {
+  const statusLabel =
+    result.status === 'awaiting_approval'
+      ? '사용자 승인 대기'
+      : result.status === 'failed'
+        ? '실패'
+        : result.status;
+  const findings = result.findings ?? [];
+  const lines = [
+    `최종 요약 · 상태: ${statusLabel}`,
+    `최종 요약 · 대상: ${result.targets?.length ? result.targets.join(', ') : '없음'}`,
+    `최종 요약 · MDX 수정 ${result.mdxFixes ?? 0}회 · 검토 ${result.reviewRounds ?? 0}차 · 편집 ${result.editRounds ?? 0}회`,
+    `최종 요약 · 남은 지적: ${findings.length}개`,
+  ];
+
+  findings.forEach((finding, index) => {
+    lines.push(
+      `최종 요약 · 지적 ${index + 1}/${findings.length}: ${formatFinding(finding)}`
+    );
+  });
+  if (result.failureReason) {
+    lines.push(`최종 요약 · 실패 사유: ${shorten(result.failureReason, 200)}`);
+  }
+  return lines;
 }

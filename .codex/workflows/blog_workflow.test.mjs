@@ -8,6 +8,7 @@ import test from 'node:test';
 import {
   createBlogWorkflowGraph,
   createCodexRunner,
+  formatWorkflowSummary,
   runBlogWorkflow,
 } from './blog_workflow_graph.mjs';
 
@@ -187,15 +188,23 @@ test('검토 지적은 편집한 뒤 MDX 검사와 병렬 검토를 다시 거�
   const cwd = await project();
   const target = path.join(cwd, 'contents/blog-posts/23-test.mdx');
   let contentReviews = 0;
+  const contentReviewPrompts = [];
+  const factReviewPrompts = [];
+  const progress = [];
 
-  const runAgent = async ({ role }) => {
+  const runAgent = async ({ role, prompt }) => {
     if (role === 'writer') {
       await writeFile(target, post('초안'));
       return '작성 완료';
     }
     if (role === 'content_reviewer') {
+      contentReviewPrompts.push(prompt);
       contentReviews += 1;
       return contentReviews === 1 ? failedReview() : passedReview();
+    }
+    if (role === 'fact_reviewer') {
+      factReviewPrompts.push(prompt);
+      return passedReview();
     }
     if (role === 'editor') {
       await writeFile(target, post('보완한 본문'));
@@ -208,12 +217,46 @@ test('검토 지적은 편집한 뒤 MDX 검사와 병렬 검토를 다시 거�
     request: '테스트 포스트를 작성해 주세요.',
     cwd,
     runAgent,
+    reportProgress: (message) => progress.push(message),
   });
 
   assert.equal(result.status, 'awaiting_approval');
   assert.equal(result.editRounds, 1);
   assert.equal(result.reviewRounds, 2);
   assert.match(await readFile(target, 'utf8'), /보완한 본문/);
+  assert.ok(
+    progress.some((message) => message.includes('[본문] 설명이 부족합니다.'))
+  );
+  assert.match(contentReviewPrompts[1], /이전 검토에서 아래 문제가 지적됐다/);
+  assert.match(contentReviewPrompts[1], /설명이 부족합니다/);
+  assert.match(factReviewPrompts[1], /이전 검토에서 통과했다/);
+});
+
+test('최종 결과를 사용자에게 보여줄 요약으로 만든다', () => {
+  const lines = formatWorkflowSummary({
+    status: 'failed',
+    targets: ['contents/blog-posts/23-test.mdx'],
+    mdxFixes: 1,
+    reviewRounds: 4,
+    editRounds: 3,
+    findings: [
+      {
+        role: 'flow_reviewer',
+        location: '2절',
+        problem: '앞 문단과 연결이 끊깁니다.',
+        suggestion: '전환 문장을 추가합니다.',
+        source: null,
+      },
+    ],
+    failureReason: '검토 지적이 남았습니다.',
+  });
+
+  assert.ok(lines.some((line) => line.includes('상태: 실패')));
+  assert.ok(lines.some((line) => line.includes('검토 4차 · 편집 3회')));
+  assert.ok(
+    lines.some((line) => line.includes('[2절] 앞 문단과 연결이 끊깁니다.'))
+  );
+  assert.ok(lines.some((line) => line.includes('실패 사유')));
 });
 
 test('세 번 편집한 뒤에도 지적이 남으면 실패로 종료한다', async () => {
@@ -283,6 +326,8 @@ test('UserPromptSubmit 훅은 요청 파일과 그래프 실행 지시를 만든
     output.hookSpecificOutput.additionalContext,
     /단계가 바뀔 때마다/
   );
+  assert.match(output.hookSpecificOutput.additionalContext, /검토 지적 상세/);
+  assert.match(output.hookSpecificOutput.additionalContext, /최종 요약/);
   const saved = JSON.parse(
     await readFile(path.join(cwd, '.codex/blog-workflow-request.json'), 'utf8')
   );

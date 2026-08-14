@@ -3,7 +3,10 @@
 import { readFile } from 'node:fs/promises';
 import path from 'node:path';
 
-import { runBlogWorkflow } from '../.codex/workflows/blog_workflow_graph.mjs';
+import {
+  formatWorkflowSummary,
+  runBlogWorkflow,
+} from '../.codex/workflows/blog_workflow_graph.mjs';
 
 function option(name) {
   const index = process.argv.indexOf(name);
@@ -22,18 +25,21 @@ try {
     request: requestPayload.prompt,
     cwd,
   });
+  writeSummary(result);
   process.stdout.write(`${JSON.stringify(result, null, 2)}\n`);
   if (result.status === 'failed') process.exitCode = 1;
 } catch (error) {
-  process.stdout.write(
-    `${JSON.stringify(
-      {
-        status: 'failed',
-        failureReason: error instanceof Error ? error.message : String(error),
-      },
-      null,
-      2
-    )}\n`
-  );
+  const result = {
+    status: 'failed',
+    failureReason: error instanceof Error ? error.message : String(error),
+  };
+  writeSummary(result);
+  process.stdout.write(`${JSON.stringify(result, null, 2)}\n`);
   process.exitCode = 1;
+}
+
+function writeSummary(result) {
+  for (const line of formatWorkflowSummary(result)) {
+    process.stderr.write(`[블로그 워크플로] ${line}\n`);
+  }
 }
