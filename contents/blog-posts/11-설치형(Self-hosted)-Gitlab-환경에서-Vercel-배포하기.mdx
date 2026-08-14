@@ -6,7 +6,7 @@ category: 'DevOps'
 tags: ['CI/CD', 'GitLab', 'Vercel', 'Deployment', 'GitLab CI', 'Vercel CLI', 'Self-hosted', 'DevOps', 'Automation', 'Next.js']
 ---
 
-# Overview
+## Overview
 
 **Self-hosted Gitlab** 환경에서 `gitlab-ci`를 이용해 **Vercel**로 배포하는 방법에 대해 알아보자.
 
@@ -14,7 +14,7 @@ tags: ['CI/CD', 'GitLab', 'Vercel', 'Deployment', 'GitLab CI', 'Vercel CLI', 'Se
 
 <br />
 
-# 하게된 이유
+## 하게된 이유
 
 원래 AWS EC2 환경에 배포 중이던 Next.js 프로젝트를 Vercel 배포로 변경해야할 일이 생겼다.
 
@@ -22,7 +22,7 @@ tags: ['CI/CD', 'GitLab', 'Vercel', 'Deployment', 'GitLab CI', 'Vercel CLI', 'Se
 
 <br />
 
-# 하면서 생긴 이슈
+## 하면서 생긴 이슈
 
 프로젝트에선 `develop` - `staging` - `production`의 단계를 거쳐 운영 배포가 되는데 바로 여기서 문제가 발생했다.
 
@@ -35,7 +35,7 @@ tags: ['CI/CD', 'GitLab', 'Vercel', 'Deployment', 'GitLab CI', 'Vercel CLI', 'Se
 <br />
 <br />
 
-# gitlag-cli.yml 작성 기본
+## gitlag-cli.yml 작성 기본
 
 Vercel 공식 문서에서는 아래의 스크립트를 제공해준다.
 
@@ -103,7 +103,7 @@ deploy_production:
 <br />
 <br />
 
-# gitlag-cli.yml 작성 변경
+## gitlag-cli.yml 작성 변경
 
 위 과정까지의 스크립트만 가지고 진행하게 되면 **--prod** 배포시 내가 겪었던 모든 커스텀 도메인이 Production을 바라보게 되는 문제를 겪게된다.
 
@@ -186,7 +186,7 @@ deploy_production:
 <br />
 <br />
 
-# 단계 요약
+## 단계 요약
 
 스크립트에 주석으로 설명은 썼지만 따로 단계를 요약하면 아래와 같다.
 
@@ -201,7 +201,7 @@ deploy_production:
 <br />
 <br />
 
-# 로컬에서 Vercel-CLI 사용하기
+## 로컬에서 Vercel-CLI 사용하기
 
 Gitlab-ci로 계속 커밋하면서 확인하다보니 커밋 내역이 너무 지저분해지고 불편했다.
 
@@ -211,7 +211,7 @@ Vercel 토큰의 경우에는 `vercel login` 명령어로 로그인을 하면 �
 
 <br />
 
-## vercel 설치
+### vercel 설치
 
 ```bash
 npm install --global vercel
@@ -219,7 +219,7 @@ npm install --global vercel
 
 <br />
 
-## 쉘 스크립트 작성
+### 쉘 스크립트 작성
 
 ```bash
 # deploy.sh
@@ -301,7 +301,7 @@ fi
 
 <br />
 
-## 쉘 스크립트 실행
+### 쉘 스크립트 실행
 
 ```bash
 bash deploy.sh
@@ -310,7 +310,7 @@ bash deploy.sh
 <br />
 <br />
 
-# 마치며
+## 마치며
 
 고통스러웠다.
 
@@ -319,7 +319,7 @@ bash deploy.sh
 <br />
 <br />
 
-# Reference
+## Reference
 
 * [https://docs.gitlab.com/ee/ci/](https://docs.gitlab.com/ee/ci/)
 * [https://vercel.com/docs/cli](https://vercel.com/docs/cli)

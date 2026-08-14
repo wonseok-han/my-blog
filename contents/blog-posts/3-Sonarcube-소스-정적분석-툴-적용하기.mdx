@@ -6,7 +6,7 @@ category: 'DevOps'
 tags: ['SonarQube', 'Code Quality', 'Static Analysis', 'Code Review', 'Docker', 'Security', 'Bug Detection', 'Code Metrics', 'Quality Assurance', 'DevOps']
 ---
 
-# Sonarcube가 뭔가?
+## Sonarcube가 뭔가?
 
 * 내가 열심히 짰던 코드에 뭔가 하자가 있는지 없는지를 사전에 검출하기 위해서 돌리는 도구라고 보면 된다. <del>(Simple is Best)</del>
 * 좀 더 상세한 내용은 바로 밑에 있다.
@@ -14,7 +14,7 @@ tags: ['SonarQube', 'Code Quality', 'Static Analysis', 'Code Review', 'Docker', 
 
 <br />
 
-## 정적 분석 기법(Static Analysis)
+### 정적 분석 기법(Static Analysis)
 
 프로그램을 실제로 실행하지 않고 코드 자체를 분석하여 오류, 잠재적 버그, 코드 스타일 문제, 보안 취약점 등을 찾는 방법이다.
 즉, 소스 코드, 바이트 코드, 또는 컴파일된 코드에 대해 수행되는 분석으로, 개발 단계에서 코드를 정적으로 검사하여 문제를 미리 발견하고 수정하는 데 중요한 역할을 한다. (by. gpt)
@@ -22,7 +22,7 @@ tags: ['SonarQube', 'Code Quality', 'Static Analysis', 'Code Review', 'Docker', 
 <br />
 <br />
 
-# 쓰게된 이유
+## 쓰게된 이유
 
 또 프로젝트 개발이 거의 끝나갈 때쯤 정전분석 툴을 이용해서 소스를 검사한 결과를 제출해야한다는 요청을 받았다. <del>(아니 이거 개발 중에 해야하는건데; 아놔 거 미리 좀 말해주지... 왜 꼭 다 끝나가면 말하지?)</del>
 
@@ -39,7 +39,7 @@ tags: ['SonarQube', 'Code Quality', 'Static Analysis', 'Code Review', 'Docker', 
 <br />
 <br />
 
-# Getting Started
+## Getting Started
 
 * **OS**: **Window10 WSL Ubuntu 환경**
 * **NodeJS**: **v18.17.1**
@@ -47,7 +47,7 @@ tags: ['SonarQube', 'Code Quality', 'Static Analysis', 'Code Review', 'Docker', 
 
 <br />
 
-## Sonarcube 실행
+### Sonarcube 실행
 
 * 아래 작성된 Sonarqube Server Container를 구동한다. (내 로컬에 이것 저것 설치하기가 너무 싫기때문에 docker 컨테이너로 올렸다.)
 
@@ -59,7 +59,7 @@ docker run -d --name sonarqube -e SONAR_ES_BOOTSTRAP_CHECKS_DISABLE=true -p 9000
 * 계정에 대한 초기설정값이 이미 존재하므로 다음 계정으로 로그인한다. (id: **admin**, pw: **admin**)
 * 우측 상단에서 **MyAccount - Security** 메뉴에서 사용자 Token을 추가하고 해당 값을 보관한다.
 
-## Sonarscan 실행
+### Sonarscan 실행
 
 * Sonarcube 실행 단계에서 올렸던 컨테이너가 계속 살아있는 상태에서 다음 단계를 진행한다.
 * **<span style={{color:'red'}}>위 단계에서 내려받았던 토큰 적용해야하니까 잘 보관해야한다.</span>**
@@ -82,7 +82,7 @@ docker run \
 <br />
 <br />
 
-## 나는 그냥 이렇게 했다.
+### 나는 그냥 이렇게 했다.
 
 * 그냥 이렇게 쉘 스크립트 만들어놓고 그냥 쉘만 돌렸다.
 
@@ -111,7 +111,7 @@ docker run \
 <br />
 <br />
 
-# 결과
+## 결과
 
 * 아니나다를까 검출이 막 200개 300개씩 되고 난리도 아니었다. 아니 내가 이런 규칙을 두고 이렇게 짜겠다는데 뭐이리 걸리는게 많아? 하고 찾아보니 끌 수 있는 옵션도 있어서 한숨 돌릴 수 있었다.
 * 예외 설정하는 방법은 아래와 같이 작성하고 프로젝트 root 경로에 배치하고 스캔한다.
@@ -167,6 +167,6 @@ sonar.issue.ignore.multicriteria.ts5.resourceKey=**
 <br />
 <br />
 
-# Reference
+## Reference
 
 * [Sonarcube](https://docs.sonarsource.com/sonarqube/latest/setup-and-upgrade/install-the-server/installing-sonarqube-from-docker/)

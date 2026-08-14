@@ -7,7 +7,7 @@ tags: ['NPM', 'Package.json', 'License', 'Dependencies', 'License Checker', 'Nod
 ---
 
 
-# 하게된 이유
+## 하게된 이유
 
 프로젝트 개발이 거의 끝나갈 때쯤 개발시 사용된 라이브러리에 대한 라이센스를 추출해서 고객사에 제공해줘야하니 정리해달라는 요청을 받았다.
 
@@ -20,7 +20,7 @@ package.json의 dependencies를 일일이 확인해볼 순 없어 방법을 찾�
 <br />
 <br />
 
-# Getting Started
+## Getting Started
 
 * **OS**: **Window10 WSL Ubuntu 환경**
 * **NodeJS**: **v18.17.1**
@@ -28,7 +28,7 @@ package.json의 dependencies를 일일이 확인해볼 순 없어 방법을 찾�
 <br />
 
 
-## 라이브러리 설치
+### 라이브러리 설치
 
 ```bash
 npm install -g license-checker
@@ -36,7 +36,7 @@ npm install -g license-checker
 
 <br />
 
-## 실행
+### 실행
 
 * 작성된 스크립트 파일을 프로젝트 root 경로에 배치하고 다음 명령을 실행
 * 명령 실행이 완료되면 **allLicenses.json** 파일이 생성된다.
@@ -55,7 +55,7 @@ node exportLicenses.cjs
 <br />
 <br />
 
-# 코드
+## 코드
 
 ```js
 /* exportLicenses.cjs */
@@ -93,7 +93,7 @@ fs.writeFileSync(
 <br />
 <br />
 
-# 결과
+## 결과
 
 * 추출이 완료되면 대충 이런식으로 떨어진다.
 

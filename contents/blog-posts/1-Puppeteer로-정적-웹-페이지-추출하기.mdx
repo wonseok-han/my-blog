@@ -7,7 +7,7 @@ tags: ['Puppeteer', 'Web Scraping', 'Static Site', 'HTML Export', 'Node.js', 'Ch
 ---
 
 
-# 하게된 이유
+## 하게된 이유
 
 여태 내가 봐온 퍼블리싱은 주로 그냥 내가 직접 바로 적용하면서 하거나 html, css로 구성된 파일을 직접 넘겨받아 작업하는 것이었다.
 
@@ -30,14 +30,14 @@ tags: ['Puppeteer', 'Web Scraping', 'Static Site', 'HTML Export', 'Node.js', 'Ch
 <br />
 <br />
 
-# Getting Started
+## Getting Started
 
 * **OS**: **Window10 WSL Ubuntu 환경**
 * **NodeJS**: **v18.17.1**
 
 <br />
 
-## 패키지 설치
+### 패키지 설치
 
 * 나는 프로젝트를 주로 Window WSL Ubuntu 환경으로 셋팅하는데 다음과 같은 패키지를 설치해야했다. 셀레니움 쓰는거랑 비슷하다고 보면 될 듯 하다.
 
@@ -48,7 +48,7 @@ sudo apt-get install -y libgbm-dev libnss3 libatk1.0-0 libatk-bridge2.0-0 libcup
 
 <br />
 
-## 라이브러리 설치
+### 라이브러리 설치
 
 ```bash
 npm install puppeteer
@@ -56,7 +56,7 @@ npm install puppeteer
 
 <br />
 
-## 실행
+### 실행
 
 * 작성된 스크립트 파일을 프로젝트 root 경로에 배치하고 다음 명령을 실행
 * **<span style={{color:'red'}}>단, 모달에 관련된 페이지는 URL로 핸들링되고 있지 않는 이상 해당 작업으로는 잡히지 않는다. <del>(이거때메 얘네는 수동으로 복사했다;)</del></span>**
@@ -68,7 +68,7 @@ node puppeteer.cjs
 <br />
 <br />
 
-# 코드
+## 코드
 
 ```js
 /* puppeteer.cjs */

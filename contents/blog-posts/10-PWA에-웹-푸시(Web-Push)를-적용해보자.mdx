@@ -6,7 +6,7 @@ category: 'Frontend'
 tags: ['PWA', 'Web Push', 'FCM', 'Firebase', 'Service Worker', 'Notification', 'Push API', 'Firebase Admin']
 ---
 
-# Overview
+## Overview
 
 내 블로그에 단순하게 PWA만 적용하는 것이 아니라 웹 푸시 알림을 적용해보고 싶었다.
 
@@ -17,7 +17,7 @@ tags: ['PWA', 'Web Push', 'FCM', 'Firebase', 'Service Worker', 'Notification', '
 <br />
 <br />
 
-# 웹 푸시(Web Push)
+## 웹 푸시(Web Push)
 
 **웹 푸시(Web Push)** 는 사용자에게 웹 앱이나 웹 사이트를 사용하지 않을 때도 알림을 보낼 수 있는 기능이다.
 
@@ -149,19 +149,19 @@ useEffect(() => {
 <br />
 <br />
 
-# FCM(Fire Cloud Messaging)
+## FCM(Fire Cloud Messaging)
 
 **Firebase Cloud Messaging**은 `Firebase`에서 제공하는 메시징 서비스로, 사용자에게 푸시 알림을 보낼 수 있다.
 
 <br />
 
-## FCM 설정
+### FCM 설정
 
 FCM을 사용하기 위해서는 Firebase 프로젝트를 생성하고 Firebase SDK 설정 작업이 먼저 필요하다.
 
 <br />
 
-### Firebase 프로젝트 생성
+#### Firebase 프로젝트 생성
 
 **[firebase](https://console.firebase.google.com/)** 에 접속하여 새 프로젝트를 생성한다.
 
@@ -171,7 +171,7 @@ FCM을 사용하기 위해서는 Firebase 프로젝트를 생성하고 Firebase 
 
 <br />
 
-### Firebase 앱 설정
+#### Firebase 앱 설정
 
 프로젝트가 생성되면 앱을 추가할 수 있는데, PWA에서 FCM을 사용하기 위해서 웹 앱을 추가한다.
 
@@ -179,7 +179,7 @@ FCM을 사용하기 위해서는 Firebase 프로젝트를 생성하고 Firebase 
 
 <br />
 
-### 앱 등록
+#### 앱 등록
 
 앱 등록을 위해 앱 닉네임을 설정하고 앱을 등록한다. 나는 적용할 호스트가 `https://blog.wonseok-han.dev`이므로 해당 호스트를 등록했다.
 
@@ -187,7 +187,7 @@ FCM을 사용하기 위해서는 Firebase 프로젝트를 생성하고 Firebase 
 
 <br />
 
-### Firebase SDK 추가
+#### Firebase SDK 추가
 
 앱 등록 후 Firebase SDK를 추가할 수 있는 아래와 같은 안내가 나타난다.
 
@@ -228,7 +228,7 @@ const analytics = getAnalytics(app);
 
 <br />
 
-### Firebase CLI 설치 (optional)
+#### Firebase CLI 설치 (optional)
 
 나는 내 블로그에 포스팅겸 테스트로 적용할거기때문에 굳이 설치하지 않았다.
 
@@ -241,7 +241,7 @@ npm install -g firebase-tools
 <br />
 <br />
 
-## 클라이언트에서 Push 알림 수신 권한 요청
+### 클라이언트에서 Push 알림 수신 권한 요청
 
 * 사용자가 알림을 수신하기 위해서는 알림 수신 권한 허용이 먼저 필요하다.
 * **firebase.ts** 파일에 다음과 같은 함수를 추가하고 **worker-component.tsx** 파일에서 컴포넌트가 마운트되면 해당 함수를 호출하도록 한다.
@@ -326,7 +326,7 @@ useEffect(() => {
 
 <br />
 
-## 백그라운드에서 푸시 알림 수신
+### 백그라운드에서 푸시 알림 수신
 
 * **Service Worker**를 사용해서 백그라운드에서 푸시 알림을 수신하기 위해 **public/firebase-messaging-sw.js** 파일을 생성하고 다음과 같이 작성했다.
 * 백그라운드에서 onBackgroundMessage 리스너가 계속 돌고 있을 것이고 푸시 알림을 수신하면 Push 알림이 생성되도록 했다.
@@ -377,7 +377,7 @@ messaging.onBackgroundMessage(function (payload) {
 
 <br />
 
-## 백그라운드 Push 테스트
+### 백그라운드 Push 테스트
 
 * firebase 콘솔에서 **프로젝트 > Cloud Messaging > 캠페인 만들기 > Firebase 알림 메시지** 를 통해 테스트로 푸시 알림을 보내면 백그라운드에서 푸시 알림을 수신할 수 있다.
 * 이 때 vapidKey를 통해 생성된 토큰을 가지고 푸시 알림을 보내야 한다.
@@ -392,7 +392,7 @@ messaging.onBackgroundMessage(function (payload) {
 
 <br />
 
-## 포그라운드에서 푸시 알림 수신
+### 포그라운드에서 푸시 알림 수신
 
 * 포그라운드 상태에서 푸시 알림을 수신해서 사용자에게 알림을 보여주기 위해 **onMessageListener** 를 추가했다.
 * **firebase.ts** 파일에 다음과 같은 함수를 추가하고 **worker-component.tsx** 파일에서 컴포넌트가 마운트되면 해당 함수를 호출하도록 한다.
@@ -439,7 +439,7 @@ useEffect(() => {
 
 <br />
 
-## 포그라운드 Push 테스트
+### 포그라운드 Push 테스트
 
 아래의 명령을 통해 Firebase Admin을 설치하면 json 파일로 sdk가 제공되는데 해당 파일을 **.env** 파일로 분리해서 사용했다.
 
@@ -553,7 +553,7 @@ const sendNotification = async () => {
 <br />
 <br />
 
-# 마무리
+## 마무리
 
 기본 웹 푸시와 FCM을 이용한 웹 푸시를 적용하는 방법에 대해 알아보았다.
 
@@ -564,7 +564,7 @@ const sendNotification = async () => {
 <br />
 <br />
 
-# Reference
+## Reference
 
 * [https://velog.io/@jwlee134/PWA-web-push%EB%A5%BC-%EC%82%AC%EC%9A%A9%ED%95%9C-%EC%9B%B9-%ED%91%B8%EC%8B%9C-%EC%95%8C%EB%A6%BC-%EA%B5%AC%ED%98%841](https://velog.io/@jwlee134/PWA-web-push%EB%A5%BC-%EC%82%AC%EC%9A%A9%ED%95%9C-%EC%9B%B9-%ED%91%B8%EC%8B%9C-%EC%95%8C%EB%A6%BC-%EA%B5%AC%ED%98%841)
 * [https://velog.io/@heather128/React-PWA%EC%97%90%EC%84%9C-%EC%95%8C%EB%A6%BC-%EA%B5%AC%ED%98%84%ED%95%98%EA%B8%B0](https://velog.io/@heather128/React-PWA%EC%97%90%EC%84%9C-%EC%95%8C%EB%A6%BC-%EA%B5%AC%ED%98%84%ED%95%98%EA%B8%B0)

@@ -36,8 +36,6 @@ category: 'Development'
 tags: ['MDX']
 ---
 
-# 검사 예시
-
 본문의 각주다.[^source]
 
 \`\`\`js
@@ -53,7 +51,7 @@ test('올바른 포스트를 통과시킨다', async () => {
   assert.equal(result.valid, true, result.errors.join('\n'));
 });
 
-test('frontmatter, 제목, 썸네일 문제를 함께 보고한다', async () => {
+test('frontmatter, 본문 H1, 썸네일 문제를 함께 보고한다', async () => {
   const { cwd, post } = await fixture(
     validPost
       .replace("description: '설명'\n", '')
@@ -61,7 +59,7 @@ test('frontmatter, 제목, 썸네일 문제를 함께 보고한다', async () =>
         "thumbnail: '/thumbnail/blog-posts/post.svg'",
         "thumbnail: '/thumbnail/blog-posts/missing.svg'"
       )
-      .replace('# 검사 예시', '# 다른 제목')
+      .replace('본문의 각주다.', '# 다른 제목\n\n본문의 각주다.')
   );
   const result = await validatePost(post, cwd);
   assert.equal(result.valid, false);

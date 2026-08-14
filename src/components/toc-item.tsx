@@ -54,7 +54,7 @@ export default function TOCItem({ item, activeId }: TOCItemProps) {
             ? 'text-blue-600 font-medium underline underline-offset-4'
             : 'hover:text-primary text-muted-foreground')
         }
-        style={{ paddingLeft: `${(item.level - 1) * 16}px` }}
+        style={{ paddingLeft: `${Math.max(item.level - 2, 0) * 16}px` }}
       >
         {item.text}
       </a>

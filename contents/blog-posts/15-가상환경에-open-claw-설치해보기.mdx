@@ -6,14 +6,14 @@ category: 'Development'
 tags: ['OpenClaw', 'Virtual Machine', 'Development Environment', 'CLI', 'UTM', 'macOS', 'AI', 'Slack']
 ---
 
-# Overview
+## Overview
 
 요즘 핫한 AI 메타인 OpenClaw를 설치하고 슬랙을 통해 이런 저런 명령을 수행할 수 있도록 설정해보았다. OpenClaw는 권한만 주면 내 PC를 제어할 수 있기 때문에 보안에 취약할 수 있어, 격리된 가상머신 환경에서 구축을 진행했다.
 
 <br />
 <br />
 
-# 환경
+## 환경
 
 * **OS**: macOS m4 pro
 * **VM**: Ubuntu 24.04.4 (UTM)
@@ -21,25 +21,25 @@ tags: ['OpenClaw', 'Virtual Machine', 'Development Environment', 'CLI', 'UTM', '
 <br />
 <br />
 
-# Getting Started
+## Getting Started
 
-## 1. UTM 설치 및 VM 구성하기
+### 1. UTM 설치 및 VM 구성하기
 
 가장 먼저 격리된 환경에서 에이전트를 구동하기 위해 UTM을 설정한다.
 
-### 사전 준비물
+#### 사전 준비물
 
 - **UTM**: https://github.com/utmapp/UTM/releases
 - **Ubuntu 24.04.4 (AMD64)**: https://ubuntu.com/download/desktop
 
-### VM 생성
+#### VM 생성
 
 - **Ubuntu Server** 또는 **Ubuntu Desktop(GUI 권장)** 으로 설치한다.
 - ARM 기반 Mac의 경우 Ubuntu ARM 이미지를 사용한다.
 
-### 시스템 최적화
+#### 시스템 최적화
 
-### 클립보드 공유
+#### 클립보드 공유
 
 VM과 호스트 간 클립보드를 공유하려면 다음을 설치하고 UTM 설정에서 **Clipboard Sharing**을 활성화한다.
 
@@ -49,7 +49,7 @@ sudo apt install spice-vdagent
 
 <br />
 
-### 화면 잠금 해제
+#### 화면 잠금 해제
 
 에이전트의 연속 실행을 위해 자동 잠금을 비활성화한다.
 
@@ -61,15 +61,15 @@ gsettings set org.gnome.desktop.screensaver lock-enabled false
 <br />
 <br />
 
-## 2. Slack 워크스페이스 및 앱 설정
+### 2. Slack 워크스페이스 및 앱 설정
 
 OpenClaw 설치 전에 슬랙에서 워크스페이스를 만들고 앱을 준비해 둔다. 이 단계에서 발급받은 토큰들은 이후 OpenClaw 설정에서 사용한다.
 
-### 워크스페이스 생성
+#### 워크스페이스 생성
 
 - [slack.com](https://slack.com)에서 새 워크스페이스를 생성한다. 기존 워크스페이스가 있다면 건너뛰어도 된다.
 
-### Slack 앱 생성 및 토큰 발급
+#### Slack 앱 생성 및 토큰 발급
 
 1. [api.slack.com/apps](https://api.slack.com/apps)에 접속해 **Create New App** → **From scratch** 로 앱을 생성한다.
 2. **Socket Mode** 를 활성화한다.
@@ -108,24 +108,24 @@ OpenClaw 설치 전에 슬랙에서 워크스페이스를 만들고 앱을 준�
 <br />
 <br />
 
-## 3. Claude API 키 발급
+### 3. Claude API 키 발급
 
 OpenClaw가 AI 모델을 사용하려면 Anthropic Claude API 키가 필요하다. 이 단계는 OpenClaw 온보딩 전에 미리 진행해 두면 편하다.
 
 만약 다른 모델을 사용하고 싶다면 해당 모델의 API를 결제해서 사용하면 된다.
 
-### Anthropic 콘솔 가입
+#### Anthropic 콘솔 가입
 
 1. [console.anthropic.com](https://console.anthropic.com)에 접속한다. (Claude.ai와는 별도의 개발자 콘솔이다.)
 2. 회원가입 후 이메일 인증을 완료한다.
 
-### 결제 및 크레딧 설정
+#### 결제 및 크레딧 설정
 
 1. **Billing** 섹션에서 결제 수단(카드)을 등록한다.
 2. Claude API는 사용량 기반 과금(pay-per-use)이다. 사용한 토큰만큼 과금된다.
 3. 필요하면 **Spending limit** 으로 예산 상한을 설정할 수 있다.
 
-### API 키 생성
+#### API 키 생성
 
 1. **API Keys** ([console.anthropic.com/settings/keys](https://console.anthropic.com/settings/keys)) 로 이동한다.
 2. **Create Key** 를 눌러 새 API 키를 생성한다.
@@ -134,17 +134,17 @@ OpenClaw가 AI 모델을 사용하려면 Anthropic Claude API 키가 필요하�
 <br />
 <br />
 
-## 4. OpenClaw 설치
+### 4. OpenClaw 설치
 
 공식 CLI를 사용하여 에이전트 엔진을 설치하고 시스템 서비스로 등록한다.
 
-### CLI 설치
+#### CLI 설치
 
 [공식 설치 가이드](https://docs.openclaw.ai/install)에 따라 `curl` 등을 이용해 설치를 진행한다.
 
 <br />
 
-### 온보딩 (onboard)
+#### 온보딩 (onboard)
 
 설치 후 `openclaw onboard` 를 실행하면 설정 마법사가 진행된다. 2·3단계에서 준비한 값을 입력한다.
 
@@ -161,7 +161,7 @@ openclaw onboard --install-daemon
 
 <br />
 
-### onboard Step by Step
+#### onboard Step by Step
 
 `openclaw onboard` 명령어를 실행하면 다음과 같은 대화형 마법사가 진행된다.
 
@@ -199,7 +199,7 @@ openclaw onboard --install-daemon
 
 <br />
 
-### Daemon 등록
+#### Daemon 등록
 
 온보딩에서 Daemon 설치를 선택했거나 `--install-daemon` 으로 진행했다면, systemd 를 리로드하고 서비스를 활성화한다.
 
@@ -212,7 +212,7 @@ sudo systemctl start openclaw
 <br />
 <br />
 
-## 5. OpenClaw 설정 (Slack 연동)
+### 5. OpenClaw 설정 (Slack 연동)
 
 슬랙을 통해 에이전트와 대화하기 위한 핵심 설정 단계이다.
 
@@ -231,7 +231,7 @@ Ask the bot owner to approve with:
 openclaw pairing approve slack [PAIRING_CODE]
 ```
 
-### Pairing
+#### Pairing
 
 슬랙 유저 ID 승인 절차를 거쳐 보안 관리자로 등록한다.
 
@@ -239,11 +239,11 @@ openclaw pairing approve slack [PAIRING_CODE]
 openclaw pairing approve slack [PAIRING_CODE]
 ```
 
-### Channel Policy
+#### Channel Policy
 
 모든 채널에서 자유롭게 대화할 수 있도록 **Open (allow all channels)** 설정을 권장한다.
 
-### Threading
+#### Threading
 
 채널이 지저분해지지 않도록 모든 답변을 스레드로 고정한다.
 
@@ -254,11 +254,11 @@ openclaw config set channels.slack.replyToMode all
 <br />
 <br />
 
-## 6. OpenClaw Browser 설정하기
+### 6. OpenClaw Browser 설정하기
 
 에이전트가 브라우저를 조작할 수 있도록 연결한다.
 
-### Chrome 설치
+#### Chrome 설치
 
 Ubuntu VM 에는 기본적으로 Chrome 이 없으므로 먼저 설치한다.
 
@@ -274,7 +274,7 @@ ARM 기반 VM 의 경우 [Chrome for Linux](https://www.google.com/chrome/browse
 
 설치 후 Chrome 을 한 번 실행해 기본 설정과 프로필 생성을 완료한다.
 
-### 프로필 설정
+#### 프로필 설정
 
 아무런 설정을 하지 않으면 기본값인 `chrome` 프로필을 사용하여 브라우저 확장 프로그램과 연동한다.
 
@@ -282,18 +282,18 @@ ARM 기반 VM 의 경우 [Chrome for Linux](https://www.google.com/chrome/browse
 openclaw config set browser.enabled true
 ```
 
-### Auth Token
+#### Auth Token
 
 `openclaw.json`의 `gateway.auth.token` 토큰을 브라우저 확장 프로그램 설정창에 정확히 입력해야 `mismatch` 에러를 피할 수 있다.
 
 <br />
 <br />
 
-## 7. openclaw.json 설정
+### 7. openclaw.json 설정
 
 설정에 어려움을 겪는 이들을 위해 예시 설정을 제공한다.
 
-### 설정 파일 적용하기
+#### 설정 파일 적용하기
 
 아래 예시를 복사해 바로 적용할 수 있다.
 
@@ -323,7 +323,7 @@ openclaw config set browser.enabled true
     openclaw gateway restart
     ```
 
-### 예시 설정
+#### 예시 설정
 
 ```json
 {
@@ -473,7 +473,7 @@ openclaw config set browser.enabled true
 <br />
 <br />
 
-## 8. 개발자 꿀팁: Zod 스키마 참고하기
+### 8. 개발자 꿀팁: Zod 스키마 참고하기
 
 OpenClaw의 공식문서에 각 설정들에 대한 내용이 있지만 어떤 설정이 있는지를 빠르게 찾기 위해 Zod 스키마를 참고하는 것도 좋다.
 
@@ -490,7 +490,7 @@ OpenClaw는 설정 필드가 많고 복잡한데, CLI 명령으로 다 확인되
 <br />
 <br />
 
-# 결론
+## 결론
 
 가상머신에 OpenClaw를 설치하고 Slack을 연동하면, 격리된 환경에서 AI 에이전트를 안전하게 활용할 수 있다. UTM + Ubuntu VM으로 보안 리스크를 줄이면서도, 브라우저 연동과 다양한 설정으로 Cursor에 버금가는 경험을 제공한다.
 
@@ -499,7 +499,7 @@ OpenClaw는 설정 필드가 많고 복잡한데, CLI 명령으로 다 확인되
 <br />
 <br />
 
-# 참고 자료
+## 참고 자료
 
 * [OpenClaw 공식 문서](https://docs.openclaw.ai/)
 * [OpenClaw Slack 연동 가이드](https://docs.openclaw.ai/channels/slack)

@@ -1,6 +1,7 @@
 import React from 'react';
 import { render, screen } from '@testing-library/react';
 import { MDXComponent, resetIdCounter } from '@/components/mdx-component';
+import TOCItem from '@/components/toc-item';
 import { generateTOC } from '@/utils/toc';
 
 jest.mock('react-syntax-highlighter', () => ({
@@ -28,5 +29,29 @@ describe('TOC heading ids', () => {
       'id',
       generateTOC(markdown)[0].id
     );
+  });
+});
+
+describe('TOC indentation', () => {
+  it('uses h2 as the root level', () => {
+    render(
+      <>
+        <TOCItem
+          item={{ id: 'section', text: '절', level: 2 }}
+          activeId={null}
+        />
+        <TOCItem
+          item={{ id: 'subsection', text: '하위 절', level: 3 }}
+          activeId={null}
+        />
+      </>
+    );
+
+    expect(screen.getByRole('link', { name: '절' })).toHaveStyle({
+      paddingLeft: '0px',
+    });
+    expect(screen.getByRole('link', { name: '하위 절' })).toHaveStyle({
+      paddingLeft: '16px',
+    });
   });
 });

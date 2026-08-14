@@ -162,19 +162,14 @@ export async function validatePost(filePath, cwd = process.cwd()) {
   const fences = inspectFences(parsed.content);
   errors.push(...fences.errors);
 
-  // 코드 예시 안의 H1은 제외하고 실제 본문의 H1만 센다.
+  // 페이지 제목은 frontmatter의 title로 H1 렌더링되므로 본문은 H2부터 시작한다.
   const headings = [...fences.visibleContent.matchAll(/^#\s+(.+)$/gm)].map(
     (match) => match[1].trim()
   );
-  if (headings.length !== 1) {
+  if (headings.length > 0) {
     errors.push(
-      `본문의 최상위 제목(H1)은 1개여야 합니다. 현재 ${headings.length}개입니다.`
+      `본문에는 H1을 사용할 수 없습니다. 현재 ${headings.length}개입니다.`
     );
-  } else if (
-    typeof parsed.data.title === 'string' &&
-    headings[0] !== parsed.data.title.trim()
-  ) {
-    errors.push('본문의 H1과 frontmatter의 title이 다릅니다.');
   }
 
   errors.push(...inspectFootnotes(fences.visibleContent));

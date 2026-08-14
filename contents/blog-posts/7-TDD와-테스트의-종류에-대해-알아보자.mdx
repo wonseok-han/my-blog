@@ -6,7 +6,7 @@ category: 'Development'
 tags: ['TDD', 'Testing', 'Unit Test', 'Integration Test', 'E2E Test', 'Test-Driven Development', 'Software Testing', 'Quality Assurance']
 ---
 
-# Overview
+## Overview
 
 요즘 채용 공고들을 보면 테스트 코드 작성 경험이 있는지 TDD 경험이 있는지를 요구하는 경우가 엄청 많아졌다.
 
@@ -18,7 +18,7 @@ tags: ['TDD', 'Testing', 'Unit Test', 'Integration Test', 'E2E Test', 'Test-Driv
 <br />
 <br />
 
-# TDD(Test-Driven Development)가 뭐지?
+## TDD(Test-Driven Development)가 뭐지?
 
 TDD는 우리 말로 풀어쓰면 `테스트 주도 개발 방법론(Test-Driven Development, TDD)`이다. 간단하게 말하면 개발하면서 테스트 코드 작성을 위주로 개발하겠다라는 얘기다.
 
@@ -26,7 +26,7 @@ TDD는 우리 말로 풀어쓰면 `테스트 주도 개발 방법론(Test-Driven
 
 <br />
 
-## 프로세스
+### 프로세스
 
 TDD를 채택하고 개발할 때 절차는 다음과 같고, 아래 절차를 개발이 완료될 때까지 무한 반복한다.
 
@@ -38,21 +38,21 @@ TDD를 채택하고 개발할 때 절차는 다음과 같고, 아래 절차를 �
 
 <br />
 
-## 장점
+### 장점
 
 * 코드 품질이 우수해진다. 테스트를 그렇게 돌려대는데 안좋은게 이상할거같긴하다.
 * 유지보수가 쉬워진다. 명확하게 개발해야할 기능이 있을 때 그 기능에 대한 테스트 케이스가 이미 모두 있을테니 코드 리팩토링도 쉬워진다.
 
 <br />
 
-## 단점
+### 단점
 
 * 개발 생산성이 저하된다. 테스트 코드를 먼저 작성하면서 개발해야 하기 때문에 개발 속도가 느려질 수밖에 없다.
 * 그냥 어렵다. 테스트 코드를 작성하는데도 생각할게 많고 테스트 코드를 작성하기 위한 설계도 필요하다.
 
 <br />
 
-## 솔직한 내 생각
+### 솔직한 내 생각
 
 SI에 종사하고 있다면 그냥 안하는게 낫다고 생각된다. 납기가 중요한 SI 특성상 테스트 코드까지 작성할 여력이 없다. <del>(애초에 개발 기간을 충분히 주는 곳을 본적이 없다.)</del>
 
@@ -70,13 +70,13 @@ DB에 저장되있는 무슨 코드 값이 뭐일 때는 이렇게 돌아가고,
 <br />
 <br />
 
-# 테스트 종류
+## 테스트 종류
 
 * 테스트에도 크고 작은 레벨의 테스트를 위한 여러 테스트가 있다. 그 종류에 대해 알아보자
 
 <br />
 
-## 단위 테스트 (Unit Test)
+### 단위 테스트 (Unit Test)
 
 가장 작은 단위의 모듈 또는 기능을 테스트하는 단계이다.
 즉, 의존성을 가지는 다른 기능과 연계해서 테스트하는게 아니라 단 하나의 기능 단위만을 보고 독립적으로 동작이 잘 되는지를 테스트하는 것이다.
@@ -85,7 +85,7 @@ DB에 저장되있는 무슨 코드 값이 뭐일 때는 이렇게 돌아가고,
 
 <br />
 
-## 통합 테스트 (Integration Test)
+### 통합 테스트 (Integration Test)
 
 가장 작은 단위의 모듈 또는 기능을 통합해서 기능끼리 연계되는 여러 단위를 검증하기 위해 테스트하는 단계이다.
 즉, 각각의 비즈니스 로직이 올바르게 동작하기 위한 기능들의 묶음을 시나리오화해서 정상 동작되는지를 테스트하는 것이다.
@@ -94,7 +94,7 @@ DB에 저장되있는 무슨 코드 값이 뭐일 때는 이렇게 돌아가고,
 
 <br />
 
-## e2e 테스트 (End-To-End Test)
+### e2e 테스트 (End-To-End Test)
 
 애플리케이션의 처음부터 끝까지에 대한 전체 흐름을 테스트하는 단계이다.
 즉, 통합 테스트가 단위 테스트의 묶음이듯이 e2e 테스트는 통합 테스트의 묶음이다.
@@ -105,7 +105,7 @@ DB에 저장되있는 무슨 코드 값이 뭐일 때는 이렇게 돌아가고,
 <br />
 <br />
 
-# Reference
+## Reference
 
 * [https://f-lab.kr/insight/understanding-and-practicing-tdd](https://f-lab.kr/insight/understanding-and-practicing-tdd)
 * [https://inpa.tistory.com/entry/QA-%F0%9F%93%9A-TDD-%EB%B0%A9%EB%B2%95%EB%A1%A0-%ED%85%8C%EC%8A%A4%ED%8A%B8-%EC%A3%BC%EB%8F%84-%EA%B0%9C%EB%B0%9C](https://inpa.tistory.com/entry/QA-%F0%9F%93%9A-TDD-%EB%B0%A9%EB%B2%95%EB%A1%A0-%ED%85%8C%EC%8A%A4%ED%8A%B8-%EC%A3%BC%EB%8F%84-%EA%B0%9C%EB%B0%9C)

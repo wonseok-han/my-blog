@@ -6,7 +6,7 @@ category: 'Development'
 tags: ['npm', 'CLI', 'TypeScript', 'Node.js', 'Deploy']
 ---
 
-# Overview
+## Overview
 
 개발을 하다 보면 매번 반복되는 작업들이 있다. 내 경우에는 폴더 내의 파일들을 스캔해서 `index.ts` 파일을 생성하고 export 문을 작성하는 작업이 그랬다. 이 귀찮음을 해결하기 위해 **[indexgen-cli](https://github.com/wonseok-han/indexgen-cli)** 라는 CLI 도구를 만들었다.
 
@@ -15,9 +15,9 @@ tags: ['npm', 'CLI', 'TypeScript', 'Node.js', 'Deploy']
 <br />
 <br />
 
-# 사전 준비
+## 사전 준비
 
-## npm 계정 및 로그인
+### npm 계정 및 로그인
 
 배포를 위해서는 npm 계정이 필요하다. 계정이 없다면 [npmjs.com](https://www.npmjs.com/)에서 생성 후 터미널에서 로그인한다.
 
@@ -29,9 +29,9 @@ npm whoami # 로그인 확인
 <br />
 <br />
 
-# 프로젝트 설정
+## 프로젝트 설정
 
-## 프로젝트 생성
+### 프로젝트 생성
 
 ```bash
 mkdir indexgen-cli
@@ -39,7 +39,7 @@ cd indexgen-cli
 npm init -y
 ```
 
-## TypeScript 설치
+### TypeScript 설치
 
 외부 런타임 라이브러리(`dependencies`) 없이, 개발에 필요한 도구(`devDependencies`)만 설치한다.
 
@@ -47,7 +47,7 @@ npm init -y
 npm install -D typescript @types/node
 ```
 
-## tsconfig.json 설정
+### tsconfig.json 설정
 
 CLI 도구 실행 환경에 맞춰 설정을 진행한다.
 
@@ -77,11 +77,11 @@ npx tsc --init
 <br />
 <br />
 
-# CLI 코드 작성
+## CLI 코드 작성
 
 라이브러리를 쓰지 않으므로 `process.argv`를 통해 직접 사용자의 입력을 받아 처리한다.
 
-## 진입점 파일 생성 (src/index.ts)
+### 진입점 파일 생성 (src/index.ts)
 
 파일 최상단의 **Shebang(`#!/usr/bin/env node`)** 은 이 파일이 Node.js로 실행되어야 함을 운영체제에 알려주는 필수 요소다.
 
@@ -122,7 +122,7 @@ main();
 <br />
 <br />
 
-# package.json 설정 (핵심)
+## package.json 설정 (핵심)
 
 CLI 도구 배포에서 가장 중요한 **`bin`** 필드 설정이다.
 
@@ -164,9 +164,9 @@ CLI 도구 배포에서 가장 중요한 **`bin`** 필드 설정이다.
 <br />
 <br />
 
-# 로컬 테스트 및 배포
+## 로컬 테스트 및 배포
 
-## 로컬 링크 (`npm link`)
+### 로컬 링크 (`npm link`)
 
 배포 전에 내 컴퓨터에서 마치 전역 패키지처럼 실행해볼 수 있다.
 
@@ -185,7 +185,7 @@ indexgen-cli
 npm unlink -g indexgen-cli
 ```
 
-## npm 배포하기
+### npm 배포하기
 
 ```bash
 npm publish
@@ -200,7 +200,7 @@ npx indexgen-cli
 <br />
 <br />
 
-# 버전 관리
+## 버전 관리
 
 기능 수정 후에는 버전을 올리고 재배포해야 한다.
 
@@ -215,7 +215,7 @@ npm publish
 <br />
 <br />
 
-# 마무리
+## 마무리
 
 거창한 라이브러리 없이도 Node.js의 기본 기능만으로 충분히 강력한 CLI 도구를 만들 수 있다. 오히려 의존성이 없어 관리가 쉽고 가볍다는 장점이 있다.
 

@@ -6,7 +6,7 @@ category: 'Development'
 tags: ['Figma', 'Vercel', 'v0', 'AI', 'Design', 'Frontend', 'UI', 'No-Code']
 ---
 
-# Overview
+## Overview
 
 최근 AI 기술의 발전으로 디자인과 개발 프로세스를 혁신적으로 변화시키는 도구들이 등장하고 있다. 그 중에서도 **Figma Make**와 **Vercel v0**는 AI를 활용해 디자인에서 코드로의 전환을 자동화하는 대표적인 도구다.
 
@@ -15,23 +15,23 @@ tags: ['Figma', 'Vercel', 'v0', 'AI', 'Design', 'Frontend', 'UI', 'No-Code']
 <br />
 <br />
 
-# Figma Make와 Vercel v0란?
+## Figma Make와 Vercel v0란?
 
-## Figma Make
+### Figma Make
 
 **Figma Make**는 Figma에서 제공하는 AI 기반 디자인-코드 생성 도구다. 텍스트 프롬프트를 입력하면 AI가 즉시 React 컴포넌트를 생성해준다.
 
-### 주요 특징
+#### 주요 특징
 - 프롬프트 기반 UI 생성
 - 실시간 프리뷰 및 수정
 - React, Tailwind CSS 기반 반응형 코드
 - 인터페이스를 통한 수정 기능 지원 X
 
-## Vercel v0
+### Vercel v0
 
 **Vercel v0**는 Vercel에서 개발한 AI 기반 UI 생성 도구다. 텍스트 프롬프트나 이미지를 입력하면 AI가 즉시 React 컴포넌트를 생성해준다.
 
-### 주요 특징
+#### 주요 특징
 - 프롬프트 기반 UI 생성
 - 실시간 프리뷰 및 수정
 - React, Tailwind CSS 기반 반응형 코드
@@ -40,25 +40,25 @@ tags: ['Figma', 'Vercel', 'v0', 'AI', 'Design', 'Frontend', 'UI', 'No-Code']
 <br />
 <br />
 
-# 주요 기능 비교
+## 주요 기능 비교
 
-## 입력 방식
+### 입력 방식
 
 - **프롬프트 기반**: 자연어로 원하는 UI 설명
 - **이미지 업로드**: 스케치나 스크린샷에서 UI 생성
 - **대화형 개선**: AI와 대화하며 반복적으로 개선
 
-## 출력 코드 품질
+### 출력 코드 품질
 
 Figma Make와 Vercel v0 모두 동일한 프롬프트를 제공했을 때 출력된 코드는 다음과 같다.
 
-### 입력 프롬프트
+#### 입력 프롬프트
 
 ```plaintext
 TO LIST 앱을 생성하고싶어
 ```
 
-### Figma Make
+#### Figma Make
 
 - tailwindcss 기반
 - lucide-react 사용
@@ -114,7 +114,7 @@ export function TodoItem({ todo, onToggle, onDelete }: TodoItemProps) {
 }
 ```
 
-### Vercel v0
+#### Vercel v0
 
 - tailwindcss 기반
 - lucide-react 사용
@@ -166,7 +166,7 @@ export function TodoItem({ todo, onToggle, onDelete }: TodoItemProps) {
 <br />
 <br />
 
-# 비교
+## 비교
 
 ### 동일한 점
 
@@ -194,9 +194,9 @@ export function TodoItem({ todo, onToggle, onDelete }: TodoItemProps) {
 <br />
 <br />
 
-# TODO List 앱을 두 도구로 생성했을 때 결과
+## TODO List 앱을 두 도구로 생성했을 때 결과
 
-## Figma Make
+### Figma Make
 
 다음과 같이 불필요한 컴포넌트들이 생성되고, import 문에 잘못된 문법이 있을 수 있음
 
@@ -204,7 +204,7 @@ export function TodoItem({ todo, onToggle, onDelete }: TodoItemProps) {
 
 ![figma-todo](/images/blog-posts/13-figma-make-vs-vercel-v0/figma-todo.png)
 
-## Vercel v0
+### Vercel v0
 
 다음과 같이 컴팩트하게 필요한 컴포넌트들만 구현되고, import 문에 잘못된 문법이 없음
 
@@ -215,7 +215,7 @@ export function TodoItem({ todo, onToggle, onDelete }: TodoItemProps) {
 <br />
 <br />
 
-# 마무리
+## 마무리
 
 Figma Make와 Vercel v0를 비교해보았다.
 
@@ -253,4 +253,3 @@ Figma Make와 Vercel v0를 비교해보았다.
 **참고 자료**
 - [Figma Make](https://www.figma.com/make)
 - [Vercel v0](https://v0.app)
-
