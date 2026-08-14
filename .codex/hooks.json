@@ -1,36 +1,14 @@
 {
-  "description": "작성된 블로그 포스트를 턴 종료 전에 자동 검토합니다.",
+  "description": "블로그 작성 요청을 LangGraph 워크플로에 전달합니다.",
   "hooks": {
     "UserPromptSubmit": [
       {
         "hooks": [
           {
             "type": "command",
-            "command": "node \"$(git rev-parse --show-toplevel)/.codex/hooks/blog_snapshot.mjs\"",
-            "statusMessage": "블로그 포스트의 시작 상태를 기록하는 중"
-          }
-        ]
-      }
-    ],
-    "Stop": [
-      {
-        "hooks": [
-          {
-            "type": "command",
-            "command": "node \"$(git rev-parse --show-toplevel)/.codex/hooks/blog_review.mjs\"",
-            "statusMessage": "변경된 블로그 포스트를 확인하는 중"
-          }
-        ]
-      }
-    ],
-    "SubagentStop": [
-      {
-        "matcher": "blog_fact_reviewer|blog_flow_reviewer|blog_content_reviewer|blog_editor",
-        "hooks": [
-          {
-            "type": "command",
-            "command": "node \"$(git rev-parse --show-toplevel)/.codex/hooks/blog_review_capture.mjs\"",
-            "statusMessage": "블로그 검토 결과를 기록하는 중"
+            "command": "node \"$(git rev-parse --show-toplevel)/.codex/hooks/blog_workflow_entry.mjs\"",
+            "statusMessage": "블로그 워크플로 진입점을 준비하는 중",
+            "additionalContextLimit": 500
           }
         ]
       }

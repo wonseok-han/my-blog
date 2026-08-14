@@ -44,4 +44,5 @@ public/workbox-*
 public/worker
 
 git-metadata.json
-/.codex/blog-review-graph.html
+/.codex/blog-workflow-graph.html
+/.codex/blog-workflow-request.json
